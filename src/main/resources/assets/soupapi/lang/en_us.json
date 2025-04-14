@@ -13,10 +13,14 @@
 
   "text.autoconfig.soupapi.category.trails": "Trails",
   "text.autoconfig.soupapi.option.trailsEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.trailsRenderHalf": "Render Half",
+  "text.autoconfig.soupapi.option.trailsForGliders": "For Gliders",
   "text.autoconfig.soupapi.option.trailsLenght": "Lenght",
+  "text.autoconfig.soupapi.option.trailsHeight": "Height",
 
   "text.autoconfig.soupapi.category.china_hat": "China Hat",
   "text.autoconfig.soupapi.option.chinaHatEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.chinaHatRenderHalf": "Render Half",
 
   "text.autoconfig.soupapi.category.jump_circles": "Jump Circles",
   "text.autoconfig.soupapi.option.jumpCirclesEnabled": "Enabled",
@@ -27,6 +31,14 @@
   "text.autoconfig.soupapi.option.jumpCirclesScale": "Scale",
   "text.autoconfig.soupapi.option.jumpCirclesLiveTime": "Live Time",
   "text.autoconfig.soupapi.option.jumpCirclesSpinSpeed": "Spin Speed",
+
+  "text.autoconfig.soupapi.category.ambient_particles": "Ambient Particles",
+  "text.autoconfig.soupapi.option.ambientParticlesEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.ambientParticlesLiveTime.@PrefixText": "Live logic",
+  "text.autoconfig.soupapi.option.ambientParticlesLiveTime": "Live Time",
+  "text.autoconfig.soupapi.option.ambientParticlesMaxCount": "Max Count",
+  "text.autoconfig.soupapi.option.ambientParticlesSpawnRadius": "Spawn Radius",
+  "text.autoconfig.soupapi.option.ambientParticlesIgnoreSpawnRadius": "Ignoring Radius",
 
   "text.autoconfig.soupapi.category.target_render": "Target Render",
   "text.autoconfig.soupapi.option.targetRenderEnabled": "Enabled",
@@ -42,6 +54,12 @@
   "text.autoconfig.soupapi.option.targetHudOffsetX.@PrefixText": "Position Offset",
   "text.autoconfig.soupapi.option.targetHudOffsetX": "Offset X",
   "text.autoconfig.soupapi.option.targetHudOffsetY": "Offset Y",
+
+  "text.autoconfig.soupapi.category.hud": "HUD",
+  "text.autoconfig.soupapi.option.hudBetterHotbarEnabled.@PrefixText": "Hotbar",
+  "text.autoconfig.soupapi.option.hudBetterHotbarEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.hudBetterHotbarShowArmor": "Show Armor",
+  "text.autoconfig.soupapi.option.hudBetterHotbarStyle": "Style",
 
   "": ""
 }
