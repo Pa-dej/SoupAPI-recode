@@ -8,9 +8,6 @@ import me.Padej_.soupapi.utils.Palette;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
-
-import java.awt.*;
-
 @Config(name = "soupapi")
 public class SoupAPI_Config implements ConfigData {
 
