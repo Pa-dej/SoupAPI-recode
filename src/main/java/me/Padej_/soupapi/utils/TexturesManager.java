@@ -24,7 +24,9 @@ public class TexturesManager extends ConfigurableModule {
     private static final Identifier MARKER = Identifier.of("soupapi", "textures/marker.png");
 
     public static final Identifier FIREFLY = Identifier.of("soupapi", "textures/firefly.png"); // Thunder Hack, thx :3
+    public static final Identifier FIREFLY_GLOW = Identifier.of("soupapi", "textures/firefly_glow.png");
     public static final Identifier FIREFLY_ALT = Identifier.of("soupapi", "textures/firefly_alt.png");
+    public static final Identifier FIREFLY_ALT_GLOW = Identifier.of("soupapi", "textures/firefly_alt_glow.png");
 
     public static final Identifier ANON_SKIN = Identifier.of("soupapi", "textures/anon_skin.png");
 

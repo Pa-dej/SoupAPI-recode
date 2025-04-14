@@ -76,6 +76,22 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = -3, max = 3)
     public int jumpCirclesSpinSpeed = 1;
 
+    @ConfigEntry.Category("ambient_particles")
+    public boolean ambientParticlesEnabled = false;
+    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Category("ambient_particles")
+    @ConfigEntry.BoundedDiscrete(min = 50, max = 200)
+    public int ambientParticlesLiveTime = 100;
+    @ConfigEntry.Category("ambient_particles")
+    @ConfigEntry.BoundedDiscrete(min = 5, max = 150)
+    public int ambientParticlesMaxCount = 65;
+    @ConfigEntry.Category("ambient_particles")
+    @ConfigEntry.BoundedDiscrete(min = 4, max = 30)
+    public int ambientParticlesSpawnRadius = 20;
+    @ConfigEntry.Category("ambient_particles")
+    @ConfigEntry.BoundedDiscrete(min = 2, max = 15)
+    public int ambientParticlesIgnoreSpawnRadius = 10;
+
     @ConfigEntry.Category("target_render")
     public boolean targetRenderEnabled = false;
     @ConfigEntry.Category("target_render")

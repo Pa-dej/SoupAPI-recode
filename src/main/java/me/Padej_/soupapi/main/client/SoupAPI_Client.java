@@ -1,9 +1,6 @@
 package me.Padej_.soupapi.main.client;
 
-import me.Padej_.soupapi.modules.JumpCircles;
-import me.Padej_.soupapi.modules.TargetHud;
-import me.Padej_.soupapi.modules.TargetRender;
-import me.Padej_.soupapi.modules.Trails;
+import me.Padej_.soupapi.modules.*;
 import me.Padej_.soupapi.utils.EntityUtils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -42,12 +39,14 @@ public class SoupAPI_Client implements ClientModInitializer {
         Trails.onTick();
         JumpCircles.onTick();
         TargetHud.onTick();
+        AmbientParticle.onTick();
     }
 
     private void doRenderAfterEntities(WorldRenderContext context) {
         Trails.renderTrail(context);
         JumpCircles.renderCircles(context);
         TargetRender.renderTarget(context);
+        AmbientParticle.renderParticlesInWorld(context);
     }
 
     private void doRenderLast(WorldRenderContext context) {
