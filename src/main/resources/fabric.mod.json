@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "soupapi",
+  "version": "1.3.7",
+  "name": "SoupAPI",
+  "description": "The base library",
+  "authors": ["Padej_"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/soupapi/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "me.Padej_.soupapi.main.client.SoupAPI_Client"
+    ],
+    "main": [
+      "me.Padej_.soupapi.main.SoupAPI_Main"
+    ],
+    "modmenu": [
+      "me.Padej_.soupapi.config.ModMenuInit"
+    ]
+  },
+  "mixins": [
+    "soupapi.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

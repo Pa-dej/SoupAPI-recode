@@ -1,0 +1,47 @@
+{
+  "text.autoconfig.soupapi.title": "§lSoupAPI settings",
+
+  "text.autoconfig.soupapi.option.friends.@PrefixText": "Friends",
+  "text.autoconfig.soupapi.option.friends": "Friends List",
+  "text.autoconfig.soupapi.option.paletteStyle.@PrefixText": "Palette Settings",
+  "text.autoconfig.soupapi.category.main": "Main",
+  "text.autoconfig.soupapi.option.paletteStyle": "Palette Style",
+  "text.autoconfig.soupapi.option.c1": "Color 1",
+  "text.autoconfig.soupapi.option.c2": "Color 2",
+  "text.autoconfig.soupapi.option.c3": "Color 3",
+  "text.autoconfig.soupapi.option.c4": "Color 4",
+
+  "text.autoconfig.soupapi.category.trails": "Trails",
+  "text.autoconfig.soupapi.option.trailsEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.trailsLenght": "Lenght",
+
+  "text.autoconfig.soupapi.category.china_hat": "China Hat",
+  "text.autoconfig.soupapi.option.chinaHatEnabled": "Enabled",
+
+  "text.autoconfig.soupapi.category.jump_circles": "Jump Circles",
+  "text.autoconfig.soupapi.option.jumpCirclesEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.jumpCirclesStyle": "Style",
+  "text.autoconfig.soupapi.option.jumpCirclesAlpha": "Alpha",
+  "text.autoconfig.soupapi.option.jumpCirclesColorSpinSpeed": "Color Spin Speed",
+  "text.autoconfig.soupapi.option.jumpCirclesScale.@PrefixText": "Physic Settings",
+  "text.autoconfig.soupapi.option.jumpCirclesScale": "Scale",
+  "text.autoconfig.soupapi.option.jumpCirclesLiveTime": "Live Time",
+  "text.autoconfig.soupapi.option.jumpCirclesSpinSpeed": "Spin Speed",
+
+  "text.autoconfig.soupapi.category.target_render": "Target Render",
+  "text.autoconfig.soupapi.option.targetRenderEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.targetRenderStyle": "Target Render Style",
+  "text.autoconfig.soupapi.option.targetRenderLegacyTexture": "Texture for LEGACY style",
+  "text.autoconfig.soupapi.option.targetRenderScale.@PrefixText": "Detail",
+  "text.autoconfig.soupapi.option.targetRenderScale": "Render Scale",
+
+  "text.autoconfig.soupapi.category.target_hud": "Target HUD",
+  "text.autoconfig.soupapi.option.targetHudEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.targetHudStyle": "Style",
+  "text.autoconfig.soupapi.option.targetHudRenderTime": "Live Time",
+  "text.autoconfig.soupapi.option.targetHudOffsetX.@PrefixText": "Position Offset",
+  "text.autoconfig.soupapi.option.targetHudOffsetX": "Offset X",
+  "text.autoconfig.soupapi.option.targetHudOffsetY": "Offset Y",
+
+  "": ""
+}

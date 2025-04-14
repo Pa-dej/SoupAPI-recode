@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.Padej_.soupapi.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "inject.RegisterEntityTrails"
+  ],
+  "client": [
+    "access.NativeImageAccessor",
+    "inject.FontRegistrier",
+    "inject.GameRendererMixin",
+    "inject.InGameHudMixin",
+    "overwrite.HeadFeatureRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
