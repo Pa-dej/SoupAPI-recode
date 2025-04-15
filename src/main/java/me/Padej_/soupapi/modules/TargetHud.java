@@ -60,6 +60,16 @@ public class TargetHud extends ConfigurableModule {
         } else if (hudTimer > 0) {
             hudTimer--; // Уменьшаем таймер, если цели нет
         }
+
+        // Обновляем прогресс анимации цветов
+        colorAnimationProgress = (colorAnimationProgress + colorAnimationSpeed) % 1.0f;
+        hpColorAnimationProgress = (hpColorAnimationProgress + colorAnimationSpeed / 2) % 1.0f;
+
+        // Плавная интерполяция здоровья
+        if (lastTarget instanceof PlayerEntity) {
+            float targetHealth = Math.min(lastTarget.getMaxHealth(), getHealth());
+            displayedHealth = MathHelper.lerp(healthChangeSpeed, displayedHealth, targetHealth);
+        }
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
@@ -74,15 +84,8 @@ public class TargetHud extends ConfigurableModule {
             hudScale = MathHelper.lerp(tickDelta * scaleSpeed, hudScale, 0.0f);
         }
 
-        // Обновляем прогресс анимации цветов
-        colorAnimationProgress = (colorAnimationProgress + tickDelta * colorAnimationSpeed) % 1.0f;
-        hpColorAnimationProgress = (hpColorAnimationProgress + tickDelta * colorAnimationSpeed / 2) % 1.0f;
-
         // Рендерим HUD, если масштаб > 0 и есть последняя цель
         if (hudScale > 0 && lastTarget instanceof PlayerEntity) {
-            float targetHealth = Math.min(lastTarget.getMaxHealth(), getHealth());
-            displayedHealth = MathHelper.lerp(tickDelta * healthChangeSpeed, displayedHealth, targetHealth);
-
             int x = context.getScaledWindowWidth() / 2 + CONFIG.targetHudOffsetX;
             int y = context.getScaledWindowHeight() / 2 - CONFIG.targetHudOffsetY;
 
@@ -253,7 +256,7 @@ public class TargetHud extends ConfigurableModule {
 
         // Текст и предметы остаются без изменений
         FontRenderers.sf_bold_mini.drawCenteredString(context.getMatrices(), String.valueOf(Math.round(10.0 * health) / 10.0), x + 65, y + 27f, Render2D.applyOpacity(Colors.WHITE, animationFactor));
-        FontRenderers.sf_bold_mini.drawString(context.getMatrices(), displayName, x + 38, y + 5, Render2D.applyOpacity(Colors.WHITE, animationFactor));;
+        FontRenderers.sf_bold_mini.drawString(context.getMatrices(), displayName, x + 38, y + 5, Render2D.applyOpacity(Colors.WHITE, animationFactor));
 
         RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
         java.util.List<ItemStack> armor = target.getInventory().armor;

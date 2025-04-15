@@ -11,6 +11,6 @@ public class ServerReduce extends ConfigurableModule {
         String ip = mc.getNetworkHandler().getServerInfo().address.toLowerCase();
         return
                 !ip.contains("minefun") &&
-                        !ip.contains("mineblaze"); // test
+                !ip.contains("mineblaze"); // test
     }
 }

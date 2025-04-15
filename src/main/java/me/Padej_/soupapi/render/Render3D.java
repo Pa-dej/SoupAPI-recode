@@ -1,9 +1,9 @@
 package me.Padej_.soupapi.render;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.main.SoupAPI_Main;
+import me.Padej_.soupapi.modules.TargetRender;
 import me.Padej_.soupapi.utils.EntityUtils;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
@@ -84,7 +84,6 @@ public class Render3D extends ConfigurableModule {
         float redTip = colorTip.getRed() / 255f;
         float greenTip = colorTip.getGreen() / 255f;
         float blueTip = colorTip.getBlue() / 255f;
-        float tipAlpha = isHalf ? alpha : alpha; // Вершина сохраняет полную прозрачность
 
         // Рисуем конус
         for (int i = 0; i < segments; i++) {
@@ -111,7 +110,7 @@ public class Render3D extends ConfigurableModule {
                     .color(red2, green2, blue2, isHalf ? alpha2 : alpha)
                     .normal(0, -1, 0);
             vertexConsumer.vertex(matrix, tipX, 0.0F, tipZ)
-                    .color(redTip, greenTip, blueTip, tipAlpha)
+                    .color(redTip, greenTip, blueTip, alpha)
                     .normal(0, -1, 0);
 
             // Вторая грань (для заполнения обратной стороны)
@@ -122,7 +121,7 @@ public class Render3D extends ConfigurableModule {
                     .color(red1, green1, blue1, isHalf ? alpha1 : alpha)
                     .normal(0, -1, 0);
             vertexConsumer.vertex(matrix, tipX, 0.0F, tipZ)
-                    .color(redTip, greenTip, blueTip, tipAlpha)
+                    .color(redTip, greenTip, blueTip, alpha)
                     .normal(0, -1, 0);
         }
     }
@@ -140,7 +139,7 @@ public class Render3D extends ConfigurableModule {
 
     private static void renderTarget(MatrixStack modelMatrix, Camera camera, float tickDelta, Entity targetEntity, float rollAngle) {
         VertexConsumerProvider.Immediate vertexConsumerProvider = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-        VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer((RenderLayer) CustomRenderLayers.QUAD_IN_BLOCKS.apply(TexturesManager.getTargetRenderTexture()));
+        VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(CustomRenderLayers.QUAD_IN_BLOCKS.apply(TexturesManager.getTargetRenderTexture()));
         if (targetEntity != null) {
             Vec3d transformedPos = calculateEntityPositionRelativeToCamera(camera, tickDelta, targetEntity);
             modelMatrix.push();
@@ -159,7 +158,7 @@ public class Render3D extends ConfigurableModule {
 
     private static void drawTargetQuad(VertexConsumer vertexConsumer, MatrixStack modelMatrix) {
         Matrix4f matrix = modelMatrix.peek().getPositionMatrix();
-        float halfSize = (CONFIG.targetRenderScale / 50f) / 2.0F;
+        float halfSize = (CONFIG.targetRenderLegacyScale / 50f) / 2.0F;
         float alpha = 1.0F;
 
         float time = MinecraftClient.getInstance().world.getTime() % 360;
@@ -233,8 +232,11 @@ public class Render3D extends ConfigurableModule {
 
         Matrix4f baseMatrix = matrices.peek().getPositionMatrix();
 
+        RenderSystem.disableDepthTest();
         RenderSystem.enableBlend();
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
+//        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR); // smoke
+//        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE); // plazma
+        TargetRender.TargetRenderSoulStyle.setupBlendFunc();
         RenderSystem.setShaderTexture(0, TexturesManager.FIREFLY);
         RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
         BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
@@ -285,11 +287,16 @@ public class Render3D extends ConfigurableModule {
         }
 
         BufferRenderer.drawWithGlobalProgram(buffer.end());
-        RenderSystem.enableDepthTest();
+
+        RenderSystem.depthMask(true);
+        RenderSystem.disableDepthTest();
+
         RenderSystem.disableBlend();
+        RenderSystem.defaultBlendFunc();
 
         matrices.pop();
     }
+
 
     public static void drawSpiralsEsp(MatrixStack stack, @NotNull Entity target) {
         MinecraftClient mc = MinecraftClient.getInstance();

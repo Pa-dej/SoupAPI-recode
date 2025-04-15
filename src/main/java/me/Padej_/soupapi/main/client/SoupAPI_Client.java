@@ -1,6 +1,7 @@
 package me.Padej_.soupapi.main.client;
 
 import me.Padej_.soupapi.modules.*;
+import me.Padej_.soupapi.screen.ConfigScreen;
 import me.Padej_.soupapi.utils.EntityUtils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -40,16 +41,21 @@ public class SoupAPI_Client implements ClientModInitializer {
         JumpCircles.onTick();
         TargetHud.onTick();
         AmbientParticle.onTick();
+        TargetRender.onTick();
+
+        if (MinecraftClient.getInstance().options.sprintKey.isPressed()) {
+            MinecraftClient.getInstance().setScreen(new ConfigScreen());
+        }
     }
 
     private void doRenderAfterEntities(WorldRenderContext context) {
         Trails.renderTrail(context);
         JumpCircles.renderCircles(context);
-        TargetRender.renderTarget(context);
         AmbientParticle.renderParticlesInWorld(context);
     }
 
     private void doRenderLast(WorldRenderContext context) {
+        TargetRender.renderTarget(context);
         TargetRender.renderTargetLegacy(context);
     }
 

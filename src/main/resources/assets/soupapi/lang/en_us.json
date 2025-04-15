@@ -44,8 +44,6 @@
   "text.autoconfig.soupapi.option.targetRenderEnabled": "Enabled",
   "text.autoconfig.soupapi.option.targetRenderStyle": "Target Render Style",
   "text.autoconfig.soupapi.option.targetRenderLegacyTexture": "Texture for LEGACY style",
-  "text.autoconfig.soupapi.option.targetRenderScale.@PrefixText": "Detail",
-  "text.autoconfig.soupapi.option.targetRenderScale": "Render Scale",
 
   "text.autoconfig.soupapi.category.target_hud": "Target HUD",
   "text.autoconfig.soupapi.option.targetHudEnabled": "Enabled",

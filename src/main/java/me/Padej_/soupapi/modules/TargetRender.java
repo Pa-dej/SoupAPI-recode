@@ -1,5 +1,7 @@
 package me.Padej_.soupapi.modules;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.render.Render3D;
 import me.Padej_.soupapi.utils.EntityUtils;
@@ -29,25 +31,30 @@ public class TargetRender extends ConfigurableModule {
 
     public static void renderTargetLegacy(WorldRenderContext context) {
         if (!CONFIG.targetRenderStyle.equals(TargetRenderStyle.LEGACY)) return;
-        float rollSpeed = 1;
+        Render3D.renderTargetSelection(context.matrixStack(), context.camera(), context.tickCounter().getTickDelta(true), rollAngle);
+    }
+
+    public static void onTick() {
+        if (!CONFIG.targetRenderStyle.equals(TargetRenderStyle.LEGACY)) return;
+        float rollSpeed = CONFIG.targetRenderLegacyRollSpeed;
+
         float stiffness = 0.08f;
         float damping = 0.98f;
         float minSpeed = 0.3f;
-        float maxSpeed = 2;
-        float tickDelta = context.tickCounter().getTickDelta(true);
+        float maxSpeed = 2.0f;
 
         float distanceToEdge = increasing ? 360 - targetRollAngle : targetRollAngle;
         float acceleration = stiffness * distanceToEdge;
         rollSpeed = Math.min(maxSpeed, Math.max(minSpeed, rollSpeed * damping + acceleration));
 
         if (increasing) {
-            targetRollAngle += tickDelta * rollSpeed;
+            targetRollAngle += rollSpeed;
             if (targetRollAngle >= 360) {
                 targetRollAngle = 360;
                 increasing = false;
             }
         } else {
-            targetRollAngle -= tickDelta * rollSpeed;
+            targetRollAngle -= rollSpeed;
             if (targetRollAngle <= 0.0f) {
                 targetRollAngle = 0.0f;
                 increasing = true;
@@ -55,16 +62,12 @@ public class TargetRender extends ConfigurableModule {
         }
 
         rollAngle = MathHelper.lerp(0.05f, rollAngle, targetRollAngle);
-        Render3D.renderTargetSelection(context.matrixStack(), context.camera(), tickDelta, rollAngle);
-
     }
 
     public enum TargetRenderStyle {
         LEGACY,
         SOUL,
-        SPIRAL,
-        TOPKA
-        ;
+        SPIRAL
     }
 
     public enum TargetRenderLegacyTexture {
@@ -73,5 +76,25 @@ public class TargetRender extends ConfigurableModule {
         BO,
         SIMPLE,
         SCIFI
+    }
+
+    public enum TargetRenderSoulStyle {
+        SMOKE,
+        PLASMA;
+
+        public static void setupBlendFunc() {
+            switch (CONFIG.targetRenderSoulStyle) {
+                case SMOKE -> setSmoke();
+                case PLASMA -> setPlasma();
+            }
+        }
+
+        static void setSmoke() {
+            RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
+        }
+
+        static void setPlasma() {
+            RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
+        }
     }
 }

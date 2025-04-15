@@ -81,6 +81,38 @@ public abstract class InGameHudMixin {
     @Unique
     private static float hotbarColorAnimationProgress = 0f;
 
+    @Inject(method = "tick()V", at = @At("HEAD"))
+    private void onTick(CallbackInfo ci) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.player == null) return;
+
+        // Обновление прогресса анимации цветов
+        colorAnimationProgress = (colorAnimationProgress + colorAnimationSpeed) % 1.0f;
+        hpColorAnimationProgress = (hpColorAnimationProgress + colorAnimationSpeed / 2) % 1.0f;
+        hotbarColorAnimationProgress = (hotbarColorAnimationProgress + colorAnimationSpeed / 2) % 1.0f;
+
+        // Обновление значений для плавной интерполяции
+        float targetHealth = Math.min(mc.player.getMaxHealth() + mc.player.getAbsorptionAmount(),
+                mc.player.getHealth() + mc.player.getAbsorptionAmount());
+        if (displayedHealth == 0f) displayedHealth = targetHealth;
+        displayedHealth = MathHelper.lerp(healthChangeSpeed, displayedHealth, targetHealth);
+
+        HungerManager hungerManager = mc.player.getHungerManager();
+        float targetHunger = hungerManager.getFoodLevel() + hungerManager.getSaturationLevel();
+        if (displayedHunger == 0f) displayedHunger = targetHunger;
+        displayedHunger = MathHelper.lerp(healthChangeSpeed, displayedHunger, targetHunger);
+
+        // Обновление анимации слота
+        int currentSlot = mc.player.getInventory().selectedSlot;
+        if (currentSlot != targetSlot) {
+            lastSelectedSlot = targetSlot;
+            targetSlot = currentSlot;
+            selectedSlotProgress = 0f;
+        }
+        selectedSlotProgress = MathHelper.lerp(SLOT_ANIMATION_SPEED, selectedSlotProgress, 1.0f);
+        selectedSlotProgress = MathHelper.clamp(selectedSlotProgress, 0.0f, 1.0f);
+    }
+
     @Inject(method = "renderFood", at = @At("HEAD"), cancellable = true)
     private void renderCustomFoodBar(DrawContext context, PlayerEntity player, int top, int right, CallbackInfo ci) {
         boolean isLBStyle = CONFIG.hudBetterHotbarStyle.equals(BetterHudStyles.HotbarStyle.SIMPLE);
@@ -274,39 +306,6 @@ public abstract class InGameHudMixin {
     private void cancelRenderExperienceNumber(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         if (!CONFIG.hudBetterHotbarEnabled) return;
         ci.cancel();
-    }
-
-    @Inject(method = "render", at = @At("TAIL"))
-    private void render(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        if (!CONFIG.hudBetterHotbarEnabled) return;
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null) return;
-
-        float tickDelta = tickCounter.getTickDelta(true);
-
-        float targetHealth = Math.min(mc.player.getMaxHealth() + mc.player.getAbsorptionAmount(),
-                mc.player.getHealth() + mc.player.getAbsorptionAmount());
-        if (displayedHealth == 0f) displayedHealth = targetHealth;
-        displayedHealth = MathHelper.lerp(tickDelta * healthChangeSpeed, displayedHealth, targetHealth);
-
-        HungerManager hungerManager = mc.player.getHungerManager();
-        float targetHunger = hungerManager.getFoodLevel() + hungerManager.getSaturationLevel();
-        if (displayedHunger == 0f) displayedHunger = targetHunger;
-        displayedHunger = MathHelper.lerp(tickDelta * healthChangeSpeed, displayedHunger, targetHunger);
-
-        colorAnimationProgress = (colorAnimationProgress + tickDelta * colorAnimationSpeed) % 1.0f;
-        hpColorAnimationProgress = (hpColorAnimationProgress + tickDelta * colorAnimationSpeed / 2) % 1.0f;
-        hotbarColorAnimationProgress = (hotbarColorAnimationProgress + tickDelta * colorAnimationSpeed / 2) % 1.0f; // Вращение в 2 раза медленнее
-
-        // Обновление анимации слота
-        int currentSlot = mc.player.getInventory().selectedSlot;
-        if (currentSlot != targetSlot) {
-            lastSelectedSlot = targetSlot;
-            targetSlot = currentSlot;
-            selectedSlotProgress = 0f;
-        }
-        selectedSlotProgress = MathHelper.lerp(tickDelta * SLOT_ANIMATION_SPEED, selectedSlotProgress, 1.0f);
-        selectedSlotProgress = MathHelper.clamp(selectedSlotProgress, 0.0f, 1.0f);
     }
 
     @Inject(method = "renderHotbar", at = @At("HEAD"), cancellable = true)

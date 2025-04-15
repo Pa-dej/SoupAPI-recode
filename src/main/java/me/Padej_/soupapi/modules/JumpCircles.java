@@ -3,6 +3,7 @@ package me.Padej_.soupapi.modules;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
+import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.utils.ConfigUtils;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
@@ -112,11 +113,12 @@ public class JumpCircles extends ConfigurableModule {
             int glowAlpha = ConfigUtils.intPercentToHexInt(CONFIG.jumpCirclesAlpha);
             int liveTime = CONFIG.jumpCirclesLiveTime;
 
-            RenderSystem.disableDepthTest();
-            RenderSystem.disableCull();
             RenderSystem.enableBlend();
+            RenderSystem.disableDepthTest();
             RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
+
             RenderSystem.setShaderTexture(0, TexturesManager.getJumpCircleUnblack());
+
             RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
             BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 
@@ -164,12 +166,9 @@ public class JumpCircles extends ConfigurableModule {
 
             modelMatrix.pop();
 
-            BuiltBuffer builtBuffer = buffer.endNullable();
-            if (builtBuffer != null) BufferRenderer.drawWithGlobalProgram(builtBuffer);
+            Render2D.endBuilding(buffer);
             RenderSystem.disableBlend();
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-            RenderSystem.enableDepthTest();
-            RenderSystem.enableCull();
+            RenderSystem.defaultBlendFunc();
         }
     }
 

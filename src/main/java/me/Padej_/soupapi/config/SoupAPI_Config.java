@@ -8,10 +8,13 @@ import me.Padej_.soupapi.utils.Palette;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
+
 @Config(name = "soupapi")
 public class SoupAPI_Config implements ConfigData {
 
-    /** MAIN **/
+    /**
+     * MAIN
+     **/
     @ConfigEntry.Gui.PrefixText
     @ConfigEntry.Category("main")
     public String[] friends = {};
@@ -32,7 +35,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.ColorPicker
     public int c4 = 0x4361ee;
 
-    /** WORLD **/
+    /**
+     * TRAILS
+     **/
     @ConfigEntry.Category("trails")
     public boolean trailsEnabled = false;
     @ConfigEntry.Category("trails")
@@ -46,11 +51,17 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
     public int trailsHeight = 100;
 
+    /**
+     * CHINA HAT
+     **/
     @ConfigEntry.Category("china_hat")
     public boolean chinaHatEnabled = false;
     @ConfigEntry.Category("china_hat")
     public boolean chinaHatRenderHalf = false;
 
+    /**
+     * JUMP CIRCLES
+     **/
     @ConfigEntry.Category("jump_circles")
     public boolean jumpCirclesEnabled = false;
     @ConfigEntry.Category("jump_circles")
@@ -73,6 +84,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = -3, max = 3)
     public int jumpCirclesSpinSpeed = 1;
 
+    /**
+     * AMBIENT PARTICLES
+     **/
     @ConfigEntry.Category("ambient_particles")
     public boolean ambientParticlesEnabled = false;
     @ConfigEntry.Gui.PrefixText
@@ -89,20 +103,34 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 2, max = 15)
     public int ambientParticlesIgnoreSpawnRadius = 10;
 
+    /**
+     * TARGET RENDER
+     **/
     @ConfigEntry.Category("target_render")
     public boolean targetRenderEnabled = false;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetRender.TargetRenderStyle targetRenderStyle = TargetRender.TargetRenderStyle.LEGACY;
+
+    @ConfigEntry.Gui.PrefixText // legacy
     @ConfigEntry.Category("target_render")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetRender.TargetRenderLegacyTexture targetRenderLegacyTexture = TargetRender.TargetRenderLegacyTexture.LEGACY;
-    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = -5, max = 5)
+    public int targetRenderLegacyRollSpeed = 1;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
-    public int targetRenderScale = 60;
+    public int targetRenderLegacyScale = 60;
 
-    /** HUD **/
+    @ConfigEntry.Gui.PrefixText // soul
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public TargetRender.TargetRenderSoulStyle targetRenderSoulStyle = TargetRender.TargetRenderSoulStyle.SMOKE;
+
+    /**
+     * TARGET HUD
+     **/
     @ConfigEntry.Category("target_hud")
     public boolean targetHudEnabled = false;
     @ConfigEntry.Category("target_hud")
@@ -119,6 +147,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = -300, max = 300)
     public int targetHudOffsetY = 0;
 
+    /**
+     * HUD
+     **/
     @ConfigEntry.Gui.PrefixText
     @ConfigEntry.Category("hud")
     public boolean hudBetterHotbarEnabled = false;

@@ -6,4 +6,8 @@ import net.minecraft.client.MinecraftClient;
 public abstract class ConfigurableModule {
     public static final MinecraftClient mc = MinecraftClient.getInstance();
     public static final SoupAPI_Config CONFIG = SoupAPI_Main.configHolder.get();
+
+    public static void saveConfig() {
+        SoupAPI_Main.configHolder.save();
+    }
 }
