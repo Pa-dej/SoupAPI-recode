@@ -41,11 +41,6 @@ public class SoupAPI_Client implements ClientModInitializer {
         JumpCircles.onTick();
         TargetHud.onTick();
         AmbientParticle.onTick();
-        TargetRender.onTick();
-
-        if (MinecraftClient.getInstance().options.sprintKey.isPressed()) {
-            MinecraftClient.getInstance().setScreen(new ConfigScreen());
-        }
     }
 
     private void doRenderAfterEntities(WorldRenderContext context) {

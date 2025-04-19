@@ -464,6 +464,10 @@ public class TargetHud extends ConfigurableModule {
     }
 
     public enum TargetHUD_Style {
-        MINI, NORMAL,
+        MINI, NORMAL
+    }
+
+    public enum TargetHUD_ConfigPos {
+        CONFIG_POS
     }
 }

@@ -4,13 +4,16 @@
   "package": "me.Padej_.soupapi.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "inject.RegisterEntityTrails"
+    "inject.RegisterEntityTrails",
+    "inject.TestMixin"
   ],
   "client": [
     "access.NativeImageAccessor",
+    "inject.ButtonWidgetMixin",
     "inject.FontRegistrier",
     "inject.GameRendererMixin",
     "inject.InGameHudMixin",
+    "inject.ScreenMixin",
     "overwrite.HeadFeatureRendererMixin"
   ],
   "injectors": {

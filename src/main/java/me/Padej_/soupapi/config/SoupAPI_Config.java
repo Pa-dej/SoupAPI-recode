@@ -111,14 +111,17 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("target_render")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetRender.TargetRenderStyle targetRenderStyle = TargetRender.TargetRenderStyle.LEGACY;
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
+    public int targetRenderLiveTime = 0;
 
     @ConfigEntry.Gui.PrefixText // legacy
     @ConfigEntry.Category("target_render")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetRender.TargetRenderLegacyTexture targetRenderLegacyTexture = TargetRender.TargetRenderLegacyTexture.LEGACY;
     @ConfigEntry.Category("target_render")
-    @ConfigEntry.BoundedDiscrete(min = -5, max = 5)
-    public int targetRenderLegacyRollSpeed = 1;
+    @ConfigEntry.BoundedDiscrete(min = -100, max = 100)
+    public int targetRenderLegacyRollSpeed = 70;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
     public int targetRenderLegacyScale = 60;
@@ -127,6 +130,40 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("target_render")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetRender.TargetRenderSoulStyle targetRenderSoulStyle = TargetRender.TargetRenderSoulStyle.SMOKE;
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 4, max = 20)
+    public int targetRenderSoulLenght = 3;
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 5)
+    public int targetRenderSoulFactor = 3; // spin speed
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
+    public int targetRenderSoulAmplitude = 3;
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 200)
+    public int targetRenderSoulRadius = 100;
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 20, max = 100)
+    public int targetRenderSoulStartSize = 50;
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 20, max = 100)
+    public int targetRenderSoulEndSize = 20;
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
+    public int targetRenderSoulScale = 40;
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
+    public int targetRenderSoulSubdivision = 3;
+
+    // spiral
+
+    @ConfigEntry.Gui.PrefixText // topka
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 30, max = 70)
+    public int targetRenderTopkaRadius = 50;
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 60)
+    public int targetRenderTopkaSpeed = 30;
 
     /**
      * TARGET HUD
@@ -140,6 +177,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 1, max = 30)
     public int targetHudRenderTime = 5;
     @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Category("target_hud")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public TargetHud.TargetHUD_ConfigPos targetHudConfigPos_BUTTON = TargetHud.TargetHUD_ConfigPos.CONFIG_POS;
     @ConfigEntry.Category("target_hud")
     @ConfigEntry.BoundedDiscrete(min = -300, max = 300)
     public int targetHudOffsetX = 0;
@@ -155,6 +195,8 @@ public class SoupAPI_Config implements ConfigData {
     public boolean hudBetterHotbarEnabled = false;
     @ConfigEntry.Category("hud")
     public boolean hudBetterHotbarShowArmor = true;
+    @ConfigEntry.Category("hud")
+    public boolean hudBetterHotbarSmooth = true;
     @ConfigEntry.Category("hud")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public BetterHudStyles.HotbarStyle hudBetterHotbarStyle = BetterHudStyles.HotbarStyle.SIMPLE;

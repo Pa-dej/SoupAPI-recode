@@ -1,6 +1,7 @@
 package me.Padej_.soupapi.mixin.inject;
 
 import me.Padej_.soupapi.font.FontRenderers;
+import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.BetterHudStyles;
 import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.utils.MathUtility;
@@ -73,43 +74,52 @@ public abstract class InGameHudMixin {
     @Unique
     private float selectedSlotProgress = 0f;
     @Unique
-    private int lastSelectedSlot = 0; // Изменено с -1 на 0
+    private int lastSelectedSlot = 0;
     @Unique
     private int targetSlot = 0;
     @Unique
-    private static final float SLOT_ANIMATION_SPEED = 0.5f;
+    private static final float SLOT_ANIMATION_SPEED = 10;
     @Unique
     private static float hotbarColorAnimationProgress = 0f;
 
-    @Inject(method = "tick()V", at = @At("HEAD"))
-    private void onTick(CallbackInfo ci) {
+    @Unique
+    private static long lastUpdateTime = System.currentTimeMillis();
+
+    @Inject(method = "render", at = @At("TAIL"))
+    private void render(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+        if (!CONFIG.hudBetterHotbarEnabled) return;
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
 
-        // Обновление прогресса анимации цветов
-        colorAnimationProgress = (colorAnimationProgress + colorAnimationSpeed) % 1.0f;
-        hpColorAnimationProgress = (hpColorAnimationProgress + colorAnimationSpeed / 2) % 1.0f;
-        hotbarColorAnimationProgress = (hotbarColorAnimationProgress + colorAnimationSpeed / 2) % 1.0f;
+        context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, SoupAPI_Main.ac, 5, 5, 0x99FFFFFF);
 
-        // Обновление значений для плавной интерполяции
+        long currentTime = System.currentTimeMillis();
+        float deltaTime = (currentTime - lastUpdateTime) / 1000f;
+        lastUpdateTime = currentTime;
+
+        float tickDelta = tickCounter.getTickDelta(true);
+
         float targetHealth = Math.min(mc.player.getMaxHealth() + mc.player.getAbsorptionAmount(),
                 mc.player.getHealth() + mc.player.getAbsorptionAmount());
         if (displayedHealth == 0f) displayedHealth = targetHealth;
-        displayedHealth = MathHelper.lerp(healthChangeSpeed, displayedHealth, targetHealth);
+        displayedHealth = MathHelper.lerp(tickDelta * healthChangeSpeed, displayedHealth, targetHealth);
 
         HungerManager hungerManager = mc.player.getHungerManager();
         float targetHunger = hungerManager.getFoodLevel() + hungerManager.getSaturationLevel();
         if (displayedHunger == 0f) displayedHunger = targetHunger;
-        displayedHunger = MathHelper.lerp(healthChangeSpeed, displayedHunger, targetHunger);
+        displayedHunger = MathHelper.lerp(tickDelta * healthChangeSpeed, displayedHunger, targetHunger);
 
-        // Обновление анимации слота
+        colorAnimationProgress = (colorAnimationProgress + tickDelta * colorAnimationSpeed) % 1.0f;
+        hpColorAnimationProgress = (hpColorAnimationProgress + tickDelta * colorAnimationSpeed / 2f) % 1.0f;
+        hotbarColorAnimationProgress = (hotbarColorAnimationProgress + tickDelta * colorAnimationSpeed / 2f) % 1.0f;
+
         int currentSlot = mc.player.getInventory().selectedSlot;
         if (currentSlot != targetSlot) {
             lastSelectedSlot = targetSlot;
             targetSlot = currentSlot;
             selectedSlotProgress = 0f;
         }
-        selectedSlotProgress = MathHelper.lerp(SLOT_ANIMATION_SPEED, selectedSlotProgress, 1.0f);
+        selectedSlotProgress = MathHelper.lerp(SLOT_ANIMATION_SPEED * deltaTime, selectedSlotProgress, 1.0f);
         selectedSlotProgress = MathHelper.clamp(selectedSlotProgress, 0.0f, 1.0f);
     }
 

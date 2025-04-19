@@ -64,8 +64,6 @@ public class ConfigScreen extends Screen {
     public void close() {
         int centerX = MinecraftClient.getInstance().getWindow().getScaledWidth() / 2;
         int centerY = MinecraftClient.getInstance().getWindow().getScaledHeight() / 2;
-        System.out.println("Target HUD offsets: X=" + targetHudFrame.getOffsetX(centerX) +
-                ", Y=" + targetHudFrame.getOffsetY(centerY));
         CONFIG.targetHudOffsetX = targetHudFrame.getOffsetX(centerX);
         CONFIG.targetHudOffsetY = -targetHudFrame.getOffsetY(centerY);
         ConfigurableModule.saveConfig();

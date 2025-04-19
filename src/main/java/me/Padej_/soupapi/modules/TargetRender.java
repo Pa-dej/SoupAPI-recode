@@ -8,93 +8,95 @@ import me.Padej_.soupapi.utils.EntityUtils;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.MathHelper;
-import org.joml.Math;
 
 public class TargetRender extends ConfigurableModule {
     private static float rollAngle = 0.0f;
-    private static float targetRollAngle = 0.0f;
-    private static boolean increasing = true;
+    private static long lastUpdateTime = System.currentTimeMillis();
+
+    private static Entity lastTargetEntity = null;
+    private static long lastTargetUpdateTime = 0;
+
+    private static boolean updateOrKeepTarget() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null || !CONFIG.targetRenderEnabled) return false;
+
+        long currentTime = System.currentTimeMillis();
+        Entity currentTarget = EntityUtils.getTargetEntity();
+
+        // Проверка видимости цели
+        boolean visibleNow = currentTarget != null && client.player.canSee(currentTarget);
+
+        // Если цель видимая и не совпадает с последней целью — обновляем данные
+        if (visibleNow && currentTarget != lastTargetEntity) {
+            lastTargetEntity = currentTarget;
+            lastTargetUpdateTime = currentTime;
+        }
+
+        // Если цель есть и время истекло, или цель была удалена — сбрасываем её
+        if (lastTargetEntity != null) {
+            if (currentTime - lastTargetUpdateTime > CONFIG.targetRenderLiveTime * 1000L || lastTargetEntity.isRemoved()) {
+                lastTargetEntity = null;
+                return false; // Возвращаем false, потому что цель устарела или удалена
+            }
+
+            // Если цель не видна, возвращаем false
+            if (!client.player.canSee(lastTargetEntity)) {
+                return false;
+            }
+        }
+
+        // Если цель существует и видна, возвращаем true
+        return lastTargetEntity != null;
+    }
 
     public static void renderTarget(WorldRenderContext context) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player == null || !CONFIG.targetRenderEnabled) return;
+        if (!updateOrKeepTarget()) return; // Не рисуем, если цель невидима
 
-        Entity targetEntity = EntityUtils.getTargetEntity();
-        if (targetEntity == null) return;
+        float tickDelta = context.tickCounter().getTickDelta(true);
 
         switch (CONFIG.targetRenderStyle) {
-            case SOUL -> Render3D.renderSoulsEsp(context.tickCounter().getTickDelta(true), targetEntity);
-            case SPIRAL -> Render3D.drawSpiralsEsp(context.matrixStack(), targetEntity);
+            case SOUL -> Render3D.renderSoulsEsp(tickDelta, lastTargetEntity);
+            case SPIRAL -> Render3D.drawSpiralsEsp(context.matrixStack(), lastTargetEntity);
+            case TOPKA -> Render3D.drawScanEsp(context.matrixStack(), lastTargetEntity);
         }
     }
 
     public static void renderTargetLegacy(WorldRenderContext context) {
-        if (!CONFIG.targetRenderStyle.equals(TargetRenderStyle.LEGACY)) return;
-        Render3D.renderTargetSelection(context.matrixStack(), context.camera(), context.tickCounter().getTickDelta(true), rollAngle);
-    }
+        if (CONFIG.targetRenderStyle != TargetRenderStyle.LEGACY) return;
+        if (!updateOrKeepTarget()) return; // Прерываем, если цель не должна быть видна
 
-    public static void onTick() {
-        if (!CONFIG.targetRenderStyle.equals(TargetRenderStyle.LEGACY)) return;
-        float rollSpeed = CONFIG.targetRenderLegacyRollSpeed;
+        long currentTime = System.currentTimeMillis();
+        float deltaTime = (currentTime - lastUpdateTime) / 1000f;
+        lastUpdateTime = currentTime;
 
-        float stiffness = 0.08f;
-        float damping = 0.98f;
-        float minSpeed = 0.3f;
-        float maxSpeed = 2.0f;
+        rollAngle = (rollAngle + 90f * deltaTime) % 360f;
 
-        float distanceToEdge = increasing ? 360 - targetRollAngle : targetRollAngle;
-        float acceleration = stiffness * distanceToEdge;
-        rollSpeed = Math.min(maxSpeed, Math.max(minSpeed, rollSpeed * damping + acceleration));
-
-        if (increasing) {
-            targetRollAngle += rollSpeed;
-            if (targetRollAngle >= 360) {
-                targetRollAngle = 360;
-                increasing = false;
-            }
-        } else {
-            targetRollAngle -= rollSpeed;
-            if (targetRollAngle <= 0.0f) {
-                targetRollAngle = 0.0f;
-                increasing = true;
-            }
-        }
-
-        rollAngle = MathHelper.lerp(0.05f, rollAngle, targetRollAngle);
+        Render3D.renderTargetSelection(
+                context.matrixStack(),
+                context.camera(),
+                context.tickCounter().getTickDelta(true),
+                lastTargetEntity,
+                rollAngle
+        );
     }
 
     public enum TargetRenderStyle {
-        LEGACY,
-        SOUL,
-        SPIRAL
+        LEGACY, SOUL, SPIRAL, TOPKA
     }
 
     public enum TargetRenderLegacyTexture {
-        LEGACY,
-        MARKER,
-        BO,
-        SIMPLE,
-        SCIFI
+        LEGACY, MARKER, BO, SIMPLE, SCIFI
     }
 
     public enum TargetRenderSoulStyle {
-        SMOKE,
-        PLASMA;
+        SMOKE, PLASMA;
 
         public static void setupBlendFunc() {
             switch (CONFIG.targetRenderSoulStyle) {
-                case SMOKE -> setSmoke();
-                case PLASMA -> setPlasma();
+                case SMOKE -> RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
+                case PLASMA -> RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
+                case null, default -> RenderSystem.defaultBlendFunc();
             }
-        }
-
-        static void setSmoke() {
-            RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
-        }
-
-        static void setPlasma() {
-            RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
         }
     }
 }

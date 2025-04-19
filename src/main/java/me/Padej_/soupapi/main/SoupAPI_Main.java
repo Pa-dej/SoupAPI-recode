@@ -5,11 +5,13 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.SharedConstants;
 import net.minecraft.util.Identifier;
 
 public class SoupAPI_Main implements ModInitializer {
     public static ConfigHolder<SoupAPI_Config> configHolder;
     public static long initTime;
+    public static String ac = "";
 
     @Override
     public void onInitialize() {

@@ -1,10 +1,10 @@
 package me.Padej_.soupapi.render;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.TargetRender;
-import me.Padej_.soupapi.utils.EntityUtils;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.MinecraftClient;
@@ -16,8 +16,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
-import org.joml.*;
 import org.joml.Math;
+import org.joml.*;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -126,14 +126,10 @@ public class Render3D extends ConfigurableModule {
         }
     }
 
-    public static void renderTargetSelection(MatrixStack matrixStack, Camera camera, float tickDelta, float rollAngle) {
+    public static void renderTargetSelection(MatrixStack matrixStack, Camera camera, float tickDelta, Entity target, float rollAngle) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player != null) {
-            Entity targetEntity = EntityUtils.getTargetEntity();
-            if (targetEntity != null) {
-                renderTarget(matrixStack, camera, tickDelta, targetEntity, rollAngle);
-            }
-
+        if (client.player != null && target != null) {
+            renderTarget(matrixStack, camera, tickDelta, target, rollAngle);
         }
     }
 
@@ -202,17 +198,21 @@ public class Render3D extends ConfigurableModule {
     }
 
     public static void renderSoulsEsp(float tickDelta, Entity targetEntity) {
-        int espLength = 10;
-        float factorX = 5;
-        float factorY = 5;
-        float factorZ = 5;
-        float amplitude = 5.5f;
+        int espLength = CONFIG.targetRenderSoulLenght; // 4 - 20
+        float factor = CONFIG.targetRenderSoulFactor; // spin speed
         float shaking = 2f;
-        float radius = 1;
 
-        float startSize = 0.3f;
-        float endSize = 0.1f;
         float layerSpacing = 2;
+
+        float amplitude = CONFIG.targetRenderSoulAmplitude;
+        float radius = CONFIG.targetRenderSoulRadius / 100f;
+
+        float startSize = CONFIG.targetRenderSoulStartSize / 100f; // 20 - 100
+        float endSize = CONFIG.targetRenderSoulEndSize / 100f;
+
+        float scaleModifier = CONFIG.targetRenderSoulScale / 100f;
+        int subdivisions = CONFIG.targetRenderSoulSubdivision;
+        boolean isFadeOut = true;
 
         MinecraftClient mc = MinecraftClient.getInstance();
         Camera camera = mc.gameRenderer.getCamera();
@@ -232,71 +232,55 @@ public class Render3D extends ConfigurableModule {
 
         Matrix4f baseMatrix = matrices.peek().getPositionMatrix();
 
-        RenderSystem.disableDepthTest();
         RenderSystem.enableBlend();
-//        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR); // smoke
-//        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE); // plazma
-        TargetRender.TargetRenderSoulStyle.setupBlendFunc();
+        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
         RenderSystem.setShaderTexture(0, TexturesManager.FIREFLY);
         RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
+        TargetRender.TargetRenderSoulStyle.setupBlendFunc();
         BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 
         for (int j = 0; j < 3; j++) {
-            for (int i = 0; i <= espLength; i++) {
-                double radiansX = Math.toRadians((((float) i / 1.5f + iAge) * factorX + (j * 120)) % (factorX * 360));
-                double radiansY = Math.toRadians((((float) i / 1.5f + iAge) * factorY + (j * 120)) % (factorY * 360));
-                double radiansZ = Math.toRadians((((float) i / 1.5f + iAge) * factorZ + (j * 120)) % (factorZ * 360));
+            for (int i = 0; i < espLength; i++) {
+                for (int sub = 0; sub < subdivisions; sub++) {
+                    float t = (float) sub / subdivisions;
+                    float stepIndex = i + t;
 
-                double sinQuad = Math.sin(Math.toRadians(iAge * 2.5f + i * (j + 1)) * amplitude) / shaking;
+                    double radians = Math.toRadians((((stepIndex) / 1.5f + iAge) * factor + (j * 120)) % (factor * 360));
+                    double sinQuad = Math.sin(Math.toRadians(iAge * 2.5f + stepIndex * (j + 1)) * amplitude) / shaking;
 
-                float offset = ((float) i / espLength) * layerSpacing;
+                    float offset = ((stepIndex) / espLength) * layerSpacing;
 
-                MatrixStack particleMatrix = new MatrixStack();
-                particleMatrix.multiplyPositionMatrix(baseMatrix);
+                    MatrixStack particleMatrix = new MatrixStack();
+                    particleMatrix.multiplyPositionMatrix(baseMatrix);
 
-                Quaternionf rotationX = new Quaternionf();
-                rotationX.rotateAxis(1, 0, 0, (float) radiansX);
-                Quaternionf rotationY = new Quaternionf();
-                rotationY.rotateAxis(0, 1, 0, (float) radiansY);
-                Quaternionf rotationZ = new Quaternionf();
-                rotationZ.rotateAxis(0, 0, 1, (float) radiansZ);
+                    float x = (float) (Math.cos(radians) * radius);
+                    float z = (float) (Math.sin(radians) * radius);
+                    float y = (float) sinQuad;
 
-                particleMatrix.multiply(rotationX.invert());
-                particleMatrix.multiply(rotationY);
-                particleMatrix.multiply(rotationZ.invert());
+                    particleMatrix.translate(x, y, z);
 
-                particleMatrix.translate(
-                        Math.cos(radiansY) * radius,
-                        sinQuad,
-                        Math.sin(radiansX) * radius
-                );
+                    Matrix4f matrix = particleMatrix.peek().getPositionMatrix();
 
-                Matrix4f matrix = particleMatrix.peek().getPositionMatrix();
+                    float animProgress = (iAge * 0.03f + stepIndex * 0.07f + j * 0.15f) % 1f;
+                    Color color = Palette.getInterpolatedPaletteColor(animProgress);
+                    int argb = 0xFF000000 | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
 
-                float animProgress = (iAge * 0.03f + i * 0.07f + j * 0.15f) % 1f;
-                Color color = Palette.getInterpolatedPaletteColor(animProgress);
-                int argb = 0xFF000000 | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
+                    float scale = Math.max((endSize + offset * (startSize - endSize)) * scaleModifier, 0.15f * scaleModifier);
 
-                float scale = Math.max(endSize + offset * (startSize - endSize), 0.15f);
-
-                buffer.vertex(matrix, -scale, scale, 0).texture(0f, 1f).color(argb);
-                buffer.vertex(matrix, scale, scale, 0).texture(1f, 1f).color(argb);
-                buffer.vertex(matrix, scale, -scale, 0).texture(1f, 0f).color(argb);
-                buffer.vertex(matrix, -scale, -scale, 0).texture(0f, 0f).color(argb);
+                    buffer.vertex(matrix, -scale, scale, 0).texture(0f, 1f).color(argb);
+                    buffer.vertex(matrix, scale, scale, 0).texture(1f, 1f).color(argb);
+                    buffer.vertex(matrix, scale, -scale, 0).texture(1f, 0f).color(argb);
+                    buffer.vertex(matrix, -scale, -scale, 0).texture(0f, 0f).color(argb);
+                }
             }
         }
 
         BufferRenderer.drawWithGlobalProgram(buffer.end());
-
-        RenderSystem.depthMask(true);
-        RenderSystem.disableDepthTest();
-
+        RenderSystem.enableDepthTest();
         RenderSystem.disableBlend();
-        RenderSystem.defaultBlendFunc();
 
         matrices.pop();
     }
-
 
     public static void drawSpiralsEsp(MatrixStack stack, @NotNull Entity target) {
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -341,10 +325,10 @@ public class Render3D extends ConfigurableModule {
 
     // Метод для генерации векторов спиралей с угловыми сдвигами
     private static void generateSpiralVectors(ArrayList<Vec3d>[] spirals, float radius, double initialHeight, float heightStep) {
-        for (int i = 0; i <= 361; ++i) {
+        for (int i = 0; i <= 360; ++i) { // <= 360, чтобы последний угол = 360 (т.е. 0°)
             double height = initialHeight - i * heightStep;
             for (int spiralIndex = 0; spiralIndex < 3; spiralIndex++) {
-                double angle = Math.toRadians(i + spiralIndex * 120) % 360;
+                double angle = Math.toRadians(i + spiralIndex * 120);
                 double u = Math.cos(angle);
                 double v = Math.sin(angle);
                 spirals[spiralIndex].add(new Vec3d((float) (u * radius), (float) height, (float) (v * radius)));
@@ -358,20 +342,210 @@ public class Render3D extends ConfigurableModule {
         RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR);
 
-        for (int j = 0; j < vecs.size() - 1; ++j) {
+        int size = vecs.size();
+
+        // Получаем начальный и конечный цвета
+        Color startColor = Palette.getColor(0.0f);
+        Color endColor = Palette.getColor(1.0f);
+
+        // Вычисляем смешанный цвет (среднее между начальным и конечным)
+        int mixedRed = (startColor.getRed() + endColor.getRed()) / 2;
+        int mixedGreen = (startColor.getGreen() + endColor.getGreen()) / 2;
+        int mixedBlue = (startColor.getBlue() + endColor.getBlue()) / 2;
+        Color mixedColor = Render2D.injectAlpha(new Color(mixedRed, mixedGreen, mixedBlue), 255);
+
+        // Определяем зону сглаживания (например, 10% от длины спирали с каждой стороны)
+        float smoothingRange = 0.1f; // 10% от длины спирали
+        float smoothingEnd = 1.0f - smoothingRange;
+
+        for (int j = 0; j < size - 1; ++j) {
             float alpha = 1f - (((float) j + ((System.currentTimeMillis() - SoupAPI_Main.initTime) / animationSpeed)) % 360) / alphaDivider;
-            float progress = (j / (float) vecs.size() + progressOffset) % 1f;
+            float progress = (j / (float) size + progressOffset) % 1f;
 
-            Color colorA = Palette.getColor(progress);
-            Color colorB = Palette.getColor((progress + 0.05f) % 1f);
+            // Определяем цвет с учётом сглаживания
+            Color currentColor;
+            if (j == 0 || j == size - 1) {
+                // Начальная и конечная точки используют смешанный цвет
+                currentColor = mixedColor;
+            } else if (progress <= smoothingRange) {
+                // Сглаживание в начале: интерполируем между mixedColor и цветом на smoothingStart
+                float t = progress / smoothingRange;
+                Color targetColor = Render2D.injectAlpha(Palette.getColor(smoothingRange), 255);
+                int r = (int) (mixedColor.getRed() + t * (targetColor.getRed() - mixedColor.getRed()));
+                int g = (int) (mixedColor.getGreen() + t * (targetColor.getGreen() - mixedColor.getGreen()));
+                int b = (int) (mixedColor.getBlue() + t * (targetColor.getBlue() - mixedColor.getBlue()));
+                currentColor = Render2D.injectAlpha(new Color(r, g, b), 255);
+            } else if (progress >= smoothingEnd) {
+                // Сглаживание в конце: интерполируем между цветом на smoothingEnd и mixedColor
+                float t = (progress - smoothingEnd) / (1.0f - smoothingEnd);
+                Color targetColor = Render2D.injectAlpha(Palette.getColor(smoothingEnd), 255);
+                int r = (int) (targetColor.getRed() + t * (mixedColor.getRed() - targetColor.getRed()));
+                int g = (int) (targetColor.getGreen() + t * (mixedColor.getGreen() - targetColor.getGreen()));
+                int b = (int) (targetColor.getBlue() + t * (mixedColor.getBlue() - targetColor.getBlue()));
+                currentColor = Render2D.injectAlpha(new Color(r, g, b), 255);
+            } else {
+                currentColor = Render2D.injectAlpha(Palette.getColor(progress), 255);
+            }
 
-            bufferBuilder.vertex(matrix, (float) vecs.get(j).x, (float) vecs.get(j).y, (float) vecs.get(j).z)
-                    .color(Render2D.injectAlpha(colorA, (int) (alpha * 255)).getRGB());
-            bufferBuilder.vertex(matrix, (float) vecs.get(j + 1).x, (float) vecs.get(j + 1).y + heightOffset, (float) vecs.get(j + 1).z)
-                    .color(Render2D.injectAlpha(colorB, (int) (alpha * 255)).getRGB());
+            // Добавляем вершины: нижняя и верхняя для текущей точки
+            Vec3d current = vecs.get(j);
+            Color finalColor = Render2D.injectAlpha(currentColor, (int) (alpha * 255));
+
+            bufferBuilder.vertex(matrix, (float) current.x, (float) current.y, (float) current.z)
+                    .color(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
+
+            Vec3d next = vecs.get(j + 1);
+            bufferBuilder.vertex(matrix, (float) next.x, (float) next.y + heightOffset, (float) next.z)
+                    .color(finalColor.getRed(), finalColor.getGreen(), finalColor.getBlue(), finalColor.getAlpha());
         }
 
         Render2D.endBuilding(bufferBuilder);
+    }
+
+    public static void drawScanEsp(MatrixStack stack, @NotNull Entity target) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        float tickDelta = mc.getRenderTickCounter().getTickDelta(true);
+        float animationSpeed = CONFIG.targetRenderTopkaSpeed / 100f; // 10 - 70
+        float minHeightOffset = 0.01f;
+        float maxHeightOffset = 0.5f;
+
+        float radius = CONFIG.targetRenderTopkaRadius / 100f; // 50 - 80
+
+        // Интерполяция позиции цели относительно камеры
+        double x = MathHelper.lerp(tickDelta, target.prevX, target.getX()) - mc.getEntityRenderDispatcher().camera.getPos().getX();
+        double y = MathHelper.lerp(tickDelta, target.prevY, target.getY()) - mc.getEntityRenderDispatcher().camera.getPos().getY();
+        double z = MathHelper.lerp(tickDelta, target.prevZ, target.getZ()) - mc.getEntityRenderDispatcher().camera.getPos().getZ();
+        double height = target.getHeight();
+
+        float time = (System.currentTimeMillis() % 1000000) / 1000.0f;
+        float t = (time * animationSpeed) % 1.0f;
+        float triangleWave = t < 0.5f ? 2.0f * t : 2.0f * (1.0f - t);
+        float heightStep = (float) (triangleWave * height);
+
+        float direction = t < 0.5f ? 1.0f : -1.0f;
+        boolean movingUp = direction > 0;
+        float speed = 1.0f - Math.abs(2.0f * triangleWave - 1.0f); // 1 в центре, 0 в крайних точках
+
+        // Масштабируем высоту кольца в зависимости от скорости
+        float heightOffset = minHeightOffset + (maxHeightOffset - minHeightOffset) * speed;
+        heightOffset = Math.max(heightOffset, minHeightOffset);
+
+        // Генерация точек для замкнутого кольца
+        ArrayList<Vec3d> ring = generateRingVectors(radius, heightStep, heightOffset);
+
+        stack.push();
+        stack.translate(x, y, z);
+
+        Matrix4f matrix = stack.peek().getPositionMatrix();
+
+        // Рендеринг кольца с учётом направления
+        renderRing(matrix, ring, heightOffset, movingUp);
+
+        stack.translate(-x, -y, -z);
+        RenderSystem.enableDepthTest();
+        stack.pop();
+    }
+
+    // Метод для генерации точек кольца
+    private static ArrayList<Vec3d> generateRingVectors(float radius, double heightStep, float heightOffset) {
+        ArrayList<Vec3d> ring = new ArrayList<>();
+        int numPoints = 360; // 360 градусов, с замыканием
+
+        for (int i = 0; i <= numPoints; ++i) {
+            double angle = Math.toRadians(i); // Угол для кольца
+            double u = Math.cos(angle);
+            double v = Math.sin(angle);
+            ring.add(new Vec3d((float) (u * radius), (float) heightStep, (float) (v * radius)));
+        }
+
+        return ring;
+    }
+
+    private static void renderRing(Matrix4f matrix, ArrayList<Vec3d> ring, float heightOffset, boolean movingUp) {
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
+        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR);
+
+        int size = ring.size();
+
+        // Получаем начальный и конечный цвета
+        Color startColor = Palette.getColor(0.0f);
+        Color endColor = Palette.getColor(1.0f);
+
+        // Вычисляем смешанный цвет (среднее между начальным и конечным)
+        int mixedRed = (startColor.getRed() + endColor.getRed()) / 2;
+        int mixedGreen = (startColor.getGreen() + endColor.getGreen()) / 2;
+        int mixedBlue = (startColor.getBlue() + endColor.getBlue()) / 2;
+        Color mixedColor = Render2D.injectAlpha(new Color(mixedRed, mixedGreen, mixedBlue), 255);
+
+        // Определяем зону сглаживания (например, 10% от длины кольца с каждой стороны)
+        float smoothingRange = 0.1f; // 10% от длины кольца
+        float smoothingEnd = 1.0f - smoothingRange;
+
+        RenderSystem.disableCull();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+
+        for (int i = 0; i <= size; i++) {
+            int currentIndex = i % size;
+
+            // Прогресс для текущей точки
+            float progress = (i / (float) size);
+
+            // Определяем базовый цвет с учётом сглаживания
+            Color currentColor;
+            if (i == 0 || i == size) {
+                currentColor = mixedColor;
+            } else if (progress <= smoothingRange) {
+                float t = progress / smoothingRange;
+                Color targetColor = Render2D.injectAlpha(Palette.getColor(smoothingRange), 255);
+                int r = (int) (mixedColor.getRed() + t * (targetColor.getRed() - mixedColor.getRed()));
+                int g = (int) (mixedColor.getGreen() + t * (targetColor.getGreen() - mixedColor.getGreen()));
+                int b = (int) (mixedColor.getBlue() + t * (targetColor.getBlue() - mixedColor.getBlue()));
+                currentColor = Render2D.injectAlpha(new Color(r, g, b), 255);
+            } else if (progress >= smoothingEnd) {
+                float t = (progress - smoothingEnd) / (1.0f - smoothingEnd);
+                Color targetColor = Render2D.injectAlpha(Palette.getColor(smoothingEnd), 255);
+                int r = (int) (targetColor.getRed() + t * (mixedColor.getRed() - targetColor.getRed()));
+                int g = (int) (targetColor.getGreen() + t * (targetColor.getGreen() - mixedColor.getGreen()));
+                int b = (int) (targetColor.getBlue() + t * (targetColor.getBlue() - targetColor.getBlue()));
+                currentColor = Render2D.injectAlpha(new Color(r, g, b), 255);
+            } else {
+                currentColor = Render2D.injectAlpha(Palette.getColor(progress), 255);
+            }
+
+            Vec3d current = ring.get(currentIndex);
+
+            // Определяем альфа-канал с нелинейной интерполяцией
+            int baseAlpha = currentColor.getAlpha(); // Базовая прозрачность цвета
+            float t; // Параметр интерполяции (0 на нижней границе, 1 на верхней)
+            int lowerAlpha;
+            int upperAlpha;
+
+            if (movingUp) {
+                t = 1.0f; // Верхняя точка полностью непрозрачна
+                upperAlpha = baseAlpha;
+                t = (float) Math.sin(t * Math.PI / 2); // Нелинейная интерполяция (sinusoidal easing)
+                lowerAlpha = (int) (baseAlpha * (1.0f - t)); // Нижняя точка затухает нелинейно
+            } else {
+                t = 1.0f; // Нижняя точка полностью непрозрачна
+                lowerAlpha = baseAlpha;
+                t = (float) Math.sin(t * Math.PI / 2); // Нелинейная интерполяция
+                upperAlpha = (int) (baseAlpha * (1.0f - t)); // Верхняя точка затухает нелинейно
+            }
+
+            // Добавляем вершины: нижняя и верхняя для текущей точки
+            bufferBuilder.vertex(matrix, (float) current.x, (float) current.y, (float) current.z)
+                    .color(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue(), lowerAlpha);
+            bufferBuilder.vertex(matrix, (float) current.x, (float) current.y + heightOffset, (float) current.z)
+                    .color(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue(), upperAlpha);
+        }
+
+        Render2D.endBuilding(bufferBuilder);
+        Render3D.endRender();
+        RenderSystem.enableCull();
+        RenderSystem.disableDepthTest();
     }
 
     public static void setupRender() {
@@ -401,18 +575,5 @@ public class Render3D extends ConfigurableModule {
         matrixProj.mul(matrixModel).project(transformedCoordinates.x(), transformedCoordinates.y(), transformedCoordinates.z(), viewport, target);
 
         return new Vec3d(target.x / scale, (displayHeight - target.y) / scale, target.z);
-    }
-
-    private static int interpolateColor(int color1, int color2, float factor) {
-        int r1 = color1 >> 16 & 255;
-        int g1 = color1 >> 8 & 255;
-        int b1 = color1 & 255;
-        int r2 = color2 >> 16 & 255;
-        int g2 = color2 >> 8 & 255;
-        int b2 = color2 & 255;
-        int r = (int) ((float) r1 + factor * (float) (r2 - r1));
-        int g = (int) ((float) g1 + factor * (float) (g2 - g1));
-        int b = (int) ((float) b1 + factor * (float) (b2 - b1));
-        return r << 16 | g << 8 | b;
     }
 }
