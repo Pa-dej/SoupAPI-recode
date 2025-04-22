@@ -12,16 +12,19 @@ import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Math;
 import org.joml.*;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.awt.List;
+import java.util.*;
 
 public class Render3D extends ConfigurableModule {
     public static final Matrix4f lastProjMat = new Matrix4f();
@@ -31,16 +34,15 @@ public class Render3D extends ConfigurableModule {
     public static void renderChinaHat(MatrixStack matrices, VertexConsumer vertexConsumer) {
         Matrix4f matrix = matrices.peek().getPositionMatrix();
 
-        // Параметры "China Hat"
-        float baseRadius = 0.67F;
-        float height = 0.35F;
+        float baseRadius = CONFIG.chinaHatBaseRadius / 100f;
+        float height = CONFIG.chinaHatTipHeight / 100f;
+        float yOffset = -CONFIG.chinaHatYOffset / 100f;
         int segments = 60;
-        float time = MinecraftClient.getInstance().world.getTime() % 360; // Для анимации вращения
-        float alpha = 70 / 255f; // Альфа из исходного кода
+        float time = MinecraftClient.getInstance().world.getTime() % 360;
+        int alpha = (int) (1 - (CONFIG.chinaHatAlpha * 255 / 100f));
         boolean isHalf = CONFIG.chinaHatRenderHalf;
 
-        // Параметры для эффекта переливания
-        int rotation = 360 / 5; // Скорость вращения эффекта (можно настроить)
+        int rotation = 360 / 5;
         float rotationOffset = (time % rotation) / rotation;
 
         // Массивы для хранения координат и цветов
@@ -109,7 +111,7 @@ public class Render3D extends ConfigurableModule {
             vertexConsumer.vertex(matrix, x2, height, z2)
                     .color(red2, green2, blue2, isHalf ? alpha2 : alpha)
                     .normal(0, -1, 0);
-            vertexConsumer.vertex(matrix, tipX, 0.0F, tipZ)
+            vertexConsumer.vertex(matrix, tipX, yOffset, tipZ)
                     .color(redTip, greenTip, blueTip, alpha)
                     .normal(0, -1, 0);
 
@@ -120,7 +122,7 @@ public class Render3D extends ConfigurableModule {
             vertexConsumer.vertex(matrix, x1, height, z1)
                     .color(red1, green1, blue1, isHalf ? alpha1 : alpha)
                     .normal(0, -1, 0);
-            vertexConsumer.vertex(matrix, tipX, 0.0F, tipZ)
+            vertexConsumer.vertex(matrix, tipX, yOffset, tipZ)
                     .color(redTip, greenTip, blueTip, alpha)
                     .normal(0, -1, 0);
         }
@@ -200,7 +202,7 @@ public class Render3D extends ConfigurableModule {
     public static void renderSoulsEsp(float tickDelta, Entity targetEntity) {
         int espLength = CONFIG.targetRenderSoulLenght; // 4 - 20
         float factor = CONFIG.targetRenderSoulFactor; // spin speed
-        float shaking = 2f;
+        float shaking = CONFIG.targetRenderSoulShaking;
 
         float layerSpacing = 2;
 
@@ -212,7 +214,6 @@ public class Render3D extends ConfigurableModule {
 
         float scaleModifier = CONFIG.targetRenderSoulScale / 100f;
         int subdivisions = CONFIG.targetRenderSoulSubdivision;
-        boolean isFadeOut = true;
 
         MinecraftClient mc = MinecraftClient.getInstance();
         Camera camera = mc.gameRenderer.getCamera();
@@ -576,4 +577,5 @@ public class Render3D extends ConfigurableModule {
 
         return new Vec3d(target.x / scale, (displayHeight - target.y) / scale, target.z);
     }
+
 }

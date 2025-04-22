@@ -4,8 +4,7 @@
   "package": "me.Padej_.soupapi.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "inject.RegisterEntityTrails",
-    "inject.TestMixin"
+    "inject.RegisterEntityTrails"
   ],
   "client": [
     "access.NativeImageAccessor",

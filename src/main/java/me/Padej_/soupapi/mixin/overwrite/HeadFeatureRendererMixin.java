@@ -62,7 +62,7 @@ public class HeadFeatureRendererMixin<S extends LivingEntityRenderState, M exten
                 SkullBlock.SkullType skullType = state.wearingSkullType;
                 SkullBlockEntityModel skullBlockEntityModel = headModels.apply(skullType);
                 RenderLayer renderLayer = SkullBlockEntityRenderer.getRenderLayer(skullType, state.wearingSkullProfile);
-                SkullBlockEntityRenderer.renderSkull((Direction) null, 180.0F, state.headItemAnimationProgress, matrices, vertexConsumerProvider, light, skullBlockEntityModel, renderLayer);
+                SkullBlockEntityRenderer.renderSkull(null, 180.0F, state.headItemAnimationProgress, matrices, vertexConsumerProvider, light, skullBlockEntityModel, renderLayer);
             } else {
                 HeadFeatureRenderer.translate(matrices, headTransformation);
                 state.headItemRenderState.render(matrices, vertexConsumerProvider, light, OverlayTexture.DEFAULT_UV);

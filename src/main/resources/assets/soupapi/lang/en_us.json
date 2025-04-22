@@ -59,5 +59,7 @@
   "text.autoconfig.soupapi.option.hudBetterHotbarShowArmor": "Show Armor",
   "text.autoconfig.soupapi.option.hudBetterHotbarStyle": "Style",
 
+  "text.autoconfig.soupapi.category.rpc": "RPC",
+
   "": ""
 }

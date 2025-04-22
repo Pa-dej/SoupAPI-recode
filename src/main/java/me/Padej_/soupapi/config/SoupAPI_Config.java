@@ -1,9 +1,6 @@
 package me.Padej_.soupapi.config;
 
-import me.Padej_.soupapi.modules.BetterHudStyles;
-import me.Padej_.soupapi.modules.JumpCircles;
-import me.Padej_.soupapi.modules.TargetHud;
-import me.Padej_.soupapi.modules.TargetRender;
+import me.Padej_.soupapi.modules.*;
 import me.Padej_.soupapi.utils.Palette;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
@@ -58,12 +55,28 @@ public class SoupAPI_Config implements ConfigData {
     public boolean chinaHatEnabled = false;
     @ConfigEntry.Category("china_hat")
     public boolean chinaHatRenderHalf = false;
+    @ConfigEntry.Category("china_hat")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
+    public int chinaHatAlpha = 90;
+    @ConfigEntry.Category("china_hat")
+    @ConfigEntry.BoundedDiscrete(min = -100, max = 100)
+    public int chinaHatYOffset = 0;
+    @ConfigEntry.Gui.PrefixText // tip
+    @ConfigEntry.Category("china_hat")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
+    public int chinaHatTipHeight = 35;
+    @ConfigEntry.Gui.PrefixText // base
+    @ConfigEntry.Category("china_hat")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
+    public int chinaHatBaseRadius = 65;
 
     /**
      * JUMP CIRCLES
      **/
     @ConfigEntry.Category("jump_circles")
     public boolean jumpCirclesEnabled = false;
+    @ConfigEntry.Category("jump_circles")
+    public boolean jumpCirclesFadeOut = false;
     @ConfigEntry.Category("jump_circles")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public JumpCircles.JumCircleStyle jumpCirclesStyle = JumpCircles.JumCircleStyle.CIRCLE;
@@ -132,10 +145,13 @@ public class SoupAPI_Config implements ConfigData {
     public TargetRender.TargetRenderSoulStyle targetRenderSoulStyle = TargetRender.TargetRenderSoulStyle.SMOKE;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.BoundedDiscrete(min = 4, max = 20)
-    public int targetRenderSoulLenght = 3;
+    public int targetRenderSoulLenght = 5;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 5)
     public int targetRenderSoulFactor = 3; // spin speed
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 5)
+    public int targetRenderSoulShaking = 3;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
     public int targetRenderSoulAmplitude = 3;
@@ -190,7 +206,7 @@ public class SoupAPI_Config implements ConfigData {
     /**
      * HUD
      **/
-    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Gui.PrefixText // hotbar
     @ConfigEntry.Category("hud")
     public boolean hudBetterHotbarEnabled = false;
     @ConfigEntry.Category("hud")
@@ -200,4 +216,25 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hud")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public BetterHudStyles.HotbarStyle hudBetterHotbarStyle = BetterHudStyles.HotbarStyle.SIMPLE;
+    @ConfigEntry.Gui.PrefixText // crosshair
+    @ConfigEntry.Category("hud")
+    public boolean hudDynamicCrosshairEnabled = false;
+    @ConfigEntry.Category("hud")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 90)
+    public int hudDynamicCrosshairFadeFactorEnabled = 80;
+    @ConfigEntry.Category("hud")
+    @ConfigEntry.BoundedDiscrete(min = 2, max = 15)
+    public int hudDynamicCrosshairMaxOffsetEnabled = 6;
+
+    /**
+     * RPC
+     **/
+    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Category("rpc")
+    public boolean rpcEnabled = false;
+    @ConfigEntry.Category("rpc")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public RPC.State rpcState = RPC.State.NAME;
+    @ConfigEntry.Category("rpc")
+    public String rpcCustomStateText = "Have a nice day!";
 }

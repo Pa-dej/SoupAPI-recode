@@ -1,13 +1,11 @@
 package me.Padej_.soupapi.utils;
 
-import com.mojang.brigadier.Message;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;

@@ -4,21 +4,21 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
 public class EaseOutCirc {
-    private final int maxTicks;
+    private float progress = 0f; // Прогресс анимации (0.0f до 1.0f)
+    private float duration = 5f / 60f; // Длительность анимации в секундах (5 тиков = 5/60 сек при 60 FPS)
     private double value, dstValue;
-    private int prevStep, step;
 
-    public EaseOutCirc(int maxTicks) {
-        this.maxTicks = maxTicks;
+    public EaseOutCirc(float durationInSeconds) {
+        this.duration = durationInSeconds;
     }
 
     public EaseOutCirc() {
-        this(5);
+        this(5f / 60f); // По умолчанию 5 тиков = 5/60 сек
     }
 
-    public void update() {
-        prevStep = step;
-        step = MathHelper.clamp(step + 1, 0, maxTicks);
+    public void update(float delta) {
+        progress += delta / (duration * 60f); // delta нормализовано для 60 FPS
+        progress = MathHelper.clamp(progress, 0f, 1f);
     }
 
     public static double createAnimation(double value) {
@@ -27,8 +27,7 @@ public class EaseOutCirc {
 
     public void setValue(double value) {
         if (value != this.dstValue) {
-            this.prevStep = 0;
-            this.step = 0;
+            this.progress = 0f; // Сбрасываем прогресс при смене значения
             this.value = dstValue;
             this.dstValue = value;
         }
@@ -36,7 +35,11 @@ public class EaseOutCirc {
 
     public double getAnimationD() {
         double delta = dstValue - value;
-        double animation = createAnimation((prevStep + (step - prevStep) * MinecraftClient.getInstance().getRenderTime()) / (double) maxTicks);
+        double animation = createAnimation(progress);
         return value + delta * animation;
+    }
+
+    public void reset() {
+        this.progress = 0f;
     }
 }

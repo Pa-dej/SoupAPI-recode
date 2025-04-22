@@ -18,6 +18,9 @@ repositories {
     // for more information about repositories.
     maven {url "https://maven.shedaniel.me/"}
     maven {url "https://maven.terraformersmc.com/releases/"}
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
@@ -44,6 +47,7 @@ dependencies {
             because "version 2.8.1 pulled from cloth-config has security vulnerabilities"
         }
     }
+    implementation 'net.java.dev.jna:jna:5.13.0'
 }
 
 processResources {

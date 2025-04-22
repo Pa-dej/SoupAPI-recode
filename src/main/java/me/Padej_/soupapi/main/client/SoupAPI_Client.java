@@ -1,8 +1,10 @@
 package me.Padej_.soupapi.main.client;
 
+import me.Padej_.soupapi.config.SoupAPI_Config;
 import me.Padej_.soupapi.modules.*;
 import me.Padej_.soupapi.screen.ConfigScreen;
 import me.Padej_.soupapi.utils.EntityUtils;
+import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
@@ -11,6 +13,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
@@ -18,6 +21,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.world.World;
+import org.lwjgl.glfw.GLFW;
 
 public class SoupAPI_Client implements ClientModInitializer {
 
@@ -41,6 +45,11 @@ public class SoupAPI_Client implements ClientModInitializer {
         JumpCircles.onTick();
         TargetHud.onTick();
         AmbientParticle.onTick();
+        RPC.onTick();
+
+        if (InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_ALT) && InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_BACKSPACE)) {
+            client.setScreen(AutoConfig.getConfigScreen(SoupAPI_Config.class, null).get());
+        }
     }
 
     private void doRenderAfterEntities(WorldRenderContext context) {

@@ -29,7 +29,7 @@ public class TargetHud extends ConfigurableModule {
     private static final MinecraftClient mc = MinecraftClient.getInstance();
     private static float hudScale = 0f; // Текущий масштаб HUD
     private static final float scaleSpeed = 0.2f; // Скорость анимации масштабирования
-    private static int hudTimer = 0; // Таймер для задержки рендера
+    private static float hudTimer = 0f; // Таймер для задержки рендера (в секундах)
     public static EaseOutCirc headAnimation = new EaseOutCirc();
     public static LivingEntity target;
     private static LivingEntity lastTarget; // Сохраняем последнюю цель для рендера
@@ -37,33 +37,25 @@ public class TargetHud extends ConfigurableModule {
     private static final float healthChangeSpeed = 0.2f; // Скорость изменения здоровья
     private static float colorAnimationProgress = 0f; // Прогресс анимации цветов фона
     private static float hpColorAnimationProgress = 0f; // Прогресс анимации цветов полоски HP
-    private static final float colorAnimationSpeed = 0.015f; // Скорость вращения цветов
+    private static final float colorAnimationSpeed = 0.01f; // Скорость вращения цветов
     private static final ArrayList<Particle2D> particles = new ArrayList<>();
     private static boolean sentParticles = false;
-    static float ticks;
-
-    private static final Timer timer = new Timer();
+    private static float ticks = 0f;
+    private static long lastUpdateTime = System.currentTimeMillis(); // Время последнего обновления
 
     public static void onTick() {
         if (!CONFIG.targetHudEnabled) return;
-        headAnimation.update();
 
-        // Обновляем состояние цели и таймер
+        // Обновляем состояние цели
         getTarget();
         if (target instanceof PlayerEntity) {
             if (target != lastTarget) { // Если цель сменилась
                 displayedHealth = Math.min(target.getMaxHealth(), getHealth()); // Сбрасываем displayedHealth
                 lastTarget = target;
             }
-            hudTimer = CONFIG.targetHudRenderTime * 20; // Сбрасываем таймер при наличии цели
+            hudTimer = CONFIG.targetHudRenderTime; // Сбрасываем таймер (в секундах)
             target = null;
-        } else if (hudTimer > 0) {
-            hudTimer--; // Уменьшаем таймер, если цели нет
         }
-
-        // Обновляем прогресс анимации цветов
-        colorAnimationProgress = (colorAnimationProgress + colorAnimationSpeed) % 1.0f;
-        hpColorAnimationProgress = (hpColorAnimationProgress + colorAnimationSpeed / 2) % 1.0f;
 
         // Плавная интерполяция здоровья
         if (lastTarget instanceof PlayerEntity) {
@@ -75,13 +67,36 @@ public class TargetHud extends ConfigurableModule {
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
         if (!CONFIG.targetHudEnabled) return;
         getTarget();
-        float tickDelta = renderTickCounter.getTickDelta(true);
+
+        // Вычисляем разницу во времени
+        long currentTime = System.currentTimeMillis();
+        float deltaTime = (currentTime - lastUpdateTime) / 1000f; // Время в секундах
+        deltaTime = Math.min(deltaTime, 0.1f); // Ограничение на 100 мс
+        lastUpdateTime = currentTime;
+
+        // Нормализация времени для 60 FPS
+        float frameTime = 1.0f / 60.0f; // Время одного кадра при 60 FPS (~0.01667 сек)
+        float normalizedDelta = deltaTime / frameTime;
+
+        // Обновляем анимации
+        colorAnimationProgress = (colorAnimationProgress + normalizedDelta * colorAnimationSpeed) % 1.0f;
+        hpColorAnimationProgress = (hpColorAnimationProgress + normalizedDelta * colorAnimationSpeed / 2) % 1.0f;
+        headAnimation.update(normalizedDelta); // Обновляем анимацию головы
+        ticks += 0.1f * normalizedDelta; // Обновляем ticks для частиц
 
         // Плавная интерполяция масштаба HUD
         if (hudTimer > 0) {
-            hudScale = MathHelper.lerp(tickDelta * scaleSpeed, hudScale, 1.0f);
+            hudScale = MathHelper.lerp(normalizedDelta * scaleSpeed, hudScale, 1.0f);
+            hudTimer -= deltaTime; // Уменьшаем таймер на основе реального времени
+            if (hudTimer < 0) hudTimer = 0;
         } else {
-            hudScale = MathHelper.lerp(tickDelta * scaleSpeed, hudScale, 0.0f);
+            hudScale = MathHelper.lerp(normalizedDelta * scaleSpeed, hudScale, 0.0f);
+        }
+
+        // Обновляем частицы
+        for (Particle2D p : new ArrayList<>(particles)) {
+            p.updatePosition(normalizedDelta); // Передаем нормализованное время
+            if (p.opacity < 1) particles.remove(p);
         }
 
         // Рендерим HUD, если масштаб > 0 и есть последняя цель
@@ -99,7 +114,7 @@ public class TargetHud extends ConfigurableModule {
             } else if (CONFIG.targetHudStyle.equals(TargetHUD_Style.NORMAL)) {
                 centerX = x + 68.5f; // Центр для NormalHUD (137/2)
                 centerY = y + 23.75f; // (47.5/2)
-            } else { // Заглушка
+            } else { // TINY
                 centerX = x;
                 centerY = y;
             }
@@ -109,20 +124,18 @@ public class TargetHud extends ConfigurableModule {
             context.getMatrices().translate(-centerX, -centerY, 0);
 
             float animationFactor = MathUtility.clamp(hudScale, 0, 1f);
-            if (CONFIG.targetHudStyle.equals(TargetHUD_Style.MINI)) {
-                renderMiniHUD(context, tickDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget);
-            } else if (CONFIG.targetHudStyle.equals(TargetHUD_Style.NORMAL)) {
-                renderNormalHUD(context, tickDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget);
-            } else {
-                renderNormalHUD(context, tickDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget);
+            switch (CONFIG.targetHudStyle) {
+                case MINI -> renderMiniHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget);
+                case TINY -> renderTinyHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget);
+                default -> renderNormalHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget);
             }
 
             context.getMatrices().pop();
         }
     }
 
-    private static void renderMiniHUD(DrawContext context, float tickDelta, float health, float animationFactor, PlayerEntity target) {
-        float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, tickDelta)) / 8f;
+    private static void renderTinyHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target) {
+        float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
         Color c1 = Palette.getColor(0f);   // Нижний левый
         Color c2 = Palette.getColor(0.33f); // Нижний правый
@@ -132,11 +145,10 @@ public class TargetHud extends ConfigurableModule {
         int x = context.getScaledWindowWidth() / 2 + CONFIG.targetHudOffsetX;
         int y = context.getScaledWindowHeight() / 2 - CONFIG.targetHudOffsetY;
 
-        // Определяем текущий этап вращения фона на основе colorAnimationProgress (0.0 - 1.0)
-        float progress = colorAnimationProgress % 1.0f; // Зацикливаем прогресс
+        // Определяем текущий этап вращения фона
+        float progress = colorAnimationProgress % 1.0f;
         Color topLeft, topRight, bottomRight, bottomLeft;
 
-        // Разделяем анимацию фона на 4 фазы (вращение по часовой стрелке)
         if (progress < 0.25f) {
             float phaseProgress = progress / 0.25f;
             topLeft = interpolateColor(c1, c2, phaseProgress);
@@ -164,11 +176,145 @@ public class TargetHud extends ConfigurableModule {
         }
 
         // Градиентный фон с вращением цветов
+        int w = 55;
+        int h = 5;
+        int r = 3;
+        int xOffset = 24;
+        int yOffset = 3;
+        Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2 + xOffset, y + 2 + yOffset, w + 1, h + 1, 20, bottomLeft, bottomRight, topRight, topLeft);
+        Render2D.renderRoundedGradientRect(context.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x + xOffset, y + yOffset, w + 5, h + 5, r);
+        Render2D.drawRound(context.getMatrices(), x + 0.5f + xOffset, y + 0.5f + yOffset, w + 4, h + 5, r, Render2D.injectAlpha(Color.BLACK, 180));
+
+        // Голова игрока
+        Identifier texture = mc.player.getSkinTextures().texture();
+        int headScale = 20;
+        if (target.isInvisible()) {
+            texture = TexturesManager.ANON_SKIN;
+        } else if (target instanceof PlayerEntity) {
+            texture = ((AbstractClientPlayerEntity) target).getSkinTextures().texture();
+        }
+        context.getMatrices().push();
+        context.getMatrices().translate(x + 2.5 + 15, y + 2.5 + 15, 0);
+        context.getMatrices().scale(1 - hurtPercent / 20f, 1 - hurtPercent / 20f, 1f);
+        context.getMatrices().translate(-(x + 2.5 + 15), -(y + 2.5 + 15), 0);
+        RenderSystem.enableBlend();
+        RenderSystem.colorMask(false, false, false, true);
+        RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 0.0F);
+        RenderSystem.clear(GL40C.GL_COLOR_BUFFER_BIT);
+        RenderSystem.colorMask(true, true, true, true);
+        Render2D.drawRound(context.getMatrices(), x + 2.5f, y + 2.5f, headScale, headScale, r, Render2D.injectAlpha(Color.BLACK, 20));
+        Render2D.setupRender();
+        Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x + 2.5, y + 2.5, x + 2.5 + headScale, y + 2.5 + headScale, r, 10);
+        RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);
+        RenderSystem.setShaderColor(1f, 1f - hurtPercent / 2, 1f - hurtPercent / 2, 1f);
+        Render2D.renderTexture(context.getMatrices(), texture, x + 2.5, y + 2.5, headScale, headScale, 8, 8, 8, 8, 64, 64);
+        Render2D.renderTexture(context.getMatrices(), texture, x + 2.5, y + 2.5, headScale, headScale, 40, 8, 8, 8, 64, 64);
+        RenderSystem.defaultBlendFunc();
+        context.getMatrices().pop();
+
+        // Партиклы
+        for (final Particle2D p : particles) {
+            if (p.opacity > 4) {
+                p.render2D(context.getMatrices());
+            }
+        }
+
+        if (target.hurtTime == 9 && !sentParticles) {
+            for (int i = 0; i <= 6; i++) {
+                final Particle2D p = new Particle2D();
+                final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
+                p.init(x, y, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c);
+                particles.add(p);
+            }
+            sentParticles = true;
+        }
+
+        if (target.hurtTime == 8) sentParticles = false;
+
+        // Полоска HP с анимацией переключения цветов
+        float hpProgress = hpColorAnimationProgress % 1.0f;
+        Color hpLeft, hpRight;
+
+        if (hpProgress < 0.5f) {
+            float phaseProgress = hpProgress / 0.5f;
+            hpLeft = interpolateColor(c1, c3, phaseProgress);
+            hpRight = interpolateColor(c3, c1, phaseProgress);
+        } else {
+            float phaseProgress = (hpProgress - 0.5f) / 0.5f;
+            hpLeft = interpolateColor(c3, c1, phaseProgress);
+            hpRight = interpolateColor(c1, c3, phaseProgress);
+        }
+
+        // Отрисовка полоски HP
+        Render2D.drawGradientRound(context.getMatrices(), x + 24, y + 16, 59, 4, 1, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
+        Render2D.renderRoundedGradientRect(context.getMatrices(), hpLeft, hpRight, hpRight, hpLeft, x + 24, y + 16, (int) MathUtility.clamp((60 * (health / target.getMaxHealth())), 2, 59), 4, 1);
+
+        RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
+        List<ItemStack> armor = target.getInventory().armor;
+        ItemStack[] items = new ItemStack[]{target.getMainHandStack(), armor.get(3), armor.get(2), armor.get(1), armor.get(0), target.getOffHandStack()};
+
+        float xItemOffset = x + 25;
+        for (ItemStack itemStack : items) {
+            context.getMatrices().push();
+            context.getMatrices().translate(xItemOffset, y + 4, 0);
+            context.getMatrices().scale(0.5f, 0.5f, 0.5f);
+            if (ServerReduce.dontShowTargetHudItemsOverlay()) {
+                context.drawItem(itemStack, 0, 0);
+                context.drawStackOverlay(mc.textRenderer, itemStack, 0, 0);
+            }
+            context.getMatrices().pop();
+            xItemOffset += 10;
+        }
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+    }
+
+    private static void renderMiniHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target) {
+        float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
+
+        Color c1 = Palette.getColor(0f);
+        Color c2 = Palette.getColor(0.33f);
+        Color c3 = Palette.getColor(0.66f);
+        Color c4 = Palette.getColor(1f);
+
+        int x = context.getScaledWindowWidth() / 2 + CONFIG.targetHudOffsetX;
+        int y = context.getScaledWindowHeight() / 2 - CONFIG.targetHudOffsetY;
+
+        // Определяем текущий этап вращения фона
+        float progress = colorAnimationProgress % 1.0f;
+        Color topLeft, topRight, bottomRight, bottomLeft;
+
+        if (progress < 0.25f) {
+            float phaseProgress = progress / 0.25f;
+            topLeft = interpolateColor(c1, c2, phaseProgress);
+            topRight = interpolateColor(c2, c3, phaseProgress);
+            bottomRight = interpolateColor(c3, c4, phaseProgress);
+            bottomLeft = interpolateColor(c4, c1, phaseProgress);
+        } else if (progress < 0.5f) {
+            float phaseProgress = (progress - 0.25f) / 0.25f;
+            topLeft = interpolateColor(c2, c3, phaseProgress);
+            topRight = interpolateColor(c3, c4, phaseProgress);
+            bottomRight = interpolateColor(c4, c1, phaseProgress);
+            bottomLeft = interpolateColor(c1, c2, phaseProgress);
+        } else if (progress < 0.75f) {
+            float phaseProgress = (progress - 0.5f) / 0.25f;
+            topLeft = interpolateColor(c3, c4, phaseProgress);
+            topRight = interpolateColor(c4, c1, phaseProgress);
+            bottomRight = interpolateColor(c1, c2, phaseProgress);
+            bottomLeft = interpolateColor(c2, c3, phaseProgress);
+        } else {
+            float phaseProgress = (progress - 0.75f) / 0.25f;
+            topLeft = interpolateColor(c4, c1, phaseProgress);
+            topRight = interpolateColor(c1, c2, phaseProgress);
+            bottomRight = interpolateColor(c2, c3, phaseProgress);
+            bottomLeft = interpolateColor(c3, c4, phaseProgress);
+        }
+
+        // Градиентный фон
         Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 91, 31, 20, bottomLeft, bottomRight, topRight, topLeft);
         Render2D.renderRoundedGradientRect(context.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x, y, 95, 35, 7);
         Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, 94, 34, 7, Render2D.injectAlpha(Color.BLACK, 180));
 
-        // Остальной код для головы и текстур остается без изменений
+        // Голова игрока
         Identifier texture = mc.player.getSkinTextures().texture();
         String displayName = "Invisible";
         if (target.isInvisible()) {
@@ -197,31 +343,13 @@ public class TargetHud extends ConfigurableModule {
         context.getMatrices().pop();
 
         // Партиклы
-        for (final Particle2D p : particles)
-            if (p.opacity > 4)
-                p.render2D(context.getMatrices());
-
-        if (timer.passedMs(1000 / 60)) {
-            ticks += 0.1f;
-            for (final Particle2D p : particles) {
-                p.updatePosition();
-                if (p.opacity < 1) particles.remove(p);
-            }
-            timer.reset();
-        }
-
-        final ArrayList<Particle2D> removeList = new ArrayList<>();
         for (final Particle2D p : particles) {
-            if (p.opacity <= 1) {
-                removeList.add(p);
+            if (p.opacity > 4) {
+                p.render2D(context.getMatrices());
             }
         }
 
-        for (final Particle2D p : removeList) {
-            particles.remove(p);
-        }
-
-        if ((target.hurtTime == 9 && !sentParticles)) {
+        if (target.hurtTime == 9 && !sentParticles) {
             for (int i = 0; i <= 6; i++) {
                 final Particle2D p = new Particle2D();
                 final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
@@ -233,33 +361,28 @@ public class TargetHud extends ConfigurableModule {
 
         if (target.hurtTime == 8) sentParticles = false;
 
-        // Полоска HP с анимацией переключения цветов (инверсия)
-        float hpProgress = hpColorAnimationProgress % 1.0f; // Зацикливаем прогресс для HP
+        // Полоска HP
+        float hpProgress = hpColorAnimationProgress % 1.0f;
         Color hpLeft, hpRight;
 
-        // Инверсия цветов между c1 и c3
         if (hpProgress < 0.5f) {
-            // Первая половина цикла: c1 слева, c3 справа
             float phaseProgress = hpProgress / 0.5f;
             hpLeft = interpolateColor(c1, c3, phaseProgress);
             hpRight = interpolateColor(c3, c1, phaseProgress);
         } else {
-            // Вторая половина цикла: c3 слева, c1 справа
             float phaseProgress = (hpProgress - 0.5f) / 0.5f;
             hpLeft = interpolateColor(c3, c1, phaseProgress);
             hpRight = interpolateColor(c1, c3, phaseProgress);
         }
 
-        // Отрисовка полоски HP
         Render2D.drawGradientRound(context.getMatrices(), x + 38, y + 25, 52, 7, 2f, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
         Render2D.renderRoundedGradientRect(context.getMatrices(), hpLeft, hpRight, hpRight, hpLeft, x + 38, y + 25, (int) MathUtility.clamp((52 * (health / target.getMaxHealth())), 8, 52), 7, 2f);
 
-        // Текст и предметы остаются без изменений
         FontRenderers.sf_bold_mini.drawCenteredString(context.getMatrices(), String.valueOf(Math.round(10.0 * health) / 10.0), x + 65, y + 27f, Render2D.applyOpacity(Colors.WHITE, animationFactor));
         FontRenderers.sf_bold_mini.drawString(context.getMatrices(), displayName, x + 38, y + 5, Render2D.applyOpacity(Colors.WHITE, animationFactor));
 
         RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
-        java.util.List<ItemStack> armor = target.getInventory().armor;
+        List<ItemStack> armor = target.getInventory().armor;
         ItemStack[] items = new ItemStack[]{target.getMainHandStack(), armor.get(3), armor.get(2), armor.get(1), armor.get(0), target.getOffHandStack()};
 
         float xItemOffset = x + 38;
@@ -277,22 +400,21 @@ public class TargetHud extends ConfigurableModule {
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
 
-    private static void renderNormalHUD(DrawContext context, float tickDelta, float health, float animationFactor, PlayerEntity target) {
-        float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, tickDelta)) / 8f;
+    private static void renderNormalHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target) {
+        float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
-        Color c1 = Palette.getColor(0f);   // Нижний левый
-        Color c2 = Palette.getColor(0.33f); // Нижний правый
-        Color c3 = Palette.getColor(0.66f); // Верхний правый
-        Color c4 = Palette.getColor(1f);   // Верхний левый
+        Color c1 = Palette.getColor(0f);
+        Color c2 = Palette.getColor(0.33f);
+        Color c3 = Palette.getColor(0.66f);
+        Color c4 = Palette.getColor(1f);
 
         int x = context.getScaledWindowWidth() / 2 + CONFIG.targetHudOffsetX;
         int y = context.getScaledWindowHeight() / 2 - CONFIG.targetHudOffsetY;
 
-        // Определяем текущий этап вращения фона на основе colorAnimationProgress (0.0 - 1.0)
-        float progress = colorAnimationProgress % 1.0f; // Зацикливаем прогресс
+        // Определяем текущий этап вращения фона
+        float progress = colorAnimationProgress % 1.0f;
         Color topLeft, topRight, bottomRight, bottomLeft;
 
-        // Разделяем анимацию фона на 4 фазы (вращение по часовой стрелке)
         if (progress < 0.25f) {
             float phaseProgress = progress / 0.25f;
             topLeft = interpolateColor(c1, c2, phaseProgress);
@@ -319,7 +441,7 @@ public class TargetHud extends ConfigurableModule {
             bottomLeft = interpolateColor(c3, c4, phaseProgress);
         }
 
-        // Градиентный фон с вращением цветов
+        // Градиентный фон
         Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 133, 43, 20, bottomLeft, bottomRight, topRight, topLeft);
         Render2D.renderRoundedGradientRect(context.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x, y, 137, 47.5f, 9);
         Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, 136, 46, 9, Render2D.injectAlpha(Color.BLACK, 220));
@@ -353,31 +475,13 @@ public class TargetHud extends ConfigurableModule {
         context.getMatrices().pop();
 
         // Партиклы
-        for (final Particle2D p : particles)
-            if (p.opacity > 4)
-                p.render2D(context.getMatrices());
-
-        if (timer.passedMs(1000 / 60)) {
-            ticks += 0.1f;
-            for (final Particle2D p : particles) {
-                p.updatePosition();
-                if (p.opacity < 1) particles.remove(p);
-            }
-            timer.reset();
-        }
-
-        final ArrayList<Particle2D> removeList = new ArrayList<>();
         for (final Particle2D p : particles) {
-            if (p.opacity <= 1) {
-                removeList.add(p);
+            if (p.opacity > 4) {
+                p.render2D(context.getMatrices());
             }
         }
 
-        for (final Particle2D p : removeList) {
-            particles.remove(p);
-        }
-
-        if ((target.hurtTime == 9 && !sentParticles)) {
+        if (target.hurtTime == 9 && !sentParticles) {
             for (int i = 0; i <= 6; i++) {
                 final Particle2D p = new Particle2D();
                 final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
@@ -389,31 +493,26 @@ public class TargetHud extends ConfigurableModule {
 
         if (target.hurtTime == 8) sentParticles = false;
 
-        // Полоска HP с анимацией переключения цветов (инверсия)
-        float hpProgress = hpColorAnimationProgress % 1.0f; // Зацикливаем прогресс для HP
+        // Полоска HP
+        float hpProgress = hpColorAnimationProgress % 1.0f;
         Color hpLeft, hpRight;
 
-        // Инверсия цветов между c1 и c3
         if (hpProgress < 0.5f) {
-            // Первая половина цикла: c1 слева, c3 справа
             float phaseProgress = hpProgress / 0.5f;
             hpLeft = interpolateColor(c1, c3, phaseProgress);
             hpRight = interpolateColor(c3, c1, phaseProgress);
         } else {
-            // Вторая половина цикла: c3 слева, c1 справа
             float phaseProgress = (hpProgress - 0.5f) / 0.5f;
             hpLeft = interpolateColor(c3, c1, phaseProgress);
             hpRight = interpolateColor(c1, c3, phaseProgress);
         }
 
-        // Отрисовка полоски HP
         Render2D.drawGradientRound(context.getMatrices(), x + 48, y + 32, 85, 11, 4f, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
         Render2D.renderRoundedGradientRect(context.getMatrices(), hpLeft, hpRight, hpRight, hpLeft, x + 48, y + 32, (int) MathUtility.clamp((85 * (health / target.getMaxHealth())), 8, 85), 11, 4f);
 
         FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), String.valueOf(Math.round(10.0 * health) / 10.0), x + 92f, y + 35f, Render2D.applyOpacity(Colors.WHITE, animationFactor));
         FontRenderers.sf_bold.drawString(context.getMatrices(), displayName, x + 48, y + 7, Render2D.applyOpacity(Colors.WHITE, animationFactor));
 
-        // Предметы инвентаря
         RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
         List<ItemStack> armor = target.getInventory().armor;
         ItemStack[] items = new ItemStack[]{target.getMainHandStack(), armor.get(3), armor.get(2), armor.get(1), armor.get(0), target.getOffHandStack()};
@@ -454,7 +553,6 @@ public class TargetHud extends ConfigurableModule {
         return lastTarget.getHealth() + lastTarget.getAbsorptionAmount();
     }
 
-    // Вспомогательная функция для интерполяции цветов
     private static Color interpolateColor(Color start, Color end, float progress) {
         int r = MathHelper.lerp(progress, start.getRed(), end.getRed());
         int g = MathHelper.lerp(progress, start.getGreen(), end.getGreen());
@@ -464,7 +562,7 @@ public class TargetHud extends ConfigurableModule {
     }
 
     public enum TargetHUD_Style {
-        MINI, NORMAL
+        MINI, TINY, NORMAL
     }
 
     public enum TargetHUD_ConfigPos {

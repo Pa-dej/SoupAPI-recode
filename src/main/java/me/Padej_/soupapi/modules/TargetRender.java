@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 
+// TODO: Минимальная задержка 1 тик. Если хит резалт энтити не нал, то таймер не запускается.
 public class TargetRender extends ConfigurableModule {
     private static float rollAngle = 0.0f;
     private static long lastUpdateTime = System.currentTimeMillis();
@@ -26,15 +27,18 @@ public class TargetRender extends ConfigurableModule {
         // Проверка видимости цели
         boolean visibleNow = currentTarget != null && client.player.canSee(currentTarget);
 
-        // Если цель видимая и не совпадает с последней целью — обновляем данные
-        if (visibleNow && currentTarget != lastTargetEntity) {
-            lastTargetEntity = currentTarget;
+        // Если цель видимая
+        if (visibleNow) {
+            // Если цель новая, обновляем данные
+            if (currentTarget != lastTargetEntity) {
+                lastTargetEntity = currentTarget;
+            }
             lastTargetUpdateTime = currentTime;
         }
 
-        // Если цель есть и время истекло, или цель была удалена — сбрасываем её
+        // Если цель есть, проверяем, не истекло ли время или не удалена ли цель
         if (lastTargetEntity != null) {
-            if (currentTime - lastTargetUpdateTime > CONFIG.targetRenderLiveTime * 1000L || lastTargetEntity.isRemoved()) {
+            if (currentTime - lastTargetUpdateTime > (lastTargetEntity.isInvisible() ? 0 : CONFIG.targetRenderLiveTime * 1000L) || lastTargetEntity.isRemoved()) {
                 lastTargetEntity = null;
                 return false; // Возвращаем false, потому что цель устарела или удалена
             }

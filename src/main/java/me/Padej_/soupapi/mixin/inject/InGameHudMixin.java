@@ -10,26 +10,22 @@ import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.option.AttackIndicator;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Arm;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
@@ -49,34 +45,23 @@ public abstract class InGameHudMixin {
     @Shadow
     @Final
     private MinecraftClient client;
-    @Shadow
-    @Final
-    private static Identifier HOTBAR_ATTACK_INDICATOR_BACKGROUND_TEXTURE;
-    @Shadow
-    @Final
-    private static Identifier HOTBAR_ATTACK_INDICATOR_PROGRESS_TEXTURE;
 
+    @Shadow
+    @Final
+    private static Identifier CROSSHAIR_TEXTURE;
     @Unique
     private static final float healthChangeSpeed = 0.2f;
     @Unique
-    private static float displayedHealth = 0f;
-    @Unique
-    private static float displayedHunger = 0f;
-    @Unique
-    private static float displayedArmor = 0f;
-    @Unique
-    private static float colorAnimationProgress = 0f;
-    @Unique
-    private static float hpColorAnimationProgress = 0f;
-    @Unique
     private static final float colorAnimationSpeed = 0.015f;
+    @Unique
+    private static float displayedHealth, displayedHunger, displayedArmor = 0f;
+    @Unique
+    private static float hpColorAnimationProgress, colorAnimationProgress = 0f;
 
     @Unique
     private float selectedSlotProgress = 0f;
     @Unique
-    private int lastSelectedSlot = 0;
-    @Unique
-    private int targetSlot = 0;
+    private int targetSlot, lastSelectedSlot = 0;
     @Unique
     private static final float SLOT_ANIMATION_SPEED = 10;
     @Unique
@@ -84,6 +69,9 @@ public abstract class InGameHudMixin {
 
     @Unique
     private static long lastUpdateTime = System.currentTimeMillis();
+
+    @Unique
+    private float prevYaw, prevPitch, targetYawOffset, targetPitchOffset, interpolatedYawOffset, interpolatedPitchOffset = 0;
 
     @Inject(method = "render", at = @At("TAIL"))
     private void render(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
@@ -94,11 +82,12 @@ public abstract class InGameHudMixin {
         context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer, SoupAPI_Main.ac, 5, 5, 0x99FFFFFF);
 
         long currentTime = System.currentTimeMillis();
-        float deltaTime = (currentTime - lastUpdateTime) / 1000f;
+        float deltaTime = (currentTime - lastUpdateTime) / 1000f; // Время в секундах
         lastUpdateTime = currentTime;
 
         float tickDelta = tickCounter.getTickDelta(true);
 
+        // Расчеты для здоровья и голода остаются без изменений, так как они не относятся к цветовой анимации
         float targetHealth = Math.min(mc.player.getMaxHealth() + mc.player.getAbsorptionAmount(),
                 mc.player.getHealth() + mc.player.getAbsorptionAmount());
         if (displayedHealth == 0f) displayedHealth = targetHealth;
@@ -109,10 +98,15 @@ public abstract class InGameHudMixin {
         if (displayedHunger == 0f) displayedHunger = targetHunger;
         displayedHunger = MathHelper.lerp(tickDelta * healthChangeSpeed, displayedHunger, targetHunger);
 
-        colorAnimationProgress = (colorAnimationProgress + tickDelta * colorAnimationSpeed) % 1.0f;
-        hpColorAnimationProgress = (hpColorAnimationProgress + tickDelta * colorAnimationSpeed / 2f) % 1.0f;
-        hotbarColorAnimationProgress = (hotbarColorAnimationProgress + tickDelta * colorAnimationSpeed / 2f) % 1.0f;
+        // Обновление прогресса цветовой анимации на основе реального времени
+        float frameTime = 1.0f / 60.0f; // Время одного кадра при 60 FPS (~0.01667 сек)
+        float normalizedDelta = deltaTime / frameTime; // Нормализация времени для 60 FPS
 
+        colorAnimationProgress = (colorAnimationProgress + normalizedDelta * colorAnimationSpeed) % 1.0f;
+        hpColorAnimationProgress = (hpColorAnimationProgress + normalizedDelta * colorAnimationSpeed / 2f) % 1.0f;
+        hotbarColorAnimationProgress = (hotbarColorAnimationProgress + normalizedDelta * colorAnimationSpeed / 2f) % 1.0f;
+
+        // Остальная логика для анимации слотов
         int currentSlot = mc.player.getInventory().selectedSlot;
         if (currentSlot != targetSlot) {
             lastSelectedSlot = targetSlot;
@@ -155,7 +149,8 @@ public abstract class InGameHudMixin {
                 isLBStyle ? new Color(0xaa816046).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
                 isLBStyle ? new Color(0xaa856346).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
                 isLBStyle ? new Color(0xaa856346).darker().darker() : c2Hp.darker().darker());
-        if (filledWidth != 0) Render2D.renderRoundedGradientRect(context.getMatrices(), c1Hp, c2Hp, c2Hp, c1Hp, x + barWidth - filledWidth, top, filledWidth, barHeight, cornerRadius);
+        if (filledWidth != 0)
+            Render2D.renderRoundedGradientRect(context.getMatrices(), c1Hp, c2Hp, c2Hp, c1Hp, x + barWidth - filledWidth, top, filledWidth, barHeight, cornerRadius);
 
         String hungerText = String.valueOf(Math.round(10.0 * displayedHunger) / 10.0);
         float textX = x + barWidth / 2f;
@@ -328,7 +323,6 @@ public abstract class InGameHudMixin {
         if (player == null) return;
 
         ItemStack offHandStack = player.getOffHandStack();
-        Arm arm = player.getMainArm().getOpposite();
         int halfWidth = context.getScaledWindowWidth() / 2;
 
         // Определяем цвета
@@ -376,13 +370,14 @@ public abstract class InGameHudMixin {
 
         // Слот для левой руки
         if (!offHandStack.isEmpty()) {
-            int offhandX = arm == Arm.LEFT ? halfWidth - halfBar - 25 : halfWidth + halfBar;
+            float offhandX = halfWidth - halfBar - 25.5f;
             int offhandY = context.getScaledWindowHeight() - 25;
             Render2D.drawGradientBlurredShadow1(context.getMatrices(), offhandX, offhandY, 19, 19, glowStrength, hotbarBottomLeft, hotbarBottomRight, hotbarTopRight, hotbarTopLeft);
             Render2D.renderRoundedGradientRect(context.getMatrices(), hotbarTopLeft, hotbarTopRight, hotbarBottomRight, hotbarBottomLeft, offhandX, offhandY, 19, 19, cornerRadius);
             Render2D.drawRound(context.getMatrices(), offhandX + 0.5f, offhandY + 0.5f, 18, 18, cornerRadius, Render2D.injectAlpha(Color.BLACK, 180));
         }
 
+        /*
         // Индикатор атаки
         if (client.options.getAttackIndicator().getValue() == AttackIndicator.HOTBAR) {
             float f = this.client.player.getAttackCooldownProgress(0.0F);
@@ -397,71 +392,69 @@ public abstract class InGameHudMixin {
                 context.drawGuiTexture(RenderLayer::getGuiTextured, HOTBAR_ATTACK_INDICATOR_PROGRESS_TEXTURE, 18, 18, 0, 18 - p, y, x + 18 - p, 18, p);
             }
         }
+         */
 
-        if (!CONFIG.hudBetterHotbarShowArmor) return;
+        int dummy = 1;
+        if (CONFIG.hudBetterHotbarShowArmor) {
 
-        // Получаем предметы брони и считаем количество надетых
-        Iterable<ItemStack> armorItems = player.getArmorItems();
-        ItemStack[] armorArray = new ItemStack[4];
-        int armorIndex = 0;
-        int equippedArmorCount = 0;
-        for (ItemStack armor : armorItems) {
-            armorArray[armorIndex] = armor;
-            if (armor != null && !armor.isEmpty()) {
-                equippedArmorCount++;
+            // Получаем предметы брони и считаем количество надетых
+            Iterable<ItemStack> armorItems = player.getArmorItems();
+            ItemStack[] armorArray = new ItemStack[4];
+            int armorIndex = 0;
+            int equippedArmorCount = 0;
+            for (ItemStack armor : armorItems) {
+                armorArray[armorIndex] = armor;
+                if (armor != null && !armor.isEmpty()) {
+                    equippedArmorCount++;
+                }
+                armorIndex++;
             }
-            armorIndex++;
-        }
 
-        // Монолитные горизонтальные слоты для брони (только если есть надетая броня)
-        if (equippedArmorCount > 0) {
-            int slotWidth = 20;
-            int armorWidth = equippedArmorCount * slotWidth - 2;
-            int armorXOffset = halfWidth + halfBar + 5;
-            int armorY = context.getScaledWindowHeight() - 22 - yOffset;
+            // Монолитные горизонтальные слоты для брони (только если есть надетая броня)
+            if (equippedArmorCount > 0) {
+                int slotWidth = 20;
+                int armorWidth = equippedArmorCount * slotWidth - 2;
+                int armorXOffset = halfWidth + halfBar + 5;
+                int armorY = context.getScaledWindowHeight() - 22 - yOffset;
 
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, glowStrength, hotbarBottomLeft, hotbarBottomRight, hotbarTopRight, hotbarTopLeft);
-            if (isLBStyle) {
-                Render2D.drawRound(context.getMatrices(), armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, cornerRadius, Render2D.injectAlpha(Color.BLACK, 180));
-            } else {
-                Render2D.renderRoundedGradientRect(context.getMatrices(), hotbarTopLeft, hotbarTopRight, hotbarBottomRight, hotbarBottomLeft, armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, cornerRadius);
-                Render2D.drawRound(context.getMatrices(), armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, cornerRadius, Render2D.injectAlpha(Color.BLACK, 120));
+                Render2D.drawGradientBlurredShadow1(context.getMatrices(), armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, glowStrength, hotbarBottomLeft, hotbarBottomRight, hotbarTopRight, hotbarTopLeft);
+                if (isLBStyle) {
+                    Render2D.drawRound(context.getMatrices(), armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, cornerRadius, Render2D.injectAlpha(Color.BLACK, 180));
+                } else {
+                    Render2D.renderRoundedGradientRect(context.getMatrices(), hotbarTopLeft, hotbarTopRight, hotbarBottomRight, hotbarBottomLeft, armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, cornerRadius);
+                    Render2D.drawRound(context.getMatrices(), armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, cornerRadius, Render2D.injectAlpha(Color.BLACK, 120));
+                }
+            }
+
+            context.getMatrices().pop();
+
+            // Рендерим предметы в слотах брони (только надетые)
+            if (equippedArmorCount > 0) {
+                int armorXOffset = halfWidth + halfBar + 5;
+                int armorYPos = context.getScaledWindowHeight() - 16 - 3 - yOffset;
+                int currentSlot = 0;
+                for (int i = 0; i < 4; i++) {
+                    ItemStack armorItem = armorArray[i];
+                    if (armorItem != null && !armorItem.isEmpty()) {
+                        int armorX = armorXOffset + currentSlot * 20 + 2;
+                        renderHotbarItem(context, armorX, armorYPos, tickCounter, player, armorItem, dummy++);
+                        currentSlot++;
+                    }
+                }
             }
         }
-
-        context.getMatrices().pop();
 
         // Рендерим предметы в слотах хотбара
-        int dummy = 1;
         for (int slot = 0; slot < 9; ++slot) {
             int x = halfWidth - 90 + slot * 20 + 2;
             int y = context.getScaledWindowHeight() - 16 - 3 - yOffset;
             renderHotbarItem(context, x, y, tickCounter, player, player.getInventory().main.get(slot), dummy++);
         }
 
-        // Рендерим предметы в слотах брони (только надетые)
-        if (equippedArmorCount > 0) {
-            int armorXOffset = halfWidth + halfBar + 5;
-            int armorYPos = context.getScaledWindowHeight() - 16 - 3 - yOffset;
-            int currentSlot = 0;
-            for (int i = 0; i < 4; i++) {
-                ItemStack armorItem = armorArray[i];
-                if (armorItem != null && !armorItem.isEmpty()) {
-                    int armorX = armorXOffset + currentSlot * 20 + 2;
-                    renderHotbarItem(context, armorX, armorYPos, tickCounter, player, armorItem, dummy++);
-                    currentSlot++;
-                }
-            }
-        }
-
         // Рендерим предмет в слоте левой руки
         if (!offHandStack.isEmpty()) {
             int slotY = context.getScaledWindowHeight() - 16 - 3 - yOffset;
-            if (arm == Arm.LEFT) {
-                this.renderHotbarItem(context, halfWidth - 91 - 22, slotY, tickCounter, player, offHandStack, dummy++);
-            } else {
-                this.renderHotbarItem(context, halfWidth + 91 + 10, slotY, tickCounter, player, offHandStack, dummy++);
-            }
+            this.renderHotbarItem(context, halfWidth - halfBar - 24, slotY, tickCounter, player, offHandStack, dummy++);
         }
     }
 
@@ -491,6 +484,63 @@ public abstract class InGameHudMixin {
 
             context.drawStackOverlay(this.client.textRenderer, stack, x, y);
         }
+    }
+
+    @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
+    private void injectDynamicCrosshair(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (!CONFIG.hudDynamicCrosshairEnabled) return;
+        if (!mc.options.getPerspective().isFirstPerson()) return;
+        if (mc.interactionManager.getCurrentGameMode() == GameMode.SPECTATOR) return;
+
+        float midX = context.getScaledWindowWidth() / 2f;
+        float midY = context.getScaledWindowHeight() / 2f;
+        float tickDelta = tickCounter.getTickDelta(true);
+
+        float currYaw = mc.player.getHeadYaw();
+        float currPitch = mc.player.getPitch();
+
+        // ΔYaw / ΔPitch
+        float yawDelta = currYaw - prevYaw;
+        float pitchDelta = currPitch - prevPitch;
+
+        // Накапливаем изменения
+        targetYawOffset += yawDelta * 0.6f;
+        targetPitchOffset += pitchDelta * 0.9f;
+
+        // Ограничим смещения
+        float max = CONFIG.hudDynamicCrosshairMaxOffsetEnabled;
+        targetYawOffset = MathHelper.clamp(targetYawOffset, -max, max);
+        targetPitchOffset = MathHelper.clamp(targetPitchOffset, -max, max);
+
+        // Плавный возврат к центру (затухание)
+        float fade = CONFIG.hudDynamicCrosshairFadeFactorEnabled / 100f;
+        targetYawOffset *= fade;
+        targetPitchOffset *= fade;
+
+        // Интерполяция с учётом tickDelta
+        interpolatedYawOffset = MathHelper.lerp(tickDelta, interpolatedYawOffset, targetYawOffset);
+        interpolatedPitchOffset = MathHelper.lerp(tickDelta, interpolatedPitchOffset, targetPitchOffset);
+
+        // Смещённые координаты
+        float crossX = midX + interpolatedYawOffset;
+        float crossY = midY + interpolatedPitchOffset;
+
+        // Рендерим прицел
+        context.drawGuiTexture(
+                RenderLayer::getCrosshair,
+                CROSSHAIR_TEXTURE,
+                (int) crossX,
+                (int) crossY,
+                15,
+                15
+        );
+
+        // Обновляем прошлые значения
+        prevYaw = currYaw;
+        prevPitch = currPitch;
+
+        ci.cancel();
     }
 
     @Unique
@@ -534,4 +584,5 @@ public abstract class InGameHudMixin {
         int a = MathHelper.lerp(progress, start.getAlpha(), end.getAlpha());
         return new Color(r, g, b, a);
     }
+
 }

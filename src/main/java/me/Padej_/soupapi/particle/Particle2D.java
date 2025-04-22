@@ -35,18 +35,19 @@ public class Particle2D {
         RenderSystem.setShaderTexture(0, 0);
     }
 
-    public void updatePosition() {
-        x += deltaX;
-        y += deltaY;
+    public void updatePosition(float delta) {
+        x += deltaX * delta;
+        y += deltaY * delta;
 
-        deltaY *= 0.95;
-        deltaX *= 0.95;
+        deltaY *= Math.pow(0.95, delta * 60); // Затухание скорости, нормированное для 60 FPS
+        deltaX *= Math.pow(0.95, delta * 60);
 
-        opacity -= 2f;
-        size /= 1.01;
+        opacity -= 2f * delta * 60; // Уменьшение прозрачности, нормированное для 60 FPS
+        size /= Math.pow(1.01, delta * 60); // Уменьшение размера, нормированное для 60 FPS
 
-        if (opacity < 1)
+        if (opacity < 1) {
             opacity = 1;
+        }
     }
 
     public void init(final double x, final double y, final double deltaX, final double deltaY, final double size, final Color color) {

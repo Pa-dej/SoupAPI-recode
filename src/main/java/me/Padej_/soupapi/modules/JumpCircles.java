@@ -59,19 +59,26 @@ public class JumpCircles extends ConfigurableModule {
     private static class JumpCircle {
         private final Vec3d position;
         private final double offsetY;
-        private int age;
+        private final long startTime; // Время создания круга
         private float rotationAngle;
         private float angularVelocity;
+        private long lastUpdateTime; // Время последнего обновления
+        private final boolean isFadeOut; // Флаг для эффекта затухания
 
         public JumpCircle(Vec3d position) {
             this.position = position;
             this.offsetY = getRandomHeightOffset(0.01, 0.02, 0.0001);
             this.rotationAngle = 0f;
-            this.angularVelocity = (float) Math.toRadians(CONFIG.jumpCirclesSpinSpeed * 20f);
+            this.angularVelocity = (float) Math.toRadians(CONFIG.jumpCirclesSpinSpeed);
+            this.startTime = System.currentTimeMillis(); // Запоминаем время создания
+            this.lastUpdateTime = startTime; // Инициализация времени обновления
+            this.isFadeOut = CONFIG.jumpCirclesFadeOut; // Инициализация флага из конфигурации
         }
 
         public boolean isExpired() {
-            return age++ > CONFIG.jumpCirclesLiveTime * MinecraftClient.getInstance().getCurrentFps();
+            long currentTime = System.currentTimeMillis();
+            float elapsedTime = (currentTime - startTime) / 1000f; // Прошедшее время в секундах
+            return elapsedTime > CONFIG.jumpCirclesLiveTime; // Сравниваем с временем жизни в секундах
         }
 
         public static double getRandomHeightOffset(double min, double max, double step) {
@@ -90,8 +97,22 @@ public class JumpCircles extends ConfigurableModule {
         }
 
         private void updateRotation() {
-            float totalLifetime = CONFIG.jumpCirclesLiveTime * MinecraftClient.getInstance().getCurrentFps();
-            float remainingFraction = MathHelper.clamp((totalLifetime - age) / totalLifetime, 0, 1);
+            // Вычисляем разницу во времени
+            long currentTime = System.currentTimeMillis();
+            float deltaTime = (currentTime - lastUpdateTime) / 1000f; // Время в секундах
+            lastUpdateTime = currentTime;
+
+            // Ограничиваем deltaTime, чтобы избежать скачков при фризах
+            deltaTime = Math.min(deltaTime, 0.1f);
+
+            // Нормализация времени для 60 FPS
+            float frameTime = 1.0f / 60.0f; // Время одного кадра при 60 FPS (~0.01667 сек)
+            float normalizedDelta = deltaTime / frameTime; // Нормализация времени
+
+            // Вычисляем долю оставшегося времени жизни на основе реального времени
+            float totalLifetime = CONFIG.jumpCirclesLiveTime; // Время жизни в секундах
+            float elapsedTime = (currentTime - startTime) / 1000f; // Прошедшее время в секундах
+            float remainingFraction = MathHelper.clamp((totalLifetime - elapsedTime) / totalLifetime, 0, 1);
 
             float damping = 0.98f;
 
@@ -99,10 +120,11 @@ public class JumpCircles extends ConfigurableModule {
                 angularVelocity *= damping;
             } else {
                 float reverseFactor = (0.5f - remainingFraction) * 2f;
-                angularVelocity = -((float) Math.toRadians(CONFIG.jumpCirclesColorSpinSpeed * 20f) * reverseFactor * damping);
+                angularVelocity = -((float) Math.toRadians(CONFIG.jumpCirclesColorSpinSpeed) * reverseFactor * damping);
             }
 
-            rotationAngle += angularVelocity;
+            // Обновляем угол вращения с учетом нормализованного времени
+            rotationAngle += angularVelocity * normalizedDelta;
 
             if (Math.abs(angularVelocity) < 0.001f && remainingFraction > 0.5f) {
                 angularVelocity = 0f;
@@ -111,7 +133,7 @@ public class JumpCircles extends ConfigurableModule {
 
         private void renderGlowCircleBufferBuilder(MatrixStack modelMatrix, double x, double y, double z) {
             int glowAlpha = ConfigUtils.intPercentToHexInt(CONFIG.jumpCirclesAlpha);
-            int liveTime = CONFIG.jumpCirclesLiveTime;
+            float liveTime = CONFIG.jumpCirclesLiveTime;
 
             RenderSystem.enableBlend();
             RenderSystem.disableDepthTest();
@@ -122,13 +144,15 @@ public class JumpCircles extends ConfigurableModule {
             RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
             BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 
-            float ageFraction = (float) age / (800f / (liveTime + 1));
+            // Вычисляем долю возраста для масштабирования на основе реального времени
+            float elapsedTime = (System.currentTimeMillis() - startTime) / 1000f; // Прошедшее время в секундах
+            float ageFraction = elapsedTime / (liveTime / 3); // Нормализация по времени жизни
             ageFraction *= 3; // Базовый коэффициент роста
-            float scaleMultiplier = CONFIG.jumpCirclesScale / 100f; // Масштаб от конфига (может быть > 1.0)
-            ageFraction = MathHelper.clamp(ageFraction * scaleMultiplier, 0, scaleMultiplier); // Применяем масштаб и ограничиваем
+            float scaleMultiplier = CONFIG.jumpCirclesScale / 100f; // Масштаб от конфига
+            ageFraction = MathHelper.clamp(ageFraction * scaleMultiplier, 0, scaleMultiplier);
 
-            float totalLifetime = liveTime * MinecraftClient.getInstance().getCurrentFps();
-            float remainingFraction = MathHelper.clamp((totalLifetime - age) / totalLifetime, 0, 1);
+            float totalLifetime = liveTime; // Время жизни в секундах
+            float remainingFraction = MathHelper.clamp((totalLifetime - elapsedTime) / totalLifetime, 0, 1);
 
             if (remainingFraction < 0.3f) {
                 float shrinkFactor = remainingFraction / 0.3f;
@@ -136,10 +160,10 @@ public class JumpCircles extends ConfigurableModule {
             }
 
             float interpolatedRadius = ageFraction;
-            float colorAnim = 1f - remainingFraction;
+            float colorAnim = isFadeOut ? 1f - remainingFraction : 1.0f; // Учитываем флаг isFadeOut
             float scale = interpolatedRadius * 2f;
 
-            // Получаем цвета из палитры в зависимости от прогресса анимации
+            // Получаем цвета из палитры
             Color color1 = Palette.getInterpolatedPaletteColor(0.0f);
             Color color2 = Palette.getInterpolatedPaletteColor(0.33f);
             Color color3 = Palette.getInterpolatedPaletteColor(0.66f);
