@@ -22,9 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ScreenMixin {
 
     @Shadow
-    public abstract Text getTitle();
-
-    @Shadow
     @Final
     protected Text title;
 

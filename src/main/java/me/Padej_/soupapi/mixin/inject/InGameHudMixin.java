@@ -87,7 +87,6 @@ public abstract class InGameHudMixin {
 
         float tickDelta = tickCounter.getTickDelta(true);
 
-        // Расчеты для здоровья и голода остаются без изменений, так как они не относятся к цветовой анимации
         float targetHealth = Math.min(mc.player.getMaxHealth() + mc.player.getAbsorptionAmount(),
                 mc.player.getHealth() + mc.player.getAbsorptionAmount());
         if (displayedHealth == 0f) displayedHealth = targetHealth;
@@ -98,15 +97,13 @@ public abstract class InGameHudMixin {
         if (displayedHunger == 0f) displayedHunger = targetHunger;
         displayedHunger = MathHelper.lerp(tickDelta * healthChangeSpeed, displayedHunger, targetHunger);
 
-        // Обновление прогресса цветовой анимации на основе реального времени
-        float frameTime = 1.0f / 60.0f; // Время одного кадра при 60 FPS (~0.01667 сек)
-        float normalizedDelta = deltaTime / frameTime; // Нормализация времени для 60 FPS
+        float frameTime = 1.0f / 60.0f;
+        float normalizedDelta = deltaTime / frameTime;
 
         colorAnimationProgress = (colorAnimationProgress + normalizedDelta * colorAnimationSpeed) % 1.0f;
         hpColorAnimationProgress = (hpColorAnimationProgress + normalizedDelta * colorAnimationSpeed / 2f) % 1.0f;
         hotbarColorAnimationProgress = (hotbarColorAnimationProgress + normalizedDelta * colorAnimationSpeed / 2f) % 1.0f;
 
-        // Остальная логика для анимации слотов
         int currentSlot = mc.player.getInventory().selectedSlot;
         if (currentSlot != targetSlot) {
             lastSelectedSlot = targetSlot;
@@ -213,8 +210,8 @@ public abstract class InGameHudMixin {
         if (!CONFIG.hudBetterHotbarEnabled) return;
         ci.cancel();
 
-        Color c1Base = Palette.getColor(0f);   // Нижний левый
-        Color c2Base = Palette.getColor(0.33f); // Нижний правый
+        Color c1Base = Palette.getColor(0f);
+        Color c2Base = Palette.getColor(0.33f);
         float hpProgress = (float) (Math.sin(hpColorAnimationProgress * Math.PI * 2) + 1) / 2f;
         Color c1Hp = isLBStyle ? new Color(0xb23229) : interpolateColor(c1Base, c2Base, hpProgress);
         Color c2Hp = isLBStyle ? new Color(0xbc302c) : interpolateColor(c2Base, c1Base, hpProgress);
@@ -254,8 +251,8 @@ public abstract class InGameHudMixin {
         if (!CONFIG.hudBetterHotbarEnabled) return;
         ci.cancel();
 
-        Color c1Base = Palette.getColor(0f);   // Нижний левый
-        Color c2Base = Palette.getColor(0.33f); // Нижний правый
+        Color c1Base = Palette.getColor(0f);
+        Color c2Base = Palette.getColor(0.33f);
         float hpProgress = (float) (Math.sin(hpColorAnimationProgress * Math.PI * 2) + 1) / 2f;
         Color c1Hp = isLBStyle ? new Color(0xbebebe) : interpolateColor(c1Base, c2Base, hpProgress);
         Color c2Hp = isLBStyle ? new Color(0xa8a8a8) : interpolateColor(c2Base, c1Base, hpProgress);
@@ -285,19 +282,16 @@ public abstract class InGameHudMixin {
                 isLBStyle ? new Color(0xaaa8a8a8).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
                 isLBStyle ? new Color(0xaaa8a8a8).darker().darker().darker() : c2Hp.darker().darker().darker().darker());
 
-        // Слой 2: Полоска брони
         int filledWidth = (int) MathUtility.clamp((barWidth * (displayedArmor / maxArmor)), 0, barWidth);
         if (filledWidth != 0) {
             Render2D.renderRoundedGradientRect(context.getMatrices(), c1Hp, c2Hp, c2Hp, c1Hp, x, y, filledWidth, barHeight, cornerRadius);
         }
 
-        // Рендерим текст брони
         String armorText = String.valueOf(Math.round(10.0 * displayedArmor) / 10.0);
         float textX = x + barWidth / 2f;
-        float textY = y + 2.5f; // Центрируем текст по вертикали
+        float textY = y + 2.5f;
         FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), armorText, textX, textY, Colors.WHITE);
 
-        // Иконка брони (опционально)
         Render2D.renderTexture(context.getMatrices(), TexturesManager.GUI_SHIELD, x + 2.5f, y + 2.5f, 5, 5, 0, 0, 512, 512, 512, 512);
     }
 
@@ -325,11 +319,10 @@ public abstract class InGameHudMixin {
         ItemStack offHandStack = player.getOffHandStack();
         int halfWidth = context.getScaledWindowWidth() / 2;
 
-        // Определяем цвета
-        Color c1 = Palette.getColor(0f);   // Нижний левый
-        Color c2 = Palette.getColor(0.33f); // Нижний правый
-        Color c3 = Palette.getColor(0.66f); // Верхний правый
-        Color c4 = Palette.getColor(1f);   // Верхний левый
+        Color c1 = Palette.getColor(0f);
+        Color c2 = Palette.getColor(0.33f);
+        Color c3 = Palette.getColor(0.66f);
+        Color c4 = Palette.getColor(1f);
         Color[] hotbarColors = getRotatingColors(hotbarColorAnimationProgress, c1, c2, c3, c4);
         Color hotbarTopLeft = hotbarColors[0];
         Color hotbarTopRight = hotbarColors[1];
@@ -339,10 +332,9 @@ public abstract class InGameHudMixin {
         context.getMatrices().push();
         context.getMatrices().translate(0.0F, 0.0F, -90.0F);
 
-        // Основной хотбар
         int cornerRadius = 2;
         int glowStrength = 10;
-        int hotbarWidth = 178; // Ширина хотбара (9 слотов по 20 - 2)
+        int hotbarWidth = 178;
         int halfBar = hotbarWidth / 2;
         int hotbarX = halfWidth - halfBar;
         int hotbarY = context.getScaledWindowHeight() - 22 - yOffset;
@@ -355,10 +347,17 @@ public abstract class InGameHudMixin {
             Render2D.drawRound(context.getMatrices(), hotbarX - 0.5f, hotbarY + 1, hotbarWidth + 1, 19, cornerRadius, Render2D.injectAlpha(Color.BLACK, 120));
         }
 
-        // Плавный переход между слотами
-        float startX = halfWidth - 90 + (lastSelectedSlot * 20);
-        float targetX = halfWidth - 90 + (targetSlot * 20);
-        float animatedX = MathHelper.lerp(selectedSlotProgress, startX, targetX);
+        // Calculate the position of the selected slot
+        float animatedX;
+        if (CONFIG.hudBetterHotbarSmooth) {
+            // Smooth interpolation when hudBetterHotbarSmooth is enabled
+            float startX = halfWidth - 90 + (lastSelectedSlot * 20);
+            float targetX = halfWidth - 90 + (targetSlot * 20);
+            animatedX = MathHelper.lerp(selectedSlotProgress, startX, targetX);
+        } else {
+            // Snap directly to the target slot when hudBetterHotbarSmooth is disabled
+            animatedX = halfWidth - 90 + (targetSlot * 20);
+        }
 
         int selectedSlotY = context.getScaledWindowHeight() - 22 - yOffset;
         if (isLBStyle) {
@@ -377,27 +376,8 @@ public abstract class InGameHudMixin {
             Render2D.drawRound(context.getMatrices(), offhandX + 0.5f, offhandY + 0.5f, 18, 18, cornerRadius, Render2D.injectAlpha(Color.BLACK, 180));
         }
 
-        /*
-        // Индикатор атаки
-        if (client.options.getAttackIndicator().getValue() == AttackIndicator.HOTBAR) {
-            float f = this.client.player.getAttackCooldownProgress(0.0F);
-            if (f < 1.0F) {
-                int x = context.getScaledWindowHeight() - 20 - yOffset;
-                int y = halfWidth + 91 + 6;
-                if (arm == Arm.RIGHT) {
-                    y = halfWidth - 91 - 22;
-                }
-                int p = (int) (f * 19.0F);
-                context.drawGuiTexture(RenderLayer::getGuiTextured, HOTBAR_ATTACK_INDICATOR_BACKGROUND_TEXTURE, y, x, 18, 18);
-                context.drawGuiTexture(RenderLayer::getGuiTextured, HOTBAR_ATTACK_INDICATOR_PROGRESS_TEXTURE, 18, 18, 0, 18 - p, y, x + 18 - p, 18, p);
-            }
-        }
-         */
-
         int dummy = 1;
         if (CONFIG.hudBetterHotbarShowArmor) {
-
-            // Получаем предметы брони и считаем количество надетых
             Iterable<ItemStack> armorItems = player.getArmorItems();
             ItemStack[] armorArray = new ItemStack[4];
             int armorIndex = 0;
@@ -410,7 +390,6 @@ public abstract class InGameHudMixin {
                 armorIndex++;
             }
 
-            // Монолитные горизонтальные слоты для брони (только если есть надетая броня)
             if (equippedArmorCount > 0) {
                 int slotWidth = 20;
                 int armorWidth = equippedArmorCount * slotWidth - 2;
@@ -428,7 +407,6 @@ public abstract class InGameHudMixin {
 
             context.getMatrices().pop();
 
-            // Рендерим предметы в слотах брони (только надетые)
             if (equippedArmorCount > 0) {
                 int armorXOffset = halfWidth + halfBar + 5;
                 int armorYPos = context.getScaledWindowHeight() - 16 - 3 - yOffset;
@@ -444,7 +422,6 @@ public abstract class InGameHudMixin {
             }
         }
 
-        // Рендерим предметы в слотах хотбара
         for (int slot = 0; slot < 9; ++slot) {
             int x = halfWidth - 90 + slot * 20 + 2;
             int y = context.getScaledWindowHeight() - 16 - 3 - yOffset;

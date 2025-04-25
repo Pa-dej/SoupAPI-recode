@@ -1,6 +1,7 @@
 package me.Padej_.soupapi.config;
 
 import me.Padej_.soupapi.modules.*;
+import me.Padej_.soupapi.utils.MC_Tiers;
 import me.Padej_.soupapi.utils.Palette;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
@@ -12,10 +13,14 @@ public class SoupAPI_Config implements ConfigData {
     /**
      * MAIN
      **/
-    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Gui.PrefixText // Friends
     @ConfigEntry.Category("main")
     public String[] friends = {};
-    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Gui.PrefixText // MC Tiers
+    @ConfigEntry.Category("main")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public MC_Tiers.TierGameModes mctiersGameMode = MC_Tiers.TierGameModes.SWORD;
+    @ConfigEntry.Gui.PrefixText // Theme
     @ConfigEntry.Category("main")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public Palette.ColorsStyle paletteStyle = Palette.ColorsStyle.DUO;
@@ -197,10 +202,8 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetHud.TargetHUD_ConfigPos targetHudConfigPos_BUTTON = TargetHud.TargetHUD_ConfigPos.CONFIG_POS;
     @ConfigEntry.Category("target_hud")
-    @ConfigEntry.BoundedDiscrete(min = -300, max = 300)
     public int targetHudOffsetX = 0;
     @ConfigEntry.Category("target_hud")
-    @ConfigEntry.BoundedDiscrete(min = -300, max = 300)
     public int targetHudOffsetY = 0;
 
     /**
@@ -227,11 +230,24 @@ public class SoupAPI_Config implements ConfigData {
     public int hudDynamicCrosshairMaxOffsetEnabled = 6;
 
     /**
+     * HIT BUBBLES
+     **/
+    @ConfigEntry.Category("hit_bubbles")
+    public boolean hitBubblesEnabled = false;
+    @ConfigEntry.Category("hit_bubbles")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public HitBubbles.Style hitBubblesStyle = HitBubbles.Style.PORTAL;
+    @ConfigEntry.Category("hit_bubbles")
+    @ConfigEntry.BoundedDiscrete(min = 15, max = 100)
+    public int hitBubblesRenderTime = 30;
+
+    /**
      * RPC
      **/
-    @ConfigEntry.Gui.PrefixText
     @ConfigEntry.Category("rpc")
     public boolean rpcEnabled = false;
+    @ConfigEntry.Category("rpc")
+    public boolean rpcMctiersEnabled = false;
     @ConfigEntry.Category("rpc")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public RPC.State rpcState = RPC.State.NAME;

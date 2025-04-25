@@ -20,6 +20,7 @@ import net.minecraft.client.render.entity.model.ModelWithHead;
 import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Direction;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

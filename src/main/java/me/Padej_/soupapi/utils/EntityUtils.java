@@ -1,23 +1,30 @@
 package me.Padej_.soupapi.utils;
 
 import me.Padej_.soupapi.main.SoupAPI_Main;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.world.World;
 
-// Обновленный EntityUtils для доступа к lastHitTime
 public class EntityUtils {
     private static Entity targetEntity;
     private static LivingEntity lastHitEntity;
     private static long lastHitTime;
-    private static final long FORGET_DELAY = 1500; // 1.5 секунды
+    private static final long FORGET_DELAY = 1500;
+
+    public static void registerOnHit() {
+        AttackEntityCallback.EVENT.register((playerEntity, world, hand, entity, entityHitResult) -> {
+            if (entity instanceof LivingEntity && !isFriend(entity) && !entity.isSpectator()) {
+                lastHitEntity = (LivingEntity) entity;
+                lastHitTime = System.currentTimeMillis();
+            }
+            return ActionResult.PASS;
+        });
+    }
 
     public static void updateEntities(MinecraftClient client) {
         if (client.player == null) return;
@@ -40,14 +47,6 @@ public class EntityUtils {
         }
     }
 
-    public static ActionResult onHitEntity(PlayerEntity playerEntity, World world, Hand hand, Entity entity, EntityHitResult entityHitResult) {
-        if (entity instanceof LivingEntity && !isFriend(entity) && !entity.isSpectator()) {
-            lastHitEntity = (LivingEntity) entity;
-            lastHitTime = System.currentTimeMillis();
-        }
-        return ActionResult.PASS;
-    }
-
     public static boolean isFriend(Entity entity) {
         String entityName = entity.getName().getString();
         for (String friend : SoupAPI_Main.configHolder.get().friends) {
@@ -65,6 +64,10 @@ public class EntityUtils {
             }
         }
         return false;
+    }
+
+    public static boolean isClient(Entity entity) {
+        return entity.equals(MinecraftClient.getInstance().player);
     }
 
     public static boolean isClientCritical() {

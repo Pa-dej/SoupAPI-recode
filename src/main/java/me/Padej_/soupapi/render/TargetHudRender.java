@@ -31,6 +31,12 @@ public class TargetHudRender extends ConfigurableModule {
     public static float hpColorAnimationProgress = 0f;
     public static float colorAnimationProgress = 0f;
 
+    private static final String[] effectNames = {
+            "absorption", "blindness", "fire_resistance", "haste", "health_boost",
+            "invisibility", "jump_boost", "mining_fatigue", "poison", "regeneration",
+            "resistance", "slow_falling", "slowness", "speed", "strength", "weakness", "wither"
+    };
+
     public static void renderTinyHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target) {
         float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
@@ -163,12 +169,6 @@ public class TargetHudRender extends ConfigurableModule {
             xItemOffset += 10;
         }
 
-        // Отрисовка иконок эффектов
-        String[] effectNames = {
-                "absorption", "blindness", "fire_resistance", "haste", "health_boost",
-                "invisibility", "jump_boost", "mining_fatigue", "poison", "regeneration",
-                "resistance", "slow_falling", "slowness", "speed", "strength", "weakness", "wither"
-        };
         float effectXOffset = x + 25;
         float effectYOffset = y + 18;
         for (String effectName : effectNames) {
@@ -261,7 +261,6 @@ public class TargetHudRender extends ConfigurableModule {
         RenderSystem.defaultBlendFunc();
         context.getMatrices().pop();
 
-        // Партиклы
         for (final Particle2D p : particles) {
             if (p.opacity > 4) {
                 p.render2D(context.getMatrices());
@@ -450,8 +449,6 @@ public class TargetHudRender extends ConfigurableModule {
         }
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
-
-
 
     private static Color interpolateColor(Color start, Color end, float progress) {
         int r = MathHelper.lerp(progress, start.getRed(), end.getRed());

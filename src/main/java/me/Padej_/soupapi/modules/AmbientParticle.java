@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Random;
 
 public class AmbientParticle extends ConfigurableModule {
-    private static final int POSITION_CHECK_INTERVAL = 20; // 10 секунд в тиках (20 тиков/с * 10 с)
+    private static final int POSITION_CHECK_INTERVAL = 20;
     private static final Random RANDOM = new Random();
 
     private static class Particle {
@@ -39,7 +39,7 @@ public class AmbientParticle extends ConfigurableModule {
             this.motionY = RANDOM.nextFloat() * 0.05f;
             this.motionZ = (RANDOM.nextFloat() - 0.5f) * 0.1f;
             this.age = 0;
-            this.initialSize = 0.1f + RANDOM.nextFloat() * 0.1f; // Размер от 0.1 до 0.2 с погрешностью
+            this.initialSize = 0.1f + RANDOM.nextFloat() * 0.1f;
         }
 
         void update() {
@@ -128,7 +128,7 @@ public class AmbientParticle extends ConfigurableModule {
                 double spawnY = randomPos.getY() + 0.5;
                 double spawnZ = randomPos.getZ() + 0.5;
                 particles.add(new Particle(spawnX, spawnY, spawnZ));
-                break; // Создаем только одну частицу за вызов
+                break;
             }
         }
     }

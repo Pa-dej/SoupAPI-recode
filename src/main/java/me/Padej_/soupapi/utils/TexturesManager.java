@@ -9,7 +9,7 @@ public class TexturesManager extends ConfigurableModule {
     private static final Identifier CIRCLE = Identifier.of("soupapi", "textures/circle.png");
     private static final Identifier CIRCLE_BOLD = Identifier.of("soupapi", "textures/circle_bold.png");
     private static final Identifier HEXAGON = Identifier.of("soupapi", "textures/hexagon.png");
-    private static final Identifier PORTAL = Identifier.of("soupapi", "textures/portal.png"); // Thunder Hack, thx :3
+    public static final Identifier PORTAL = Identifier.of("soupapi", "textures/portal.png"); // Thunder Hack, thx :3
 
     private static final Identifier CIRCLE_UNBLACK = Identifier.of("soupapi", "textures/circle_unblack.png");
     private static final Identifier CIRCLE_BOLD_UNBLACK = Identifier.of("soupapi", "textures/circle_bold_unblack.png");
@@ -51,6 +51,15 @@ public class TexturesManager extends ConfigurableModule {
             case BO -> BO;
             case SIMPLE -> SIMPLE;
             case SCIFI -> SCIFI_UNBLACK;
+        };
+    }
+
+    public static Identifier getHitBubbleTexture() {
+        return switch (CONFIG.hitBubblesStyle) {
+            case CIRCLE -> CIRCLE;
+            case CIRCLE_BOLD -> CIRCLE_BOLD;
+            case HEXAGON -> HEXAGON;
+            case PORTAL -> PORTAL;
         };
     }
 }

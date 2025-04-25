@@ -1,6 +1,6 @@
 package me.Padej_.soupapi.utils;
 
-import me.Padej_.soupapi.main.SoupAPI_Main;
+import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 
 public class MC_Tiers {
     public static String getMcTiersIcon() {
@@ -8,7 +8,7 @@ public class MC_Tiers {
     }
 
     public static String getMcTiersGameModeIcon() {
-        return switch (SoupAPI_Main.MC_TiersGameMode) {
+        return switch (CONFIG.mctiersGameMode) {
             case LTMs -> "2v2";
             case VANILLA -> "vanilla";
             case UHC -> "uhc";

@@ -19,11 +19,8 @@ public abstract class ButtonWidgetMixin extends PressableWidget {
 
     @Inject(method = "onPress", at = @At("HEAD"), cancellable = true)
     private void onPress(CallbackInfo ci) {
-        // Проверка на текст кнопки "SELECT_CAPE"
         if (this.getMessage().getString().equals("CONFIG_POS")) {
-            // Открываем экран FakeScreen
             MinecraftClient.getInstance().setScreen(new ConfigScreen());
-            // Отменяем дальнейшее выполнение, если кнопка "SELECT_CAPE" была нажата
             ci.cancel();
         }
     }

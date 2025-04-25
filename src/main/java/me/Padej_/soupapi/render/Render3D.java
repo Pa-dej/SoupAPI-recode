@@ -12,19 +12,16 @@ import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Math;
 import org.joml.*;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
-import java.awt.List;
-import java.util.*;
+import java.util.ArrayList;
 
 public class Render3D extends ConfigurableModule {
     public static final Matrix4f lastProjMat = new Matrix4f();
@@ -226,9 +223,9 @@ public class Render3D extends ConfigurableModule {
         matrices.push();
         matrices.translate(newPos.getX(), newPos.getY(), newPos.getZ());
 
+        // Apply only yaw rotation (remove pitch)
         Quaternionf rotation = new Quaternionf().identity();
         rotation.rotateY(-camera.getYaw() * (float) Math.PI / 180.0f);
-        rotation.rotateX(camera.getPitch() * (float) Math.PI / 180.0f);
         matrices.multiply(rotation);
 
         Matrix4f baseMatrix = matrices.peek().getPositionMatrix();
@@ -273,6 +270,79 @@ public class Render3D extends ConfigurableModule {
                     buffer.vertex(matrix, scale, -scale, 0).texture(1f, 0f).color(argb);
                     buffer.vertex(matrix, -scale, -scale, 0).texture(0f, 0f).color(argb);
                 }
+            }
+        }
+
+        BufferRenderer.drawWithGlobalProgram(buffer.end());
+        RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
+
+        matrices.pop();
+    }
+
+    public static void renderSoulPair(float tickDelta, Entity targetEntity) {
+        float factor = CONFIG.targetRenderSoulFactor; // spin speed
+        float radius = CONFIG.targetRenderSoulRadius / 100f;
+        float startSize = CONFIG.targetRenderSoulStartSize / 100f; // 20 - 100
+        float scaleModifier = CONFIG.targetRenderSoulScale / 100f;
+
+        int trailLength = 8; // Number of trail segments
+        float trailSpacing = 0.1f; // Distance between trail segments
+
+        MinecraftClient mc = MinecraftClient.getInstance();
+        Camera camera = mc.gameRenderer.getCamera();
+
+        if (targetEntity == null) return;
+        Vec3d newPos = calculateEntityPositionRelativeToCamera(camera, tickDelta, targetEntity);
+        float iAge = MathHelper.lerp(tickDelta, targetEntity.age - 1, targetEntity.age);
+
+        MatrixStack matrices = new MatrixStack();
+        matrices.push();
+        matrices.translate(newPos.getX(), newPos.getY(), newPos.getZ());
+
+        // Apply only yaw rotation to keep plane parallel to ground
+        Quaternionf rotation = new Quaternionf().identity();
+        rotation.rotateY(-camera.getYaw() * (float) Math.PI / 180.0f);
+        matrices.multiply(rotation);
+
+        Matrix4f baseMatrix = matrices.peek().getPositionMatrix();
+
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
+        RenderSystem.setShaderTexture(0, TexturesManager.FIREFLY);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
+        TargetRender.TargetRenderSoulStyle.setupBlendFunc();
+        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+
+        // Render two souls 180 degrees apart
+        for (int soul = 0; soul < 2; soul++) {
+            for (int trail = 0; trail < trailLength; trail++) {
+                float trailOffset = trail * trailSpacing;
+                double radians = Math.toRadians((iAge * factor + soul * 180 - trailOffset * 10) % 360);
+
+                MatrixStack particleMatrix = new MatrixStack();
+                particleMatrix.multiplyPositionMatrix(baseMatrix);
+
+                float x = (float) (Math.cos(radians) * radius);
+                float z = (float) (Math.sin(radians) * radius);
+                float y = 0; // No vertical movement, fixed plane
+
+                particleMatrix.translate(x, y, z);
+
+                Matrix4f matrix = particleMatrix.peek().getPositionMatrix();
+
+                float animProgress = (iAge * 0.03f + trail * 0.05f) % 1f;
+                Color color = Palette.getInterpolatedPaletteColor(animProgress);
+                // Fade alpha for trail effect
+                int alpha = (int) (255 * (1.0f - (float) trail / trailLength));
+                int argb = (alpha << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
+
+                float scale = startSize * scaleModifier;
+
+                buffer.vertex(matrix, -scale, scale, 0).texture(0f, 1f).color(argb);
+                buffer.vertex(matrix, scale, scale, 0).texture(1f, 1f).color(argb);
+                buffer.vertex(matrix, scale, -scale, 0).texture(1f, 0f).color(argb);
+                buffer.vertex(matrix, -scale, -scale, 0).texture(0f, 0f).color(argb);
             }
         }
 

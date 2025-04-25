@@ -4,8 +4,8 @@ import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.discord.DiscordEventHandlers;
 import me.Padej_.soupapi.discord.DiscordRPC;
 import me.Padej_.soupapi.discord.DiscordRichPresence;
-import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.utils.MC_Tiers;
+import org.lwjgl.glfw.GLFW;
 
 public class RPC extends ConfigurableModule {
     private static boolean initialized = false;
@@ -26,12 +26,11 @@ public class RPC extends ConfigurableModule {
         lastState = presence.state;
 
         presence.startTimestamp = startTimestamp;
-        presence.largeImageKey = SoupAPI_Main.MC_TiersGameMode == null ? DEFAULT_ICON : MC_Tiers.getMcTiersIcon();
+        presence.largeImageKey = CONFIG.rpcMctiersEnabled ? MC_Tiers.getMcTiersGameModeIcon() : DEFAULT_ICON;
         presence.largeImageText = mc.getVersionType() + " " + mc.getGameVersion();
-        presence.smallImageKey = SoupAPI_Main.MC_TiersGameMode == null ? "" : "mctiers";
         presence.instance = 1;
 
-        presence.button_label_1 = "Get it";
+        presence.button_label_1 = "View On Modrinth";
         presence.button_url_1 = "https://modrinth.com/mod/soup-api";
 
         DiscordRPC.INSTANCE.Discord_UpdatePresence(presence);
@@ -56,11 +55,31 @@ public class RPC extends ConfigurableModule {
             long currentTime = System.currentTimeMillis();
             if (currentTime - lastUpdate >= UPDATE_INTERVAL) {
                 String newState = getState();
+                String newLargeImageKey = CONFIG.rpcMctiersEnabled ? MC_Tiers.getMcTiersGameModeIcon() : DEFAULT_ICON;
+                String newLargeImageText = CONFIG.rpcMctiersEnabled ? CONFIG.mctiersGameMode.name() : mc.getGameVersion();
+
+                boolean shouldUpdate = false;
+
                 if (!newState.equals(lastState)) {
                     lastState = newState;
                     presence.state = newState;
+                    shouldUpdate = true;
+                }
+
+                if (!newLargeImageKey.equals(presence.largeImageKey)) {
+                    presence.largeImageKey = newLargeImageKey;
+                    shouldUpdate = true;
+                }
+
+                if (!newLargeImageText.equals(presence.largeImageText)) {
+                    presence.largeImageText = newLargeImageText;
+                    shouldUpdate = true;
+                }
+
+                if (shouldUpdate) {
                     DiscordRPC.INSTANCE.Discord_UpdatePresence(presence);
                 }
+
                 lastUpdate = currentTime;
             }
         }
@@ -78,7 +97,7 @@ public class RPC extends ConfigurableModule {
                 if (mc.getGameProfile() != null && mc.getGameProfile().getName() != null) {
                     yield mc.getGameProfile().getName();
                 } else {
-                    yield "Unknown";
+                    yield "Bruh -_-. Name is Null";
                 }
             }
             case IP -> {

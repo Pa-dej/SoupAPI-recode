@@ -9,7 +9,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 
-// TODO: Минимальная задержка 1 тик. Если хит резалт энтити не нал, то таймер не запускается.
 public class TargetRender extends ConfigurableModule {
     private static float rollAngle = 0.0f;
     private static long lastUpdateTime = System.currentTimeMillis();
@@ -24,37 +23,31 @@ public class TargetRender extends ConfigurableModule {
         long currentTime = System.currentTimeMillis();
         Entity currentTarget = EntityUtils.getTargetEntity();
 
-        // Проверка видимости цели
         boolean visibleNow = currentTarget != null && client.player.canSee(currentTarget);
 
-        // Если цель видимая
         if (visibleNow) {
-            // Если цель новая, обновляем данные
             if (currentTarget != lastTargetEntity) {
                 lastTargetEntity = currentTarget;
             }
             lastTargetUpdateTime = currentTime;
         }
 
-        // Если цель есть, проверяем, не истекло ли время или не удалена ли цель
         if (lastTargetEntity != null) {
             if (currentTime - lastTargetUpdateTime > (lastTargetEntity.isInvisible() ? 0 : CONFIG.targetRenderLiveTime * 1000L) || lastTargetEntity.isRemoved()) {
                 lastTargetEntity = null;
-                return false; // Возвращаем false, потому что цель устарела или удалена
+                return false;
             }
 
-            // Если цель не видна, возвращаем false
             if (!client.player.canSee(lastTargetEntity)) {
                 return false;
             }
         }
 
-        // Если цель существует и видна, возвращаем true
         return lastTargetEntity != null;
     }
 
     public static void renderTarget(WorldRenderContext context) {
-        if (!updateOrKeepTarget()) return; // Не рисуем, если цель невидима
+        if (!updateOrKeepTarget()) return;
 
         float tickDelta = context.tickCounter().getTickDelta(true);
 
@@ -67,7 +60,7 @@ public class TargetRender extends ConfigurableModule {
 
     public static void renderTargetLegacy(WorldRenderContext context) {
         if (CONFIG.targetRenderStyle != TargetRenderStyle.LEGACY) return;
-        if (!updateOrKeepTarget()) return; // Прерываем, если цель не должна быть видна
+        if (!updateOrKeepTarget()) return;
 
         long currentTime = System.currentTimeMillis();
         float deltaTime = (currentTime - lastUpdateTime) / 1000f;

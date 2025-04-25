@@ -1,9 +1,7 @@
 package me.Padej_.soupapi.render;
 
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderPhase;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.render.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TriState;
 import net.minecraft.util.Util;
@@ -42,4 +40,22 @@ public class CustomRenderLayers {
                             .build(true)
             )
     );
+    public static RenderLayer getCustomEnergySwirl(Identifier texture, float x, float y) {
+        return RenderLayer.of("custom_energy_swirl",
+                VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
+                VertexFormat.DrawMode.QUADS,
+                1536,
+                true,
+                true,
+                RenderLayer.MultiPhaseParameters.builder()
+                        .program(ENERGY_SWIRL_PROGRAM) // Здесь можно установить свой шейдер
+                        .texture(new RenderPhase.Texture(texture, TriState.FALSE, false))
+                        .texturing(new RenderPhase.OffsetTexturing(x, y))
+                        .transparency(ADDITIVE_TRANSPARENCY)
+                        .lightmap(ENABLE_LIGHTMAP)
+                        .overlay(ENABLE_OVERLAY_COLOR)
+                        .build(false)
+        );
+    }
+
 }

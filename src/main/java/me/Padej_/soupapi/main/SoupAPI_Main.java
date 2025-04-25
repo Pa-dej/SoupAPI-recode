@@ -13,7 +13,6 @@ public class SoupAPI_Main implements ModInitializer {
     public static ConfigHolder<SoupAPI_Config> configHolder;
     public static long initTime;
     public static String ac = "";
-    public static MC_Tiers.TierGameModes MC_TiersGameMode;
 
     @Override
     public void onInitialize() {
