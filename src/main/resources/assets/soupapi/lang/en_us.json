@@ -28,6 +28,18 @@
   "text.autoconfig.soupapi.option.chinaHatBaseRadius.@PrefixText": "Base Settings",
   "text.autoconfig.soupapi.option.chinaHatBaseRadius": "Radius",
 
+  "text.autoconfig.soupapi.category.halo": "Halo",
+  "text.autoconfig.soupapi.option.haloEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.haloSoulRenderSoulStyle.@PrefixText": "SOUL Style Settings",
+  "text.autoconfig.soupapi.option.haloSoulRenderSoulStyle": "Style",
+  "text.autoconfig.soupapi.option.haloSoulLenght": "Lenght",
+  "text.autoconfig.soupapi.option.haloSoulFactor": "Factor",
+  "text.autoconfig.soupapi.option.haloSoulRadius": "Radius",
+  "text.autoconfig.soupapi.option.haloSoulStartSize": "Start Size",
+  "text.autoconfig.soupapi.option.haloSoulEndSize": "End Size",
+  "text.autoconfig.soupapi.option.haloSoulScale": "Scale",
+  "text.autoconfig.soupapi.option.haloSoulSubdivision": "Subdivision",
+
   "text.autoconfig.soupapi.category.jump_circles": "Jump Circles",
   "text.autoconfig.soupapi.option.jumpCirclesEnabled": "Enabled",
   "text.autoconfig.soupapi.option.jumpCirclesFadeOut": "Fade Out",

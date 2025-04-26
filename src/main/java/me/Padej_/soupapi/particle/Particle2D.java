@@ -111,7 +111,6 @@ public class Particle2D {
         this.opacity = 254;
         this.color = color;
 
-        // Случайный выбор текстуры из доступных
         if (AVAILABLE_TEXTURES.isEmpty()) {
             this.texture = TexturesManager.FIREFLY_ALT;
         } else {
