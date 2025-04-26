@@ -3,6 +3,7 @@ package me.Padej_.soupapi.main.client;
 import me.Padej_.soupapi.config.SoupAPI_Config;
 import me.Padej_.soupapi.modules.*;
 import me.Padej_.soupapi.utils.EntityUtils;
+import me.Padej_.soupapi.utils.HitSound;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -30,6 +31,7 @@ public class SoupAPI_Client implements ClientModInitializer {
 //        HudRenderCallback.EVENT.register(TargetHud::render);
 
         registerOnHit();
+//        Translator.loadCache();
     }
 
     private void doEndClientTick(MinecraftClient client) {
@@ -40,6 +42,7 @@ public class SoupAPI_Client implements ClientModInitializer {
         TargetHud.onTick();
         AmbientParticle.onTick();
         RPC.onTick();
+//        Translator.onTick();
 
         if (InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_ALT) && InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_BACKSPACE)) {
             client.setScreen(AutoConfig.getConfigScreen(SoupAPI_Config.class, null).get());
@@ -61,6 +64,7 @@ public class SoupAPI_Client implements ClientModInitializer {
 
     private void registerOnHit() {
         HitBubbles.registerOnHit();
+        HitSound.registerOnHit();
     }
 
 }

@@ -1,6 +1,7 @@
 package me.Padej_.soupapi.config;
 
 import me.Padej_.soupapi.modules.*;
+import me.Padej_.soupapi.sounds.CustomSounds;
 import me.Padej_.soupapi.utils.MC_Tiers;
 import me.Padej_.soupapi.utils.Palette;
 import me.shedaniel.autoconfig.ConfigData;
@@ -288,6 +289,22 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hit_bubbles")
     @ConfigEntry.BoundedDiscrete(min = 15, max = 100)
     public int hitBubblesRenderTime = 30;
+
+    /**
+     * HIT SOUND
+     **/
+    @ConfigEntry.Category("hit_sound")
+    public boolean hitSoundEnabled = false;
+    @ConfigEntry.Category("hit_sound")
+    public boolean hitSoundRandomPitch = false;
+    @ConfigEntry.Category("hit_sound")
+    public boolean hitSoundOnlyCrit = false;
+    @ConfigEntry.Category("hit_sound")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public CustomSounds.SoundType hitSoundType = CustomSounds.SoundType.GET;
+    @ConfigEntry.Category("hit_sound")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
+    public int hitSoundVolume = 50;
 
     /**
      * RPC
