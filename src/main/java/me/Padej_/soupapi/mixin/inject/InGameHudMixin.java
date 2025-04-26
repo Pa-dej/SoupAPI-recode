@@ -3,6 +3,7 @@ package me.Padej_.soupapi.mixin.inject;
 import me.Padej_.soupapi.font.FontRenderers;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.BetterHudStyles;
+import me.Padej_.soupapi.modules.TargetHud;
 import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.utils.MathUtility;
 import me.Padej_.soupapi.utils.Palette;
@@ -75,6 +76,8 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "render", at = @At("TAIL"))
     private void render(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+        TargetHud.render(context, tickCounter);
+
         if (!CONFIG.hudBetterHotbarEnabled) return;
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;

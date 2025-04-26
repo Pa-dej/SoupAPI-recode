@@ -6,10 +6,7 @@ import me.Padej_.soupapi.utils.EntityUtils;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.Identifier;
@@ -25,7 +22,13 @@ public class SoupAPI_Client implements ClientModInitializer {
         WorldRenderEvents.AFTER_ENTITIES.register(this::doRenderAfterEntities);
         WorldRenderEvents.LAST.register(this::doRenderLast);
 
-        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.MISC_OVERLAYS, TARGET_HUD_LAYER, TargetHud::render));
+        // Использовать, когда старый вариант удалят или перестанут поддерживать окончательно
+//        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.MISC_OVERLAYS, TARGET_HUD_LAYER, TargetHud::render));
+
+        // For stupid lunar legacy code -_-.
+        // Для гребаного лунара, который использует старые методы...
+//        HudRenderCallback.EVENT.register(TargetHud::render);
+
         registerOnHit();
     }
 

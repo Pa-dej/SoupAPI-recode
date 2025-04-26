@@ -7,13 +7,14 @@
     "inject.RegisterEntityTrails"
   ],
   "client": [
+    "access.HeadFeatureRendererAccessor",
     "access.NativeImageAccessor",
     "inject.ButtonWidgetMixin",
     "inject.FontRegistrier",
     "inject.GameRendererMixin",
     "inject.InGameHudMixin",
-    "inject.ScreenMixin",
-    "overwrite.HeadFeatureRendererMixin"
+    "inject.PlayerEntityRendererMixin",
+    "inject.ScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

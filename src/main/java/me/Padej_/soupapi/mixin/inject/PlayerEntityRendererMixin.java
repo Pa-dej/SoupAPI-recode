@@ -1,6 +1,7 @@
 package me.Padej_.soupapi.mixin.inject;
 
 import me.Padej_.soupapi.render.ChargedPlayerFeatureRenderer;
+import me.Padej_.soupapi.render.ChinaHatPlayerRenderFeature;
 import net.fabricmc.fabric.mixin.client.rendering.LivingEntityRendererAccessor;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -22,11 +23,16 @@ public class PlayerEntityRendererMixin {
         ModelPart modelPart = ctx.getPart(EntityModelLayers.PLAYER);
         PlayerEntityModel playerModel = new PlayerEntityModel(modelPart, slim);
 
-        ChargedPlayerFeatureRenderer featureRenderer = new ChargedPlayerFeatureRenderer(
+        ChargedPlayerFeatureRenderer chargedPlayerFeatureRenderer = new ChargedPlayerFeatureRenderer(
                 (FeatureRendererContext<PlayerEntityRenderState, PlayerEntityModel>) this,
                 playerModel
         );
 
-        ((LivingEntityRendererAccessor) this).callAddFeature(featureRenderer);
+        ChinaHatPlayerRenderFeature chinaHatPlayerRenderFeature = new ChinaHatPlayerRenderFeature(
+                (FeatureRendererContext<PlayerEntityRenderState, PlayerEntityModel>) this
+        );
+
+//        ((LivingEntityRendererAccessor) this).callAddFeature(chargedPlayerFeatureRenderer);
+        ((LivingEntityRendererAccessor) this).callAddFeature(chinaHatPlayerRenderFeature);
     }
 }

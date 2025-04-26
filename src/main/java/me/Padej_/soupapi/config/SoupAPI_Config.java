@@ -293,7 +293,7 @@ public class SoupAPI_Config implements ConfigData {
      * RPC
      **/
     @ConfigEntry.Category("rpc")
-    public boolean rpcEnabled = false;
+    public boolean rpcEnabled = true;
     @ConfigEntry.Category("rpc")
     public boolean rpcMctiersEnabled = false;
     @ConfigEntry.Category("rpc")

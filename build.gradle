@@ -48,6 +48,7 @@ dependencies {
             because "version 2.8.1 pulled from cloth-config has security vulnerabilities"
         }
     }
+    // RPC
     implementation 'net.java.dev.jna:jna:5.13.0'
 }
 

@@ -3,6 +3,8 @@
 
   "text.autoconfig.soupapi.option.friends.@PrefixText": "Friends",
   "text.autoconfig.soupapi.option.friends": "Friends List",
+  "text.autoconfig.soupapi.option.mctiersGameMode.@PrefixText": "MC Tiers ❤",
+  "text.autoconfig.soupapi.option.mctiersGameMode": "MC Tiers Game Mode",
   "text.autoconfig.soupapi.option.paletteStyle.@PrefixText": "Palette Settings",
   "text.autoconfig.soupapi.category.main": "Main",
   "text.autoconfig.soupapi.option.paletteStyle": "Palette Style",
