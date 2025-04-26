@@ -229,7 +229,23 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("target_hud")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 30)
     public int targetHudRenderTime = 5;
-    @ConfigEntry.Gui.PrefixText
+
+    @ConfigEntry.Gui.PrefixText // particles
+    @ConfigEntry.Category("target_hud")
+    public boolean targetHudIncludeFirefly = false;
+    @ConfigEntry.Category("target_hud")
+    public boolean targetHudIncludeDollar = false;
+    @ConfigEntry.Category("target_hud")
+    public boolean targetHudIncludeSnowflake = false;
+    @ConfigEntry.Category("target_hud")
+    public boolean targetHudIncludeHeart = false;
+    @ConfigEntry.Category("target_hud")
+    public boolean targetHudIncludeStar = false;
+    @ConfigEntry.Category("target_hud")
+    @ConfigEntry.BoundedDiscrete(min = 50, max = 120)
+    public int targetHudParticleScale = 100;
+
+    @ConfigEntry.Gui.PrefixText // pos
     @ConfigEntry.Category("target_hud")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetHud.TargetHUD_ConfigPos targetHudConfigPos_BUTTON = TargetHud.TargetHUD_ConfigPos.CONFIG_POS;
