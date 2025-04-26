@@ -86,6 +86,11 @@
   "text.autoconfig.soupapi.option.hudBetterHotbarSmooth": "Smooth",
   "text.autoconfig.soupapi.option.hudBetterHotbarStyle": "Style",
 
+  "text.autoconfig.soupapi.category.hit_bubbles": "Hit Bubbles",
+  "text.autoconfig.soupapi.option.hitBubblesEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.hitBubblesStyle": "Style",
+  "text.autoconfig.soupapi.option.hitBubblesRenderTime": "Live Time",
+
   "text.autoconfig.soupapi.category.rpc": "RPC",
   "text.autoconfig.soupapi.category.rpcEnabled": "Enable",
   "text.autoconfig.soupapi.category.rpcState": "State Format",

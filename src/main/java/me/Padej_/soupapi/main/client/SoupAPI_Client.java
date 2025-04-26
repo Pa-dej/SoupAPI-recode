@@ -53,8 +53,8 @@ public class SoupAPI_Client implements ClientModInitializer {
         TargetRender.renderTarget(context);
         TargetRender.renderTargetLegacy(context);
         HitBubbles.render(context);
+        Halo.render(context);
     }
-
 
     private void registerOnHit() {
         HitBubbles.registerOnHit();

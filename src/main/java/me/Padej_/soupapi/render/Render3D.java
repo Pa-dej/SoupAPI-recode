@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.main.SoupAPI_Main;
+import me.Padej_.soupapi.modules.Halo;
 import me.Padej_.soupapi.modules.TargetRender;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
@@ -220,13 +221,17 @@ public class Render3D extends ConfigurableModule {
         float iAge = MathHelper.lerp(tickDelta, targetEntity.age - 1, targetEntity.age);
 
         MatrixStack matrices = new MatrixStack();
+        MatrixStack matricesB = new MatrixStack();
+
+        matricesB.push();
+        Quaternionf rotation = new Quaternionf().identity();
+        rotation.rotateY(camera.getYaw() * (float) Math.PI / 180.0f);
+        rotation.rotateX(-camera.getPitch() * (float) Math.PI / 180.0f);
+        matricesB.multiply(rotation);
+        matricesB.pop();
+
         matrices.push();
         matrices.translate(newPos.getX(), newPos.getY(), newPos.getZ());
-
-        // Apply only yaw rotation (remove pitch)
-        Quaternionf rotation = new Quaternionf().identity();
-        rotation.rotateY(-camera.getYaw() * (float) Math.PI / 180.0f);
-        matrices.multiply(rotation);
 
         Matrix4f baseMatrix = matrices.peek().getPositionMatrix();
 
@@ -248,14 +253,19 @@ public class Render3D extends ConfigurableModule {
 
                     float offset = ((stepIndex) / espLength) * layerSpacing;
 
-                    MatrixStack particleMatrix = new MatrixStack();
-                    particleMatrix.multiplyPositionMatrix(baseMatrix);
-
                     float x = (float) (Math.cos(radians) * radius);
                     float z = (float) (Math.sin(radians) * radius);
                     float y = (float) sinQuad;
 
+                    MatrixStack particleMatrix = new MatrixStack();
+                    particleMatrix.multiplyPositionMatrix(baseMatrix); // только yaw, без pitch
                     particleMatrix.translate(x, y, z);
+
+                    Quaternionf billboardRot = new Quaternionf().identity();
+                    billboardRot.rotateY(Math.toRadians(-camera.getYaw()));
+                    billboardRot.rotateX(Math.toRadians(camera.getPitch())); // хотим только для квадрата
+
+                    particleMatrix.multiply(billboardRot);
 
                     Matrix4f matrix = particleMatrix.peek().getPositionMatrix();
 
@@ -281,13 +291,14 @@ public class Render3D extends ConfigurableModule {
     }
 
     public static void renderSoulPair(float tickDelta, Entity targetEntity) {
-        float factor = CONFIG.targetRenderSoulFactor; // spin speed
-        float radius = CONFIG.targetRenderSoulRadius / 100f;
-        float startSize = CONFIG.targetRenderSoulStartSize / 100f; // 20 - 100
-        float scaleModifier = CONFIG.targetRenderSoulScale / 100f;
-
-        int trailLength = 8; // Number of trail segments
-        float trailSpacing = 0.1f; // Distance between trail segments
+        int espLength = CONFIG.haloSoulLenght;
+        float factor = CONFIG.haloSoulFactor;
+        float radius = CONFIG.haloSoulRadius / 100f;
+        float startSize = CONFIG.haloSoulStartSize / 100f;
+        float endSize = CONFIG.haloSoulEndSize / 100f;
+        float scaleModifier = CONFIG.haloSoulScale / 100f;
+        int subdivisions = CONFIG.haloSoulSubdivision;
+        float layerSpacing = 2;
 
         MinecraftClient mc = MinecraftClient.getInstance();
         Camera camera = mc.gameRenderer.getCamera();
@@ -298,12 +309,9 @@ public class Render3D extends ConfigurableModule {
 
         MatrixStack matrices = new MatrixStack();
         matrices.push();
-        matrices.translate(newPos.getX(), newPos.getY(), newPos.getZ());
-
-        // Apply only yaw rotation to keep plane parallel to ground
-        Quaternionf rotation = new Quaternionf().identity();
-        rotation.rotateY(-camera.getYaw() * (float) Math.PI / 180.0f);
-        matrices.multiply(rotation);
+        RenderSystem.disableCull();
+        RenderSystem.disableDepthTest();
+        matrices.translate(newPos.getX(), newPos.getY() + 1, newPos.getZ());
 
         Matrix4f baseMatrix = matrices.peek().getPositionMatrix();
 
@@ -311,45 +319,55 @@ public class Render3D extends ConfigurableModule {
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
         RenderSystem.setShaderTexture(0, TexturesManager.FIREFLY);
         RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
-        TargetRender.TargetRenderSoulStyle.setupBlendFunc();
+        Halo.SoulStyle.setupBlendFunc();
         BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 
-        // Render two souls 180 degrees apart
-        for (int soul = 0; soul < 2; soul++) {
-            for (int trail = 0; trail < trailLength; trail++) {
-                float trailOffset = trail * trailSpacing;
-                double radians = Math.toRadians((iAge * factor + soul * 180 - trailOffset * 10) % 360);
+        for (int j = 0; j < 2; j++) {
+            for (int i = 0; i < espLength; i++) {
+                for (int sub = 0; sub < subdivisions; sub++) {
+                    float t = (float) sub / subdivisions;
+                    float stepIndex = i + t;
 
-                MatrixStack particleMatrix = new MatrixStack();
-                particleMatrix.multiplyPositionMatrix(baseMatrix);
+                    double radians = Math.toRadians((((stepIndex) / 1.5f + iAge) * factor + (j * 180)) % (factor * 360));
+                    double sinQuad = 0;
 
-                float x = (float) (Math.cos(radians) * radius);
-                float z = (float) (Math.sin(radians) * radius);
-                float y = 0; // No vertical movement, fixed plane
+                    float offset = ((stepIndex) / espLength) * layerSpacing;
 
-                particleMatrix.translate(x, y, z);
+                    float x = (float) (Math.cos(radians) * radius);
+                    float z = (float) (Math.sin(radians) * radius);
+                    float y = (float) sinQuad;
 
-                Matrix4f matrix = particleMatrix.peek().getPositionMatrix();
+                    MatrixStack particleMatrix = new MatrixStack();
+                    particleMatrix.multiplyPositionMatrix(baseMatrix); // только yaw, без pitch
+                    particleMatrix.translate(x, y, z);
 
-                float animProgress = (iAge * 0.03f + trail * 0.05f) % 1f;
-                Color color = Palette.getInterpolatedPaletteColor(animProgress);
-                // Fade alpha for trail effect
-                int alpha = (int) (255 * (1.0f - (float) trail / trailLength));
-                int argb = (alpha << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
+                    Quaternionf billboardRot = new Quaternionf().identity();
+                    billboardRot.rotateY(Math.toRadians(-camera.getYaw()));
+                    billboardRot.rotateX(Math.toRadians(camera.getPitch())); // хотим только для квадрата
 
-                float scale = startSize * scaleModifier;
+                    particleMatrix.multiply(billboardRot);
 
-                buffer.vertex(matrix, -scale, scale, 0).texture(0f, 1f).color(argb);
-                buffer.vertex(matrix, scale, scale, 0).texture(1f, 1f).color(argb);
-                buffer.vertex(matrix, scale, -scale, 0).texture(1f, 0f).color(argb);
-                buffer.vertex(matrix, -scale, -scale, 0).texture(0f, 0f).color(argb);
+                    Matrix4f matrix = particleMatrix.peek().getPositionMatrix();
+
+                    float animProgress = (iAge * 0.03f + stepIndex * 0.07f + j * 0.15f) % 1f;
+                    Color color = Palette.getInterpolatedPaletteColor(animProgress);
+                    int argb = 0xFF000000 | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
+
+                    float scale = Math.max((endSize + offset * (startSize - endSize)) * scaleModifier, 0.15f * scaleModifier);
+
+                    buffer.vertex(matrix, -scale, scale, 0).texture(0f, 1f).color(argb);
+                    buffer.vertex(matrix, scale, scale, 0).texture(1f, 1f).color(argb);
+                    buffer.vertex(matrix, scale, -scale, 0).texture(1f, 0f).color(argb);
+                    buffer.vertex(matrix, -scale, -scale, 0).texture(0f, 0f).color(argb);
+                }
             }
         }
 
         BufferRenderer.drawWithGlobalProgram(buffer.end());
-        RenderSystem.enableDepthTest();
         RenderSystem.disableBlend();
 
+        RenderSystem.enableCull();
+        RenderSystem.enableDepthTest();
         matrices.pop();
     }
 

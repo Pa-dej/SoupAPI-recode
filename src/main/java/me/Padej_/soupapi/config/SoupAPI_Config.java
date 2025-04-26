@@ -76,6 +76,38 @@ public class SoupAPI_Config implements ConfigData {
     public int chinaHatBaseRadius = 65;
 
     /**
+     * HALO
+     **/
+    @ConfigEntry.Category("halo")
+    public boolean haloEnabled = false;
+
+    @ConfigEntry.Gui.PrefixText // soul
+    @ConfigEntry.Category("halo")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public Halo.SoulStyle haloSoulRenderSoulStyle = Halo.SoulStyle.SMOKE;
+    @ConfigEntry.Category("halo")
+    @ConfigEntry.BoundedDiscrete(min = 4, max = 50)
+    public int haloSoulLenght = 5;
+    @ConfigEntry.Category("halo")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
+    public int haloSoulFactor = 3;
+    @ConfigEntry.Category("halo")
+    @ConfigEntry.BoundedDiscrete(min = 20, max = 50)
+    public int haloSoulRadius = 100;
+    @ConfigEntry.Category("halo")
+    @ConfigEntry.BoundedDiscrete(min = 20, max = 100)
+    public int haloSoulStartSize = 50;
+    @ConfigEntry.Category("halo")
+    @ConfigEntry.BoundedDiscrete(min = 20, max = 100)
+    public int haloSoulEndSize = 20;
+    @ConfigEntry.Category("halo")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
+    public int haloSoulScale = 40;
+    @ConfigEntry.Category("halo")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
+    public int haloSoulSubdivision = 3;
+
+    /**
      * JUMP CIRCLES
      **/
     @ConfigEntry.Category("jump_circles")
@@ -176,7 +208,7 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
     public int targetRenderSoulSubdivision = 3;
 
-    // spiral
+    // spiral WIP
 
     @ConfigEntry.Gui.PrefixText // topka
     @ConfigEntry.Category("target_render")
