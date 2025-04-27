@@ -5,16 +5,19 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "FallDistanceFix",
+    "TranslateToBruh",
     "TranslateToEnAll",
     "inject.RegisterEntityTrails"
   ],
   "client": [
     "access.HeadFeatureRendererAccessor",
+    "access.LivingEntityRendererAccessor",
     "access.NativeImageAccessor",
     "inject.ButtonWidgetMixin",
     "inject.FontRegistrier",
     "inject.GameRendererMixin",
     "inject.InGameHudMixin",
+    "inject.MixinHeldItemRenderer",
     "inject.PlayerEntityRendererMixin",
     "inject.ScreenMixin"
   ],

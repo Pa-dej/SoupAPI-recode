@@ -113,6 +113,7 @@ public class TargetHudRender extends ConfigurableModule {
         Render2D.renderTexture(context.getMatrices(), texture, x - 2, y + 2.5, headScale, headScale, 8, 8, 8, 8, 64, 64);
         Render2D.renderTexture(context.getMatrices(), texture, x - 2, y + 2.5, headScale, headScale, 40, 8, 8, 8, 64, 64);
         RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
         context.getMatrices().pop();
 
         // Партиклы
@@ -259,6 +260,7 @@ public class TargetHudRender extends ConfigurableModule {
         Render2D.renderTexture(context.getMatrices(), texture, x + 2.5, y + 2.5, 30, 30, 8, 8, 8, 8, 64, 64);
         Render2D.renderTexture(context.getMatrices(), texture, x + 2.5, y + 2.5, 30, 30, 40, 8, 8, 8, 64, 64);
         RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
         context.getMatrices().pop();
 
         for (final Particle2D p : particles) {
@@ -390,6 +392,7 @@ public class TargetHudRender extends ConfigurableModule {
         Render2D.renderTexture(context.getMatrices(), texture, x + 3.5f, y + 3.5f, 40, 40, 8, 8, 8, 8, 64, 64);
         Render2D.renderTexture(context.getMatrices(), texture, x + 3.5f, y + 3.5f, 40, 40, 40, 8, 8, 8, 64, 64);
         RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
         context.getMatrices().pop();
 
         // Партиклы

@@ -6,6 +6,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
+import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
+
 @Mixin(TextVisitFactory.class)
 public class TranslateToEnAll {
 
@@ -19,13 +21,23 @@ public class TranslateToEnAll {
             index = 0
     )
     private static String adjustText(String text) {
+        if (!CONFIG.translatorEnabled || CONFIG.translatorBruhEnabled) return text;
         if (Translator.containsCyrillic(text)) {
-            if (Translator.translationCache.containsKey(text)) {
-                return Translator.translationCache.get(text);
+            boolean startsWithSpace = text.startsWith(" ");
+            boolean endsWithSpace = text.endsWith(" ");
+            String baseText = text.trim();
+
+            if (Translator.translationCache.containsKey(baseText)) {
+                String translated = Translator.translationCache.get(baseText);
+                // Восстановить пробелы
+                if (startsWithSpace) translated = " " + translated;
+                if (endsWithSpace) translated = translated + " ";
+                return translated;
             } else {
-                Translator.queueTranslation(text);
+                Translator.queueTranslation(baseText);
             }
         }
         return text;
     }
+
 }

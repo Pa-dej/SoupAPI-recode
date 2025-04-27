@@ -75,9 +75,7 @@ public abstract class InGameHudMixin {
     private float prevYaw, prevPitch, targetYawOffset, targetPitchOffset, interpolatedYawOffset, interpolatedPitchOffset = 0;
 
     @Inject(method = "render", at = @At("TAIL"))
-    private void render(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        TargetHud.render(context, tickCounter);
-
+    private void doFrame(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         if (!CONFIG.hudBetterHotbarEnabled) return;
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
@@ -521,6 +519,11 @@ public abstract class InGameHudMixin {
         prevPitch = currPitch;
 
         ci.cancel();
+    }
+
+    @Inject(method = "render", at = @At("HEAD"))
+    private void hookRender(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+        TargetHud.render(context, tickCounter);
     }
 
     @Unique

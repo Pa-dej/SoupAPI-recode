@@ -78,6 +78,7 @@ public class HitBubbles extends ConfigurableModule {
 
     private static void drawBubble(MatrixStack matrices, float angle, float factor) {
         Render2D.setupRender();
+        RenderSystem.disableCull();
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
         RenderSystem.setShaderTexture(0, TexturesManager.getHitBubbleTexture());
 
@@ -91,6 +92,7 @@ public class HitBubbles extends ConfigurableModule {
                 Render2D.applyOpacity(Palette.getColor(0.66f), 1f - factor),
                 Render2D.applyOpacity(Palette.getColor(1), 1f - factor));
         Render2D.endRender();
+        RenderSystem.enableCull();
     }
 
     private static Vec3d getRtxPoint(float yaw, float pitch, double distance) {

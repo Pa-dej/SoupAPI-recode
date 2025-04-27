@@ -17,6 +17,8 @@ public class CustomSounds {
     public static SoundEvent MAGIC_POK = SoundEvent.of(Identifier.of("soupapi", "magic_pok"));
 
     public enum SoundType {
+        ON,
+        OFF,
         GET,
         BUBBLE,
         BELL,

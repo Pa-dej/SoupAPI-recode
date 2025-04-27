@@ -23,16 +23,20 @@ import net.minecraft.client.util.math.MatrixStack;
 import java.util.function.Function;
 
 public abstract class ChinaHatFeatureRenderer<S extends LivingEntityRenderState, M extends EntityModel<S> & ModelWithHead> extends FeatureRenderer<S, M> {
-    public ChinaHatFeatureRenderer(FeatureRendererContext<S, M> context) {
+    private final HeadFeatureRenderer<S, M> headFeatureRenderer; // Поле для HeadFeatureRenderer
+
+    public ChinaHatFeatureRenderer(FeatureRendererContext<S, M> context, HeadFeatureRenderer<S, M> headFeatureRenderer) {
         super(context);
+        this.headFeatureRenderer = headFeatureRenderer;
     }
 
     @Override
     public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int light, S state, float limbAngle, float limbDistance) {
         if (!shouldRender(state)) return;
         if (!state.headItemRenderState.isEmpty() || state.wearingSkullType != null) {
-            HeadFeatureRenderer.HeadTransformation headTransformation = ((HeadFeatureRendererAccessor) this).getHeadTransformation();
-            Function<SkullBlock.SkullType, SkullBlockEntityModel> headModels = ((HeadFeatureRendererAccessor) this).getHeadModels();
+            // Используем MixinHeldItemRenderer для доступа к headTransformation и headModels
+            HeadFeatureRenderer.HeadTransformation headTransformation = ((HeadFeatureRendererAccessor) headFeatureRenderer).getHeadTransformation();
+            Function<SkullBlock.SkullType, SkullBlockEntityModel> headModels = ((HeadFeatureRendererAccessor) headFeatureRenderer).getHeadModels();
 
             matrices.push();
             matrices.scale(headTransformation.horizontalScale(), 1.0F, headTransformation.horizontalScale());
@@ -60,7 +64,6 @@ public abstract class ChinaHatFeatureRenderer<S extends LivingEntityRenderState,
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null) return;
         if (state instanceof PlayerEntityRenderState playerState) {
-
             // Проверяем, является ли это локальным игроком или другом
             String localPlayerName = client.player.getName().getString();
             String stateName = playerState.name;

@@ -9,10 +9,10 @@ import net.minecraft.util.math.MathHelper;
 
 import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 
-public class ConfigScreen extends Screen {
-    private Frame targetHudFrame;
+public class TargetHudScreen extends Screen {
+    private final Frame targetHudFrame;
 
-    public ConfigScreen() {
+    public TargetHudScreen() {
         super(Text.of("SoupAPI config screen"));
         int centerX = MinecraftClient.getInstance().getWindow().getScaledWidth() / 2;
         int centerY = MinecraftClient.getInstance().getWindow().getScaledHeight() / 2;

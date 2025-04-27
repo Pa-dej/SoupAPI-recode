@@ -1,0 +1,42 @@
+{
+  "on": {
+    "sounds": [
+      "soupapi:on"
+    ]
+  },
+  "off": {
+    "sounds": [
+      "soupapi:off"
+    ]
+  },
+  "get": {
+    "sounds": [
+      "soupapi:get"
+    ]
+  },
+  "bubble": {
+    "sounds": [
+      "soupapi:bubble"
+    ]
+  },
+  "bell": {
+    "sounds": [
+      "soupapi:bell"
+    ]
+  },
+  "bonk": {
+    "sounds": [
+      "soupapi:bonk"
+    ]
+  },
+  "pok": {
+    "sounds": [
+      "soupapi:pok"
+    ]
+  },
+  "magic_pok": {
+    "sounds": [
+      "soupapi:magic_pok"
+    ]
+  }
+}

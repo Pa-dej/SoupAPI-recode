@@ -45,6 +45,8 @@ public class HitSound extends ConfigurableModule {
 
     private static SoundEvent getSound() {
         return switch (CONFIG.hitSoundType) {
+            case CustomSounds.SoundType.ON -> CustomSounds.ON;
+            case CustomSounds.SoundType.OFF -> CustomSounds.OFF;
             case CustomSounds.SoundType.GET -> CustomSounds.GET;
             case CustomSounds.SoundType.BUBBLE -> CustomSounds.BUBBLE;
             case CustomSounds.SoundType.BELL -> CustomSounds.BELL;

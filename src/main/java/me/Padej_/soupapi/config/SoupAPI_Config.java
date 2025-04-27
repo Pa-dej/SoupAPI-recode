@@ -17,6 +17,10 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.PrefixText // Friends
     @ConfigEntry.Category("main")
     public String[] friends = {};
+    @ConfigEntry.Category("main")
+    public boolean translatorEnabled = false;
+    @ConfigEntry.Category("main")
+    public boolean translatorBruhEnabled = false;
     @ConfigEntry.Gui.PrefixText // MC Tiers
     @ConfigEntry.Category("main")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
@@ -226,7 +230,7 @@ public class SoupAPI_Config implements ConfigData {
     public boolean targetHudEnabled = false;
     @ConfigEntry.Category("target_hud")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public TargetHud.TargetHUD_Style targetHudStyle = TargetHud.TargetHUD_Style.MINI;
+    public TargetHud.Style targetHudStyle = TargetHud.Style.MINI;
     @ConfigEntry.Category("target_hud")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 30)
     public int targetHudRenderTime = 5;
@@ -249,7 +253,7 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.PrefixText // pos
     @ConfigEntry.Category("target_hud")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public TargetHud.TargetHUD_ConfigPos targetHudConfigPos_BUTTON = TargetHud.TargetHUD_ConfigPos.CONFIG_POS;
+    public TargetHud.Config targetHudConfigPos_BUTTON = TargetHud.Config.CONFIG_POS;
     @ConfigEntry.Category("target_hud")
     public int targetHudOffsetX = 0;
     @ConfigEntry.Category("target_hud")
@@ -318,4 +322,35 @@ public class SoupAPI_Config implements ConfigData {
     public RPC.State rpcState = RPC.State.NAME;
     @ConfigEntry.Category("rpc")
     public String rpcCustomStateText = "Have a nice day!";
+
+    /**
+     * SWING HAND
+     **/
+    @ConfigEntry.Category("swing_hand")
+    public boolean swingHandEnabled = true;
+    @ConfigEntry.Category("swing_hand")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public SwingHand.Config swingHandConfig_BUTTON = SwingHand.Config.CONFIG_HANDS;
+    @ConfigEntry.Category("swing_hand")
+    public float swingHand_xPos = 0.7f;
+    @ConfigEntry.Category("swing_hand")
+    public float swingHand_yPos = -0.4f;
+    @ConfigEntry.Category("swing_hand")
+    public float swingHand_zPos = -0.85f;
+    @ConfigEntry.Category("swing_hand")
+    public float swingHand_scale = 0.75f;
+    @ConfigEntry.Category("swing_hand")
+    public int swingHand_rotX = 0;
+    @ConfigEntry.Category("swing_hand")
+    public int swingHand_rotY = -13;
+    @ConfigEntry.Category("swing_hand")
+    public int swingHand_rotZ = 8;
+    @ConfigEntry.Category("swing_hand")
+    public int swingHand_xSwingRot = -55;
+    @ConfigEntry.Category("swing_hand")
+    public int swingHand_ySwingRot = 0;
+    @ConfigEntry.Category("swing_hand")
+    public int swingHand_zSwingRot = 90;
+    @ConfigEntry.Category("swing_hand")
+    public int swingHand_speed = 100;
 }

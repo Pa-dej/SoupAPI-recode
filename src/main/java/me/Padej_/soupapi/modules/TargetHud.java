@@ -94,10 +94,10 @@ public class TargetHud extends ConfigurableModule {
 
             // Выбор центра масштабирования в зависимости от стиля HUD
             float centerX, centerY;
-            if (CONFIG.targetHudStyle.equals(TargetHUD_Style.MINI)) {
+            if (CONFIG.targetHudStyle.equals(Style.MINI)) {
                 centerX = x + 47.5f; // Центр для MiniHUD (95/2)
                 centerY = y + 17.5f; // (35/2)
-            } else if (CONFIG.targetHudStyle.equals(TargetHUD_Style.NORMAL)) {
+            } else if (CONFIG.targetHudStyle.equals(Style.NORMAL)) {
                 centerX = x + 68.5f; // Центр для NormalHUD (137/2)
                 centerY = y + 23.75f; // (47.5/2)
             } else { // TINY
@@ -144,11 +144,11 @@ public class TargetHud extends ConfigurableModule {
         return lastTarget.getHealth() + lastTarget.getAbsorptionAmount();
     }
 
-    public enum TargetHUD_Style {
+    public enum Style {
         MINI, TINY, NORMAL
     }
 
-    public enum TargetHUD_ConfigPos {
+    public enum Config {
         CONFIG_POS
     }
 }

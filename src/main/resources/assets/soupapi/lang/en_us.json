@@ -105,10 +105,32 @@
   "text.autoconfig.soupapi.option.hitBubblesStyle": "Style",
   "text.autoconfig.soupapi.option.hitBubblesRenderTime": "Live Time",
 
+  "text.autoconfig.soupapi.category.hit_sound": "Hit Sound",
+  "text.autoconfig.soupapi.option.hitSoundEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.hitSoundRandomPitch": "Random Pitch",
+  "text.autoconfig.soupapi.option.hitSoundRandomCrit": "Crit Only",
+  "text.autoconfig.soupapi.option.hitSoundType": "Type",
+  "text.autoconfig.soupapi.option.hitSoundVolume": "Volume",
+
   "text.autoconfig.soupapi.category.rpc": "RPC",
-  "text.autoconfig.soupapi.category.rpcEnabled": "Enable",
-  "text.autoconfig.soupapi.category.rpcState": "State Format",
-  "text.autoconfig.soupapi.category.rpcCustomStateText": "Custom State Text",
+  "text.autoconfig.soupapi.option.rpcEnabled": "Enable",
+  "text.autoconfig.soupapi.option.rpcState": "State Format",
+  "text.autoconfig.soupapi.option.rpcCustomStateText": "Custom State Text",
+
+  "text.autoconfig.soupapi.category.swing_hand": "Swing Hand",
+  "text.autoconfig.soupapi.option.swingHandEnabled": "Enable",
+  "text.autoconfig.soupapi.option.swingHandConfig_BUTTON": "Open Config Screen",
+  "text.autoconfig.soupapi.option.swingHand_xPos": "Pos X",
+  "text.autoconfig.soupapi.option.swingHand_yPos": "Pos Y",
+  "text.autoconfig.soupapi.option.swingHand_zPos": "Pos Z",
+  "text.autoconfig.soupapi.option.swingHand_scale": "Scale",
+  "text.autoconfig.soupapi.option.swingHand_rotX": "Rotation X",
+  "text.autoconfig.soupapi.option.swingHand_rotY": "Rotation Y",
+  "text.autoconfig.soupapi.option.swingHand_rotZ": "Rotation Z",
+  "text.autoconfig.soupapi.option.swingHand_xSwingRot": "Swing Rotation X",
+  "text.autoconfig.soupapi.option.swingHand_ySwingRot": "Swing Rotation Y",
+  "text.autoconfig.soupapi.option.swingHand_zSwingRot": "Swing Rotation Z",
+  "text.autoconfig.soupapi.option.swingHand_speed": "Speed",
 
   "": ""
 }

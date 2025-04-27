@@ -22,10 +22,10 @@ public class TexturesManager extends ConfigurableModule {
     private static final Identifier SIMPLE = Identifier.of("soupapi", "textures/target_render/simple.png");
     private static final Identifier BO = Identifier.of("soupapi", "textures/target_render/bo.png");
     private static final Identifier MARKER = Identifier.of("soupapi", "textures/target_render/marker.png");
-    private static final Identifier SKULL = Identifier.of("soupapi", "textures/target_render/marker.png");
-    private static final Identifier AMOGUS = Identifier.of("soupapi", "textures/target_render/marker.png");
-    private static final Identifier FLOWER = Identifier.of("soupapi", "textures/target_render/marker.png");
-    private static final Identifier JEKA = Identifier.of("soupapi", "textures/target_render/marker.png");
+    private static final Identifier SKULL = Identifier.of("soupapi", "textures/target_render/skull.png");
+    private static final Identifier AMOGUS = Identifier.of("soupapi", "textures/target_render/amongus.png");
+    private static final Identifier FLOWER = Identifier.of("soupapi", "textures/target_render/flower_0.png");
+    private static final Identifier JEKA = Identifier.of("soupapi", "textures/target_render/jeka.png");
 
     public static final Identifier FIREFLY = Identifier.of("soupapi", "textures/particles/firefly.png"); // Thunder Hack, thx :3
     public static final Identifier FIREFLY_GLOW = Identifier.of("soupapi", "textures/particles/firefly_glow.png");

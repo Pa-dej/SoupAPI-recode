@@ -1,6 +1,7 @@
 package me.Padej_.soupapi.mixin.inject;
 
-import me.Padej_.soupapi.screen.ConfigScreen;
+import me.Padej_.soupapi.screen.TargetHudScreen;
+import me.Padej_.soupapi.screen.SwingHandScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.PressableWidget;
@@ -19,9 +20,16 @@ public abstract class ButtonWidgetMixin extends PressableWidget {
 
     @Inject(method = "onPress", at = @At("HEAD"), cancellable = true)
     private void onPress(CallbackInfo ci) {
-        if (this.getMessage().getString().equals("CONFIG_POS")) {
-            MinecraftClient.getInstance().setScreen(new ConfigScreen());
-            ci.cancel();
+        MinecraftClient mc = MinecraftClient.getInstance();
+        switch (this.getMessage().getString()) {
+            case "CONFIG_POS" -> {
+                mc.setScreen(new TargetHudScreen());
+                ci.cancel();
+            }
+            case "CONFIG_HANDS" -> {
+                mc.setScreen(new SwingHandScreen());
+                ci.cancel();
+            }
         }
     }
 }
