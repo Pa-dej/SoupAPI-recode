@@ -7,9 +7,11 @@
     "FallDistanceFix",
     "TranslateToBruh",
     "TranslateToEnAll",
-    "inject.RegisterEntityTrails"
+    "inject.RegisterEntityTrails",
+    "redirect.PlayerEntityMixin"
   ],
   "client": [
+    "MCTierBadge",
     "access.HeadFeatureRendererAccessor",
     "access.LivingEntityRendererAccessor",
     "access.NativeImageAccessor",
@@ -19,7 +21,8 @@
     "inject.InGameHudMixin",
     "inject.MixinHeldItemRenderer",
     "inject.PlayerEntityRendererMixin",
-    "inject.ScreenMixin"
+    "inject.ScreenMixin",
+    "redirect.ScoreboardStyleMixin"
   ],
   "injectors": {
     "defaultRequire": 1

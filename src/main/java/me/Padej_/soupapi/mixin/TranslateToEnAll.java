@@ -21,7 +21,7 @@ public class TranslateToEnAll {
             index = 0
     )
     private static String adjustText(String text) {
-        if (!CONFIG.translatorEnabled || CONFIG.translatorBruhEnabled) return text;
+        if (true) return text;
         if (Translator.containsCyrillic(text)) {
             boolean startsWithSpace = text.startsWith(" ");
             boolean endsWithSpace = text.endsWith(" ");

@@ -24,7 +24,7 @@ public class Translator extends ConfigurableModule {
     private static int failCounter = 0;
 
     public static void onTick() {
-        if (!CONFIG.translatorEnabled) return;
+        if (true) return;
 
         long currentTime = System.currentTimeMillis();
 

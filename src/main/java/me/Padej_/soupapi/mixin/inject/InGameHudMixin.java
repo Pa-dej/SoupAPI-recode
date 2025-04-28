@@ -11,15 +11,12 @@ import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Colors;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -47,9 +44,6 @@ public abstract class InGameHudMixin {
     @Final
     private MinecraftClient client;
 
-    @Shadow
-    @Final
-    private static Identifier CROSSHAIR_TEXTURE;
     @Unique
     private static final float healthChangeSpeed = 0.2f;
     @Unique
@@ -348,15 +342,12 @@ public abstract class InGameHudMixin {
             Render2D.drawRound(context.getMatrices(), hotbarX - 0.5f, hotbarY + 1, hotbarWidth + 1, 19, cornerRadius, Render2D.injectAlpha(Color.BLACK, 120));
         }
 
-        // Calculate the position of the selected slot
         float animatedX;
         if (CONFIG.hudBetterHotbarSmooth) {
-            // Smooth interpolation when hudBetterHotbarSmooth is enabled
             float startX = halfWidth - 90 + (lastSelectedSlot * 20);
             float targetX = halfWidth - 90 + (targetSlot * 20);
             animatedX = MathHelper.lerp(selectedSlotProgress, startX, targetX);
         } else {
-            // Snap directly to the target slot when hudBetterHotbarSmooth is disabled
             animatedX = halfWidth - 90 + (targetSlot * 20);
         }
 
@@ -462,63 +453,6 @@ public abstract class InGameHudMixin {
 
             context.drawStackOverlay(this.client.textRenderer, stack, x, y);
         }
-    }
-
-    @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
-    private void injectDynamicCrosshair(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (!CONFIG.hudDynamicCrosshairEnabled) return;
-        if (!mc.options.getPerspective().isFirstPerson()) return;
-        if (mc.interactionManager.getCurrentGameMode() == GameMode.SPECTATOR) return;
-
-        float midX = context.getScaledWindowWidth() / 2f;
-        float midY = context.getScaledWindowHeight() / 2f;
-        float tickDelta = tickCounter.getTickDelta(true);
-
-        float currYaw = mc.player.getHeadYaw();
-        float currPitch = mc.player.getPitch();
-
-        // ΔYaw / ΔPitch
-        float yawDelta = currYaw - prevYaw;
-        float pitchDelta = currPitch - prevPitch;
-
-        // Накапливаем изменения
-        targetYawOffset += yawDelta * 0.6f;
-        targetPitchOffset += pitchDelta * 0.9f;
-
-        // Ограничим смещения
-        float max = CONFIG.hudDynamicCrosshairMaxOffsetEnabled;
-        targetYawOffset = MathHelper.clamp(targetYawOffset, -max, max);
-        targetPitchOffset = MathHelper.clamp(targetPitchOffset, -max, max);
-
-        // Плавный возврат к центру (затухание)
-        float fade = CONFIG.hudDynamicCrosshairFadeFactorEnabled / 100f;
-        targetYawOffset *= fade;
-        targetPitchOffset *= fade;
-
-        // Интерполяция с учётом tickDelta
-        interpolatedYawOffset = MathHelper.lerp(tickDelta, interpolatedYawOffset, targetYawOffset);
-        interpolatedPitchOffset = MathHelper.lerp(tickDelta, interpolatedPitchOffset, targetPitchOffset);
-
-        // Смещённые координаты
-        float crossX = midX + interpolatedYawOffset;
-        float crossY = midY + interpolatedPitchOffset;
-
-        // Рендерим прицел
-        context.drawGuiTexture(
-                RenderLayer::getCrosshair,
-                CROSSHAIR_TEXTURE,
-                (int) crossX,
-                (int) crossY,
-                15,
-                15
-        );
-
-        // Обновляем прошлые значения
-        prevYaw = currYaw;
-        prevPitch = currPitch;
-
-        ci.cancel();
     }
 
     @Inject(method = "render", at = @At("HEAD"))

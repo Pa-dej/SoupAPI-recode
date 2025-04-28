@@ -49,7 +49,6 @@ public class HitBubbles extends ConfigurableModule {
         });
     }
 
-
     public static void render(WorldRenderContext context) {
         RenderSystem.disableDepthTest();
         ArrayList<HitBubble> copy = new ArrayList<>(bubbles);

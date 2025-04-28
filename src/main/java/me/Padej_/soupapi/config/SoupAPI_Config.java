@@ -18,8 +18,6 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("main")
     public String[] friends = {};
     @ConfigEntry.Category("main")
-    public boolean translatorEnabled = false;
-    @ConfigEntry.Category("main")
     public boolean translatorBruhEnabled = false;
     @ConfigEntry.Gui.PrefixText // MC Tiers
     @ConfigEntry.Category("main")
@@ -92,13 +90,13 @@ public class SoupAPI_Config implements ConfigData {
     public Halo.SoulStyle haloSoulRenderSoulStyle = Halo.SoulStyle.SMOKE;
     @ConfigEntry.Category("halo")
     @ConfigEntry.BoundedDiscrete(min = 4, max = 50)
-    public int haloSoulLenght = 5;
+    public int haloSoulLenght = 12;
     @ConfigEntry.Category("halo")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
-    public int haloSoulFactor = 3;
+    public int haloSoulFactor = 16;
     @ConfigEntry.Category("halo")
     @ConfigEntry.BoundedDiscrete(min = 20, max = 50)
-    public int haloSoulRadius = 100;
+    public int haloSoulRadius = 30;
     @ConfigEntry.Category("halo")
     @ConfigEntry.BoundedDiscrete(min = 20, max = 100)
     public int haloSoulStartSize = 50;
@@ -107,10 +105,10 @@ public class SoupAPI_Config implements ConfigData {
     public int haloSoulEndSize = 20;
     @ConfigEntry.Category("halo")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
-    public int haloSoulScale = 40;
+    public int haloSoulScale = 25;
     @ConfigEntry.Category("halo")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
-    public int haloSoulSubdivision = 3;
+    public int haloSoulSubdivision = 5;
 
     /**
      * JUMP CIRCLES
@@ -272,15 +270,16 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hud")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public BetterHudStyles.HotbarStyle hudBetterHotbarStyle = BetterHudStyles.HotbarStyle.SIMPLE;
-    @ConfigEntry.Gui.PrefixText // crosshair
+
+    @ConfigEntry.Gui.PrefixText // scoreboard
     @ConfigEntry.Category("hud")
-    public boolean hudDynamicCrosshairEnabled = false;
+    public boolean hudBetterScoreboardEnabled = false;
     @ConfigEntry.Category("hud")
-    @ConfigEntry.BoundedDiscrete(min = 10, max = 90)
-    public int hudDynamicCrosshairFadeFactorEnabled = 80;
+    public boolean hudBetterScoreboardGlow = false;
     @ConfigEntry.Category("hud")
-    @ConfigEntry.BoundedDiscrete(min = 2, max = 15)
-    public int hudDynamicCrosshairMaxOffsetEnabled = 6;
+    public boolean hudBetterScoreboardDarker = false;
+    @ConfigEntry.Category("hud")
+    public boolean hudBetterScoreboardColor = false;
 
     /**
      * HIT BUBBLES
@@ -309,6 +308,28 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hit_sound")
     @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
     public int hitSoundVolume = 50;
+
+    @ConfigEntry.Gui.PrefixText // overwrite sound
+    @ConfigEntry.Category("hit_sound")
+    public boolean hitSoundOverwriteEnabled = false;
+    @ConfigEntry.Category("hit_sound")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    public int hitSoundOverwriteCritVolume = 50;
+    @ConfigEntry.Category("hit_sound")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    public int hitSoundOverwriteSweepVolume = 50;
+    @ConfigEntry.Category("hit_sound")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    public int hitSoundOverwriteNoDamageVolume = 50;
+    @ConfigEntry.Category("hit_sound")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    public int hitSoundOverwriteKnockbackVolume = 50;
+    @ConfigEntry.Category("hit_sound")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    public int hitSoundOverwriteStrongVolume = 50;
+    @ConfigEntry.Category("hit_sound")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    public int hitSoundOverwriteWeakVolume = 50;
 
     /**
      * RPC

@@ -43,6 +43,8 @@ public class TexturesManager extends ConfigurableModule {
     public static final Identifier GUI_HEART = Identifier.of("soupapi", "textures/gui/heart.png");
     public static final Identifier GUI_SHIELD = Identifier.of("soupapi", "textures/gui/shield.png");
 
+    public static final Identifier ROOKIE = Identifier.of("soupapi", "textures/gui/mctiers/rookie.png");
+
     public static Identifier getJumpCircleUnblack() {
         return switch (CONFIG.jumpCirclesStyle) {
             case CIRCLE -> CIRCLE_UNBLACK;
