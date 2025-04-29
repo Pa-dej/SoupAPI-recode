@@ -182,8 +182,6 @@ public class FontRenderer extends ConfigurableModule implements Closeable {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableCull();
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
         RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
         BufferBuilder bb;
@@ -272,6 +270,7 @@ public class FontRenderer extends ConfigurableModule implements Closeable {
             GLYPH_PAGE_CACHE.clear();
         }
         stack.pop();
+        RenderSystem.disableBlend();
     }
 
     public void drawCenteredString(MatrixStack stack, String s, double x, double y, int color) {
