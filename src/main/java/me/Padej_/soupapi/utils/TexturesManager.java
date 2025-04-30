@@ -43,7 +43,17 @@ public class TexturesManager extends ConfigurableModule {
     public static final Identifier GUI_HEART = Identifier.of("soupapi", "textures/gui/heart.png");
     public static final Identifier GUI_SHIELD = Identifier.of("soupapi", "textures/gui/shield.png");
 
+    public static final Identifier MC_TIERS_LOGO = Identifier.of("soupapi", "textures/gui/mctiers/mctiers.png");
     public static final Identifier ROOKIE = Identifier.of("soupapi", "textures/gui/mctiers/rookie.png");
+    public static final Identifier LTMS = Identifier.of("soupapi", "textures/gui/mctiers/2v2.png");
+    public static final Identifier AXE = Identifier.of("soupapi", "textures/gui/mctiers/axe.png");
+    public static final Identifier MACE = Identifier.of("soupapi", "textures/gui/mctiers/mace.png");
+    public static final Identifier NETHOP = Identifier.of("soupapi", "textures/gui/mctiers/nethop.png");
+    public static final Identifier POT = Identifier.of("soupapi", "textures/gui/mctiers/pot.png");
+    public static final Identifier SMP = Identifier.of("soupapi", "textures/gui/mctiers/smp.png");
+    public static final Identifier SWORD = Identifier.of("soupapi", "textures/gui/mctiers/sword.png");
+    public static final Identifier UHC = Identifier.of("soupapi", "textures/gui/mctiers/uhc.png");
+    public static final Identifier VANILLA = Identifier.of("soupapi", "textures/gui/mctiers/vanilla.png");
 
     public static Identifier getJumpCircleUnblack() {
         return switch (CONFIG.jumpCirclesStyle) {

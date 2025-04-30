@@ -6,11 +6,17 @@ import java.util.Objects;
 
 public class ServerReduce extends ConfigurableModule {
 
-    public static boolean dontShowTargetHudItemsOverlay() {
+    public static boolean disableItemOverlay() {
         if (Objects.requireNonNull(mc.getNetworkHandler()).getServerInfo() == null) return true;
         String ip = mc.getNetworkHandler().getServerInfo().address.toLowerCase();
         return
-                !ip.contains("minefun") &&
-                !ip.contains("mineblaze"); // test
+                ip.contains("minefun") ||
+                ip.contains("mineblaze"); // test
     }
+
+    public static boolean disableHPBar() {
+        return false;
+    }
+
+
 }

@@ -5,6 +5,7 @@ import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.BetterHudStyles;
 import me.Padej_.soupapi.modules.TargetHud;
 import me.Padej_.soupapi.render.Render2D;
+import me.Padej_.soupapi.render.WatermarkRenderer;
 import me.Padej_.soupapi.utils.MathUtility;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
@@ -458,6 +459,7 @@ public abstract class InGameHudMixin {
     @Inject(method = "render", at = @At("HEAD"))
     private void hookRender(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         TargetHud.render(context, tickCounter);
+        WatermarkRenderer.render(context);
     }
 
     @Unique

@@ -3,7 +3,7 @@ package me.Padej_.soupapi.modules;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.interpolation.EaseOutCirc;
 import me.Padej_.soupapi.particle.Particle2D;
-import me.Padej_.soupapi.render.TargetHudRender;
+import me.Padej_.soupapi.render.TargetHudRenderer;
 import me.Padej_.soupapi.utils.EntityUtils;
 import me.Padej_.soupapi.utils.MathUtility;
 import net.minecraft.client.MinecraftClient;
@@ -65,10 +65,10 @@ public class TargetHud extends ConfigurableModule {
         float normalizedDelta = deltaTime / frameTime;
 
         // Обновляем анимации
-        TargetHudRender.colorAnimationProgress = (TargetHudRender.colorAnimationProgress + normalizedDelta * colorAnimationSpeed) % 1.0f;
-        TargetHudRender.hpColorAnimationProgress = (TargetHudRender.hpColorAnimationProgress + normalizedDelta * colorAnimationSpeed / 2) % 1.0f;
+        TargetHudRenderer.colorAnimationProgress = (TargetHudRenderer.colorAnimationProgress + normalizedDelta * colorAnimationSpeed) % 1.0f;
+        TargetHudRenderer.hpColorAnimationProgress = (TargetHudRenderer.hpColorAnimationProgress + normalizedDelta * colorAnimationSpeed / 2) % 1.0f;
         headAnimation.update(normalizedDelta); // Обновляем анимацию головы
-        TargetHudRender.ticks += 0.1f * normalizedDelta; // Обновляем ticks для частиц
+        TargetHudRenderer.ticks += 0.1f * normalizedDelta; // Обновляем ticks для частиц
 
         // Плавная интерполяция масштаба HUD
         if (hudTimer > 0) {
@@ -80,9 +80,9 @@ public class TargetHud extends ConfigurableModule {
         }
 
         // Обновляем частицы
-        for (Particle2D p : new ArrayList<>(TargetHudRender.particles)) {
+        for (Particle2D p : new ArrayList<>(TargetHudRenderer.particles)) {
             p.updatePosition(normalizedDelta); // Передаем нормализованное время
-            if (p.opacity < 1) TargetHudRender.particles.remove(p);
+            if (p.opacity < 1) TargetHudRenderer.particles.remove(p);
         }
 
         // Рендерим HUD, если масштаб > 0 и есть последняя цель
@@ -112,11 +112,11 @@ public class TargetHud extends ConfigurableModule {
             float animationFactor = MathUtility.clamp(hudScale, 0, 1f);
             switch (CONFIG.targetHudStyle) {
                 case MINI ->
-                        TargetHudRender.renderMiniHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget);
+                        TargetHudRenderer.renderMiniHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget);
                 case TINY ->
-                        TargetHudRender.renderTinyHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget);
+                        TargetHudRenderer.renderTinyHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget);
                 default ->
-                        TargetHudRender.renderNormalHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget);
+                        TargetHudRenderer.renderNormalHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget);
             }
 
             context.getMatrices().pop();

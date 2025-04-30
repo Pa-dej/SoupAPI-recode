@@ -24,7 +24,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TargetHudRender extends ConfigurableModule {
+public class TargetHudRenderer extends ConfigurableModule {
     public static final ArrayList<Particle2D> particles = new ArrayList<>();
     public static boolean sentParticles = false;
     public static float ticks = 0f;
@@ -162,7 +162,7 @@ public class TargetHudRender extends ConfigurableModule {
             context.getMatrices().push();
             context.getMatrices().translate(xItemOffset, y + 4, 0);
             context.getMatrices().scale(0.5f, 0.5f, 0.5f);
-            if (ServerReduce.dontShowTargetHudItemsOverlay()) {
+            if (ServerReduce.disableItemOverlay()) {
                 context.drawItem(itemStack, 0, 0);
                 context.drawStackOverlay(mc.textRenderer, itemStack, 0, 0);
             }
@@ -310,7 +310,7 @@ public class TargetHudRender extends ConfigurableModule {
             context.getMatrices().push();
             context.getMatrices().translate(xItemOffset, y + 13, 0);
             context.getMatrices().scale(0.5f, 0.5f, 0.5f);
-            if (ServerReduce.dontShowTargetHudItemsOverlay()) {
+            if (ServerReduce.disableItemOverlay()) {
                 context.drawItem(itemStack, 0, 0);
                 context.drawStackOverlay(mc.textRenderer, itemStack, 0, 0);
             }
@@ -443,7 +443,7 @@ public class TargetHudRender extends ConfigurableModule {
             context.getMatrices().push();
             context.getMatrices().translate(xItemOffset, y + 15, 0);
             context.getMatrices().scale(0.75f, 0.75f, 0.75f);
-            if (ServerReduce.dontShowTargetHudItemsOverlay()) {
+            if (ServerReduce.disableItemOverlay()) {
                 context.drawItem(itemStack, 0, 0);
                 context.drawStackOverlay(mc.textRenderer, itemStack, 0, 0);
             }

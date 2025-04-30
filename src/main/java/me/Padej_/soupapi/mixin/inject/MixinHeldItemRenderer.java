@@ -47,6 +47,7 @@ public abstract class MixinHeldItemRenderer {
             switch (item.getUseAction()) {
                 case EAT, DRINK -> {
                     this.applyEatOrDrinkTransformation(matrices, tickDelta, arm, item, player);
+                    this.applyEquipOffset(matrices, arm, equipProgress);
                     isVanillaAction = true;
                 }
                 case BOW -> {
