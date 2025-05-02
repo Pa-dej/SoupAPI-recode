@@ -3,6 +3,7 @@ package me.Padej_.soupapi.modules;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.interpolation.EaseOutCirc;
 import me.Padej_.soupapi.particle.Particle2D;
+import me.Padej_.soupapi.reduce.ModuleSupressor;
 import me.Padej_.soupapi.render.TargetHudRenderer;
 import me.Padej_.soupapi.utils.EntityUtils;
 import me.Padej_.soupapi.utils.MathUtility;
@@ -47,6 +48,10 @@ public class TargetHud extends ConfigurableModule {
         if (lastTarget instanceof PlayerEntity) {
             float targetHealth = Math.min(lastTarget.getMaxHealth(), getHealth());
             displayedHealth = MathHelper.lerp(healthChangeSpeed, displayedHealth, targetHealth);
+        }
+
+        if (ModuleSupressor.disableHPBar()) {
+            displayedHealth = 20;
         }
     }
 

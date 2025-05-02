@@ -82,7 +82,7 @@ public class TargetRender extends ConfigurableModule {
     }
 
     public enum TargetRenderLegacyTexture {
-        LEGACY, MARKER, BO, SIMPLE, SCIFI, AMONGUS, SKULL, JEKA, FLOWER
+        LEGACY, MARKER, BO, SIMPLE, SCIFI, AMONGUS, SKULL, JEKA, VEGAS
     }
 
     public enum TargetRenderSoulStyle {

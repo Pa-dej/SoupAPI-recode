@@ -380,10 +380,13 @@ public class Render2D {
         x = x - blurRadius;
         y = y - blurRadius;
 
-        int identifier = (int) (width * height + width * blurRadius);
-        if (shadowCache1.containsKey(identifier)) {
-            shadowCache1.get(identifier).bind();
-        } else {
+        // Округление размеров для уменьшения уникальных ключей
+        int roundedWidth = Math.round(width / 10) * 10;
+        int roundedHeight = Math.round(height / 10) * 10;
+        int identifier = roundedWidth * roundedHeight + roundedWidth * blurRadius;
+
+        BlurredShadow shadow = shadowCache1.get(identifier);
+        if (shadow == null) {
             BufferedImage original = new BufferedImage((int) width, (int) height, BufferedImage.TYPE_INT_ARGB);
             Graphics g = original.getGraphics();
             g.setColor(new Color(-1));
@@ -404,9 +407,10 @@ public class Render2D {
             g1.dispose();
 
             shadowCache1.put(identifier, new BlurredShadow(combined));
-            return;
+            shadow = shadowCache1.get(identifier);
         }
 
+        shadow.bind();
         setupRender();
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
         renderGradientTexture(matrices, x, y, width, height, 0, 0, width, height, width, height, color1, color2, color3, color4);

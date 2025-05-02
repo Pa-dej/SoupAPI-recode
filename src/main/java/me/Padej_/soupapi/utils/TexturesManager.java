@@ -9,7 +9,8 @@ public class TexturesManager extends ConfigurableModule {
     private static final Identifier CIRCLE = Identifier.of("soupapi", "textures/jump_circles/circle.png");
     private static final Identifier CIRCLE_BOLD = Identifier.of("soupapi", "textures/jump_circles/circle_bold.png");
     private static final Identifier HEXAGON = Identifier.of("soupapi", "textures/jump_circles/hexagon.png");
-    public static final Identifier PORTAL = Identifier.of("soupapi", "textures/jump_circles/portal.png"); // Thunder Hack, thx :3
+    public static final Identifier PORTAL = Identifier.of("soupapi", "textures/jump_circles/portal.png");
+    public static final Identifier PORTAL_2 = Identifier.of("soupapi", "textures/jump_circles/portal_2.png");
 
     private static final Identifier CIRCLE_UNBLACK = Identifier.of("soupapi", "textures/jump_circles/circle_unblack.png");
     private static final Identifier CIRCLE_BOLD_UNBLACK = Identifier.of("soupapi", "textures/jump_circles/circle_bold_unblack.png");
@@ -24,10 +25,10 @@ public class TexturesManager extends ConfigurableModule {
     private static final Identifier MARKER = Identifier.of("soupapi", "textures/target_render/marker.png");
     private static final Identifier SKULL = Identifier.of("soupapi", "textures/target_render/skull.png");
     private static final Identifier AMOGUS = Identifier.of("soupapi", "textures/target_render/amongus.png");
-    private static final Identifier FLOWER = Identifier.of("soupapi", "textures/target_render/flower_0.png");
+    private static final Identifier VEGAS = Identifier.of("soupapi", "textures/target_render/vegas.png");
     private static final Identifier JEKA = Identifier.of("soupapi", "textures/target_render/jeka.png");
 
-    public static final Identifier FIREFLY = Identifier.of("soupapi", "textures/particles/firefly.png"); // Thunder Hack, thx :3
+    public static final Identifier FIREFLY = Identifier.of("soupapi", "textures/particles/firefly.png");
     public static final Identifier FIREFLY_GLOW = Identifier.of("soupapi", "textures/particles/firefly_glow.png");
     public static final Identifier FIREFLY_ALT = Identifier.of("soupapi", "textures/particles/firefly_alt.png");
     public static final Identifier FIREFLY_ALT_GLOW = Identifier.of("soupapi", "textures/particles/firefly_alt_glow.png");
@@ -42,6 +43,7 @@ public class TexturesManager extends ConfigurableModule {
     public static final Identifier GUI_HAM = Identifier.of("soupapi", "textures/gui/ham.png");
     public static final Identifier GUI_HEART = Identifier.of("soupapi", "textures/gui/heart.png");
     public static final Identifier GUI_SHIELD = Identifier.of("soupapi", "textures/gui/shield.png");
+    public static final Identifier GUI_POTION = Identifier.of("soupapi", "textures/gui/potion.png");
 
     public static final Identifier MC_TIERS_LOGO = Identifier.of("soupapi", "textures/gui/mctiers/mctiers.png");
     public static final Identifier ROOKIE = Identifier.of("soupapi", "textures/gui/mctiers/rookie.png");
@@ -74,7 +76,7 @@ public class TexturesManager extends ConfigurableModule {
             case JEKA -> JEKA;
             case AMONGUS -> AMOGUS;
             case SKULL -> SKULL;
-            case FLOWER -> FLOWER;
+            case VEGAS -> VEGAS;
         };
     }
 
@@ -84,6 +86,21 @@ public class TexturesManager extends ConfigurableModule {
             case CIRCLE_BOLD -> CIRCLE_BOLD;
             case HEXAGON -> HEXAGON;
             case PORTAL -> PORTAL;
+            case PORTAL_2 -> PORTAL_2;
+        };
+    }
+
+    public static Identifier getMC_TiersGameModeTexture() {
+        return switch (CONFIG.mctiersGameMode) {
+            case LTMs -> LTMS;
+            case AXE -> AXE;
+            case MACE -> MACE;
+            case NETHER_OP -> NETHOP;
+            case POT -> POT;
+            case SMP -> SMP;
+            case SWORD -> SWORD;
+            case UHC -> UHC;
+            case VANILLA -> VANILLA;
         };
     }
 }

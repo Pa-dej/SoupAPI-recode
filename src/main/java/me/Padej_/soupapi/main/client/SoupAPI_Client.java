@@ -35,6 +35,7 @@ public class SoupAPI_Client implements ClientModInitializer {
         AmbientParticle.onTick();
         RPC.onTick();
         Translator.onTick();
+//        KillEffect.onTick();
 
         if (InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_ALT) && InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_BACKSPACE)) {
             client.setScreen(AutoConfig.getConfigScreen(SoupAPI_Config.class, null).get());

@@ -3,14 +3,18 @@ package me.Padej_.soupapi.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.font.FontRenderers;
 import me.Padej_.soupapi.utils.Palette;
+import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.opengl.GL40C;
 
 import java.awt.*;
+
+import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 
 public class WatermarkRenderer {
     private static MinecraftClient mc = MinecraftClient.getInstance();
@@ -72,6 +76,7 @@ public class WatermarkRenderer {
         float width = FontRenderers.sf_bold.getStringWidth(mc.player.getName().getString()) + 20;
         float height = 14;
         x += 13;
+        if (CONFIG.mctiersEnabled) width += 18;
         y += 16;
 
         Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 1, y + 1, width, height, 10, bottomLeft, bottomRight, topRight, topLeft);
@@ -79,12 +84,24 @@ public class WatermarkRenderer {
         Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, width, height, 4, Render2D.injectAlpha(Color.BLACK, 180));
     }
 
-    private static void renderName(DrawContext context, int x, int y) {
+    private static void renderName(DrawContext context, float x, float y) {
         String displayName = mc.player.getName().getString();
-        FontRenderers.sf_bold.drawString(context.getMatrices(), displayName, x + 32, y + 21.5f, Colors.WHITE);
+        y += 21.5f;
+        FontRenderers.sf_bold.drawString(context.getMatrices(), displayName, x + 32, y, Colors.WHITE);
+
+        if (!CONFIG.mctiersEnabled) return;
+        float textWidth = FontRenderers.sf_bold.getStringWidth(mc.player.getName().getString());
+
+        FontRenderers.sf_bold.drawString(context.getMatrices(), "|", x + textWidth + 36, y - 1, 0xAA525252);
+
+        context.getMatrices().push();
+        context.getMatrices().translate(x + 40 + textWidth, y - 3.7, 0);
+        context.getMatrices().scale(0.3f, 0.3f, 0.3f);
+        context.drawTexture(RenderLayer::getGuiTextured, TexturesManager.getMC_TiersGameModeTexture(), 0, 0, 0, 0, 40, 40, 1268, 1153, 1268, 1153);
+        context.getMatrices().pop();
     }
 
-    private static void renderHead(DrawContext context, int x, int y) {
+    private static void renderHead(DrawContext context, float x, float y) {
         Identifier texture = mc.player.getSkinTextures().texture();
         float scale = 0.3f;
 

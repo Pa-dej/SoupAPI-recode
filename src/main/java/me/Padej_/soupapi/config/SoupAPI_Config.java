@@ -4,6 +4,7 @@ import me.Padej_.soupapi.modules.*;
 import me.Padej_.soupapi.sounds.CustomSounds;
 import me.Padej_.soupapi.utils.MC_Tiers;
 import me.Padej_.soupapi.utils.Palette;
+import me.Padej_.soupapi.utils.Weather;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
@@ -19,10 +20,19 @@ public class SoupAPI_Config implements ConfigData {
     public String[] friends = {};
     @ConfigEntry.Category("main")
     public boolean translatorBruhEnabled = false;
+
     @ConfigEntry.Gui.PrefixText // MC Tiers
+    @ConfigEntry.Category("main")
+    public boolean mctiersEnabled = false;
     @ConfigEntry.Category("main")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public MC_Tiers.TierGameModes mctiersGameMode = MC_Tiers.TierGameModes.SWORD;
+
+    @ConfigEntry.Gui.PrefixText // Config Screen
+    @ConfigEntry.Category("main")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public TargetHud.Config configPos_BUTTON = TargetHud.Config.CONFIG_POS;
+
     @ConfigEntry.Gui.PrefixText // Theme
     @ConfigEntry.Category("main")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
@@ -45,6 +55,8 @@ public class SoupAPI_Config implements ConfigData {
      **/
     @ConfigEntry.Category("trails")
     public boolean trailsEnabled = false;
+    @ConfigEntry.Category("trails")
+    public boolean trailsFirstPerson = false;
     @ConfigEntry.Category("trails")
     public boolean trailsRenderHalf = false;
     @ConfigEntry.Category("trails")
@@ -138,23 +150,36 @@ public class SoupAPI_Config implements ConfigData {
     public int jumpCirclesSpinSpeed = 1;
 
     /**
-     * AMBIENT PARTICLES
+     * WORLD
      **/
-    @ConfigEntry.Category("ambient_particles")
+    @ConfigEntry.Gui.PrefixText // ambient particles
+    @ConfigEntry.Category("world")
     public boolean ambientParticlesEnabled = false;
     @ConfigEntry.Gui.PrefixText
-    @ConfigEntry.Category("ambient_particles")
+    @ConfigEntry.Category("world")
     @ConfigEntry.BoundedDiscrete(min = 50, max = 200)
     public int ambientParticlesLiveTime = 100;
-    @ConfigEntry.Category("ambient_particles")
+    @ConfigEntry.Category("world")
     @ConfigEntry.BoundedDiscrete(min = 5, max = 150)
     public int ambientParticlesMaxCount = 65;
-    @ConfigEntry.Category("ambient_particles")
+    @ConfigEntry.Category("world")
     @ConfigEntry.BoundedDiscrete(min = 4, max = 30)
     public int ambientParticlesSpawnRadius = 20;
-    @ConfigEntry.Category("ambient_particles")
+    @ConfigEntry.Category("world")
     @ConfigEntry.BoundedDiscrete(min = 2, max = 15)
     public int ambientParticlesIgnoreSpawnRadius = 10;
+
+    @ConfigEntry.Gui.PrefixText //
+    @ConfigEntry.Category("world")
+    public boolean timeChangerEnabled = false;
+    @ConfigEntry.Category("world")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    public int timeChangerTime = 50;
+    @ConfigEntry.Category("world")
+    public boolean weatherChangerEnabled = false;
+    @ConfigEntry.Category("world")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public Weather weatherType = Weather.RAIN;
 
     /**
      * TARGET RENDER
@@ -247,11 +272,6 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("target_hud")
     @ConfigEntry.BoundedDiscrete(min = 50, max = 120)
     public int targetHudParticleScale = 100;
-
-    @ConfigEntry.Gui.PrefixText // pos
-    @ConfigEntry.Category("target_hud")
-    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public TargetHud.Config targetHudConfigPos_BUTTON = TargetHud.Config.CONFIG_POS;
     @ConfigEntry.Category("target_hud")
     public int targetHudOffsetX = 0;
     @ConfigEntry.Category("target_hud")
@@ -280,6 +300,16 @@ public class SoupAPI_Config implements ConfigData {
     public boolean hudBetterScoreboardDarker = false;
     @ConfigEntry.Category("hud")
     public boolean hudBetterScoreboardColor = false;
+
+    @ConfigEntry.Gui.PrefixText // potions hud
+    @ConfigEntry.Category("hud")
+    public boolean hudBetterPotionsHudEnabled = false;
+    @ConfigEntry.Category("hud")
+    public boolean hudBetterPotionsHudToRoman = false;
+    @ConfigEntry.Category("hud")
+    public int hudBetterPotionsHudX = 8;
+    @ConfigEntry.Category("hud")
+    public int hudBetterPotionsHudY = 80;
 
     /**
      * HIT BUBBLES
@@ -336,8 +366,6 @@ public class SoupAPI_Config implements ConfigData {
      **/
     @ConfigEntry.Category("rpc")
     public boolean rpcEnabled = true;
-    @ConfigEntry.Category("rpc")
-    public boolean rpcMctiersEnabled = false;
     @ConfigEntry.Category("rpc")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public RPC.State rpcState = RPC.State.NAME;

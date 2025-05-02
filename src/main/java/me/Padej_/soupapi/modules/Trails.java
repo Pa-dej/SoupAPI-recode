@@ -28,7 +28,6 @@ public class Trails extends ConfigurableModule {
 
         int trailLifetime = CONFIG.trailsLenght;
 
-        // Обрабатываем игроков как раньше
         for (PlayerEntity player : mc.world.getPlayers()) {
             if (player.getPos().getZ() != player.prevZ || player.getPos().getX() != player.prevX) {
                 ((TrailEntity) player).soupAPI$getTrails().add(new TrailSegment(
@@ -40,15 +39,12 @@ public class Trails extends ConfigurableModule {
             ((TrailEntity) player).soupAPI$getTrails().removeIf(TrailSegment::update);
         }
 
-        // Добавляем трейлы для парящих сущностей, если trailsForGliders включен
         if (CONFIG.trailsForGliders) {
             for (Entity entity : mc.world.getEntities()) {
-                // Пропускаем клиента и проверяем, парит ли сущность
                 if (entity == mc.player || !(entity instanceof LivingEntity livingEntity) || !livingEntity.isGliding()) {
                     continue;
                 }
 
-                // Проверяем движение сущности
                 if (entity.getPos().getZ() != entity.prevZ || entity.getPos().getX() != entity.prevX) {
                     ((TrailEntity) entity).soupAPI$getTrails().add(new TrailSegment(
                             new Vec3d(entity.prevX, entity.prevY, entity.prevZ),
@@ -64,9 +60,8 @@ public class Trails extends ConfigurableModule {
     public static void renderTrail(WorldRenderContext context) {
         VertexConsumerProvider.Immediate vertexConsumerProvider = mc.getBufferBuilders().getEntityVertexConsumers();
 
-        // Рендеринг трейлов для игроков как раньше
         for (PlayerEntity entity : mc.world.getPlayers()) {
-            if (entity == mc.player && mc.options.getPerspective().isFirstPerson()) continue;
+            if (entity == mc.player && mc.options.getPerspective().isFirstPerson() && !CONFIG.trailsFirstPerson) continue;
             if (!EntityUtils.isFriend(entity) && entity != mc.player) continue;
 
             List<Trails.TrailSegment> trails = ((TrailEntity) entity).soupAPI$getTrails();
@@ -105,10 +100,8 @@ public class Trails extends ConfigurableModule {
             vertexConsumerProvider.draw();
         }
 
-        // Рендеринг трейлов для парящих сущностей, если trailsForGliders включен
         if (CONFIG.trailsForGliders) {
             for (Entity entity : mc.world.getEntities()) {
-                // Пропускаем клиента и сущности, которые не парят
                 if (entity == mc.player || !(entity instanceof LivingEntity livingEntity) || !livingEntity.isGliding()) {
                     continue;
                 }

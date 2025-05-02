@@ -11,6 +11,7 @@ import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 
 public class TargetHudScreen extends Screen {
     private final Frame targetHudFrame;
+    private final Frame potionsHudFrame;
 
     public TargetHudScreen() {
         super(Text.of("SoupAPI config screen"));
@@ -19,35 +20,57 @@ public class TargetHudScreen extends Screen {
         targetHudFrame = new Frame(
                 centerX + CONFIG.targetHudOffsetX,
                 centerY - CONFIG.targetHudOffsetY,
-                15, 15,
+                50, 30,
                 "Target HUD",
                 0xAA00FF55
+        );
+        potionsHudFrame = new Frame(
+                CONFIG.hudBetterPotionsHudX,
+                CONFIG.hudBetterPotionsHudY,
+                80, 50,
+                "Potions HUD",
+                0xAA5500FF
         );
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         targetHudFrame.render(context);
+        potionsHudFrame.render(context);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0 && targetHudFrame.isMouseOverDragArea(mouseX, mouseY)) {
-            targetHudFrame.startDragging(mouseX, mouseY);
-            return true;
+        if (button == 0) {
+            if (targetHudFrame.isMouseOverDragArea(mouseX, mouseY)) {
+                targetHudFrame.startDragging(mouseX, mouseY);
+                return true;
+            }
+            if (potionsHudFrame.isMouseOverDragArea(mouseX, mouseY)) {
+                potionsHudFrame.startDragging(mouseX, mouseY);
+                return true;
+            }
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        if (button == 0 && targetHudFrame.isDragging()) {
-            targetHudFrame.updatePosition(mouseX, mouseY);
-            int centerX = MinecraftClient.getInstance().getWindow().getScaledWidth() / 2;
-            int centerY = MinecraftClient.getInstance().getWindow().getScaledHeight() / 2;
-            CONFIG.targetHudOffsetX = targetHudFrame.getOffsetX(centerX);
-            CONFIG.targetHudOffsetY = -targetHudFrame.getOffsetY(centerY);
-            return true;
+        if (button == 0) {
+            if (targetHudFrame.isDragging()) {
+                targetHudFrame.updatePosition(mouseX, mouseY);
+                int centerX = MinecraftClient.getInstance().getWindow().getScaledWidth() / 2;
+                int centerY = MinecraftClient.getInstance().getWindow().getScaledHeight() / 2;
+                CONFIG.targetHudOffsetX = targetHudFrame.getOffsetX(centerX);
+                CONFIG.targetHudOffsetY = -targetHudFrame.getOffsetY(centerY);
+                return true;
+            }
+            if (potionsHudFrame.isDragging()) {
+                potionsHudFrame.updatePosition(mouseX, mouseY);
+                CONFIG.hudBetterPotionsHudX = potionsHudFrame.getOffsetX(0);
+                CONFIG.hudBetterPotionsHudY = potionsHudFrame.getOffsetY(0);
+                return true;
+            }
         }
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
@@ -56,6 +79,7 @@ public class TargetHudScreen extends Screen {
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (button == 0) {
             targetHudFrame.stopDragging();
+            potionsHudFrame.stopDragging();
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
@@ -66,6 +90,8 @@ public class TargetHudScreen extends Screen {
         int centerY = MinecraftClient.getInstance().getWindow().getScaledHeight() / 2;
         CONFIG.targetHudOffsetX = targetHudFrame.getOffsetX(centerX);
         CONFIG.targetHudOffsetY = -targetHudFrame.getOffsetY(centerY);
+        CONFIG.hudBetterPotionsHudX = potionsHudFrame.getOffsetX(0);
+        CONFIG.hudBetterPotionsHudY = potionsHudFrame.getOffsetY(0);
         ConfigurableModule.saveConfig();
         super.close();
     }

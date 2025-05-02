@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.font.FontRenderers;
 import me.Padej_.soupapi.particle.Particle2D;
-import me.Padej_.soupapi.reduce.ServerReduce;
+import me.Padej_.soupapi.reduce.ModuleSupressor;
 import me.Padej_.soupapi.utils.MathUtility;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
@@ -162,8 +162,8 @@ public class TargetHudRenderer extends ConfigurableModule {
             context.getMatrices().push();
             context.getMatrices().translate(xItemOffset, y + 4, 0);
             context.getMatrices().scale(0.5f, 0.5f, 0.5f);
-            if (ServerReduce.disableItemOverlay()) {
-                context.drawItem(itemStack, 0, 0);
+            context.drawItem(itemStack, 0, 0);
+            if (!ModuleSupressor.disableItemOverlay()) {
                 context.drawStackOverlay(mc.textRenderer, itemStack, 0, 0);
             }
             context.getMatrices().pop();
@@ -310,8 +310,8 @@ public class TargetHudRenderer extends ConfigurableModule {
             context.getMatrices().push();
             context.getMatrices().translate(xItemOffset, y + 13, 0);
             context.getMatrices().scale(0.5f, 0.5f, 0.5f);
-            if (ServerReduce.disableItemOverlay()) {
-                context.drawItem(itemStack, 0, 0);
+            context.drawItem(itemStack, 0, 0);
+            if (!ModuleSupressor.disableItemOverlay()) {
                 context.drawStackOverlay(mc.textRenderer, itemStack, 0, 0);
             }
             context.getMatrices().pop();
@@ -443,8 +443,8 @@ public class TargetHudRenderer extends ConfigurableModule {
             context.getMatrices().push();
             context.getMatrices().translate(xItemOffset, y + 15, 0);
             context.getMatrices().scale(0.75f, 0.75f, 0.75f);
-            if (ServerReduce.disableItemOverlay()) {
-                context.drawItem(itemStack, 0, 0);
+            context.drawItem(itemStack, 0, 0);
+            if (!ModuleSupressor.disableItemOverlay()) {
                 context.drawStackOverlay(mc.textRenderer, itemStack, 0, 0);
             }
             context.getMatrices().pop();

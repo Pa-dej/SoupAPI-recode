@@ -1,8 +1,11 @@
 package me.Padej_.soupapi.mixin.inject;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import me.Padej_.soupapi.font.FontRenderer;
 import me.Padej_.soupapi.font.FontRenderers;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.BetterHudStyles;
+import me.Padej_.soupapi.modules.PotionsHud;
 import me.Padej_.soupapi.modules.TargetHud;
 import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.render.WatermarkRenderer;
@@ -12,12 +15,14 @@ import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Colors;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.profiler.Profilers;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -44,6 +49,8 @@ public abstract class InGameHudMixin {
     @Shadow
     @Final
     private MinecraftClient client;
+
+    @Shadow protected abstract boolean shouldRenderExperience();
 
     @Unique
     private static final float healthChangeSpeed = 0.2f;
@@ -129,7 +136,7 @@ public abstract class InGameHudMixin {
         int barHeight = 10;
         float cornerRadius = 2f;
         int x = right - barWidth;
-
+        top -= 5;
 
         int filledWidth = (int) MathUtility.clamp((barWidth * (displayedHunger / maxHunger)), 0, barWidth);
         if (!isLBStyle) {
@@ -175,6 +182,7 @@ public abstract class InGameHudMixin {
         float cornerRadius = 2f;
         int x = left - barWidth;
         int y = top + 3;
+        y -= 5;
 
         int filledWidth = (int) MathUtility.clamp((barWidth * (currentAir / maxAir)), 0, barWidth);
         if (!isLBStyle) {
@@ -211,6 +219,7 @@ public abstract class InGameHudMixin {
         float hpProgress = (float) (Math.sin(hpColorAnimationProgress * Math.PI * 2) + 1) / 2f;
         Color c1Hp = isLBStyle ? new Color(0xb23229) : interpolateColor(c1Base, c2Base, hpProgress);
         Color c2Hp = isLBStyle ? new Color(0xbc302c) : interpolateColor(c2Base, c1Base, hpProgress);
+        y -= 5;
 
         int barWidth = 81;
         int barHeight = 10;
@@ -258,6 +267,7 @@ public abstract class InGameHudMixin {
         int yOffset = 55;
         float cornerRadius = 2f;
         int y = context.getScaledWindowHeight() - yOffset;
+        y -= 5;
 
         int armor = player.getArmor();
         float maxArmor = 20.0f;
@@ -294,12 +304,49 @@ public abstract class InGameHudMixin {
     @Inject(method = "renderExperienceBar", at = @At("HEAD"), cancellable = true)
     private void cancelRenderExperienceBar(DrawContext context, int x, CallbackInfo ci) {
         if (!CONFIG.hudBetterHotbarEnabled) return;
+        Profilers.get().push("expBar");
+
+        PlayerEntity player = this.client.player;
+        if (player == null) return;
+
+        int levelExp = player.getNextLevelExperience();
+        if (levelExp > 0) {
+            float progress = MathUtility.clamp(player.experienceProgress, 0f, 1f);
+            float alpha = 1f; // можно сделать настраиваемым
+
+            // Позиция полоски опыта
+            float barX = x + 1;
+            float barY = context.getScaledWindowHeight() - 31; // чуть выше/ниже при необходимости
+            float barWidth = 182f;
+            float barHeight = 1.5f;
+
+            // Цвета
+            Color color = new Color(0xFF7efc20);
+            Color background = new Color(0, 0, 0, (int) (alpha * 80));
+
+            // Слои отрисовки
+            Render2D.drawGradientBlurredShadow1(context.getMatrices(), barX, barY, barWidth * progress, barHeight, 4, color, color, color, color);
+            Render2D.drawRound(context.getMatrices(), barX, barY, barWidth, barHeight, 1.5f, background);
+            Render2D.renderRoundedGradientRect(context.getMatrices(), color, color, color, color,
+                    barX, barY, barWidth * progress, barHeight, 1.5f);
+        }
+
+        Profilers.get().pop();
         ci.cancel();
     }
 
     @Inject(method = "renderExperienceLevel", at = @At("HEAD"), cancellable = true)
     private void cancelRenderExperienceNumber(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         if (!CONFIG.hudBetterHotbarEnabled) return;
+        int i = client.player.experienceLevel;
+        if (this.shouldRenderExperience() && i > 0) {
+            Profilers.get().push("expLevel");
+            String string = "" + i;
+            int x = (context.getScaledWindowWidth() - (int) FontRenderers.sf_bold.getStringWidth((string))) / 2;
+            int y = context.getScaledWindowHeight() - 31 - 6;
+            FontRenderers.sf_bold.drawString(context.getMatrices(), string, x, y, 0xFF7efc20);
+            Profilers.get().pop();
+        }
         ci.cancel();
     }
 
@@ -460,6 +507,13 @@ public abstract class InGameHudMixin {
     private void hookRender(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         TargetHud.render(context, tickCounter);
         WatermarkRenderer.render(context);
+    }
+
+    @Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"), cancellable = true)
+    private void renderStatusEffectOverlay(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+        if (!CONFIG.hudBetterPotionsHudEnabled) return;
+        PotionsHud.render(context);
+        ci.cancel();
     }
 
     @Unique

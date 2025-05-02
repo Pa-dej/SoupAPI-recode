@@ -5,7 +5,6 @@ import me.Padej_.soupapi.discord.DiscordEventHandlers;
 import me.Padej_.soupapi.discord.DiscordRPC;
 import me.Padej_.soupapi.discord.DiscordRichPresence;
 import me.Padej_.soupapi.utils.MC_Tiers;
-import org.lwjgl.glfw.GLFW;
 
 public class RPC extends ConfigurableModule {
     private static boolean initialized = false;
@@ -26,7 +25,7 @@ public class RPC extends ConfigurableModule {
         lastState = presence.state;
 
         presence.startTimestamp = startTimestamp;
-        presence.largeImageKey = CONFIG.rpcMctiersEnabled ? MC_Tiers.getMcTiersGameModeIcon() : DEFAULT_ICON;
+        presence.largeImageKey = CONFIG.mctiersEnabled ? MC_Tiers.getMcTiersGameModeIcon() : DEFAULT_ICON;
         presence.largeImageText = mc.getVersionType() + " " + mc.getGameVersion();
         presence.instance = 1;
 
@@ -55,8 +54,8 @@ public class RPC extends ConfigurableModule {
             long currentTime = System.currentTimeMillis();
             if (currentTime - lastUpdate >= UPDATE_INTERVAL) {
                 String newState = getState();
-                String newLargeImageKey = CONFIG.rpcMctiersEnabled ? MC_Tiers.getMcTiersGameModeIcon() : DEFAULT_ICON;
-                String newLargeImageText = CONFIG.rpcMctiersEnabled ? CONFIG.mctiersGameMode.name() : mc.getGameVersion();
+                String newLargeImageKey = CONFIG.mctiersEnabled ? MC_Tiers.getMcTiersGameModeIcon() : DEFAULT_ICON;
+                String newLargeImageText = CONFIG.mctiersEnabled ? CONFIG.mctiersGameMode.name() : mc.getGameVersion();
 
                 boolean shouldUpdate = false;
 

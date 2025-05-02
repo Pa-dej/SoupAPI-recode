@@ -125,7 +125,7 @@ public class HitBubbles extends ConfigurableModule {
     }
 
     public enum Style {
-        CIRCLE, CIRCLE_BOLD, HEXAGON, PORTAL
+        CIRCLE, CIRCLE_BOLD, HEXAGON, PORTAL, PORTAL_2
     }
 
     public record HitBubble(float x, float y, float z, float yaw, float pitch, Timer life) {

@@ -211,9 +211,3 @@ public class MCTierBadge extends Screen {
         }
     }
 }
-
-
-
-
-
-
