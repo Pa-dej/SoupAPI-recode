@@ -1,6 +1,6 @@
 package me.Padej_.soupapi.mixin.inject;
 
-import me.Padej_.soupapi.screen.TargetHudScreen;
+import me.Padej_.soupapi.screen.ConfigHudPositionsScreen;
 import me.Padej_.soupapi.screen.SwingHandScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -23,7 +23,7 @@ public abstract class ButtonWidgetMixin extends PressableWidget {
         MinecraftClient mc = MinecraftClient.getInstance();
         switch (this.getMessage().getString()) {
             case "CONFIG_POS" -> {
-                mc.setScreen(new TargetHudScreen());
+                mc.setScreen(new ConfigHudPositionsScreen());
                 ci.cancel();
             }
             case "CONFIG_HANDS" -> {

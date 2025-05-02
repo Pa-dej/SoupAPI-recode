@@ -5,7 +5,11 @@ import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.TargetRender;
 import net.minecraft.util.Identifier;
 
+import java.util.Random;
+
 public class TexturesManager extends ConfigurableModule {
+    private static final Random random = new Random();
+
     private static final Identifier CIRCLE = Identifier.of("soupapi", "textures/jump_circles/circle.png");
     private static final Identifier CIRCLE_BOLD = Identifier.of("soupapi", "textures/jump_circles/circle_bold.png");
     private static final Identifier HEXAGON = Identifier.of("soupapi", "textures/jump_circles/hexagon.png");
@@ -33,9 +37,28 @@ public class TexturesManager extends ConfigurableModule {
     public static final Identifier FIREFLY_ALT = Identifier.of("soupapi", "textures/particles/firefly_alt.png");
     public static final Identifier FIREFLY_ALT_GLOW = Identifier.of("soupapi", "textures/particles/firefly_alt_glow.png");
     public static final Identifier DOLLAR = Identifier.of("soupapi", "textures/particles/dollar.png");
+    public static final Identifier DOLLAR_UNBLACK = Identifier.of("soupapi", "textures/particles/dollar_unblack.png");
     public static final Identifier SNOWFLAKE = Identifier.of("soupapi", "textures/particles/snowflake.png");
+    public static final Identifier SNOWFLAKE_UNBLACK = Identifier.of("soupapi", "textures/particles/snowflake_unblack.png");
     public static final Identifier HEART = Identifier.of("soupapi", "textures/particles/heart.png");
+    public static final Identifier HEART_UNBLACK = Identifier.of("soupapi", "textures/particles/heart_unblack.png");
     public static final Identifier STAR = Identifier.of("soupapi", "textures/particles/star.png");
+    public static final Identifier STAR_UNBLACK = Identifier.of("soupapi", "textures/particles/star_unblack.png");
+    /**
+     * GLYPHS
+     **/
+    public static final Identifier GLYPH_ABS = Identifier.of("soupapi", "textures/particles/glyph/abs.png");
+    public static final Identifier GLYPH_ARROW = Identifier.of("soupapi", "textures/particles/glyph/arrow.png");
+    public static final Identifier GLYPH_ARROW_LINE = Identifier.of("soupapi", "textures/particles/glyph/arrow_line.png");
+    public static final Identifier GLYPH_CIRCLE = Identifier.of("soupapi", "textures/particles/glyph/circle.png");
+    public static final Identifier GLYPH_CROSS = Identifier.of("soupapi", "textures/particles/glyph/cross.png");
+    public static final Identifier GLYPH_FLOWER = Identifier.of("soupapi", "textures/particles/glyph/flower.png");
+    public static final Identifier GLYPH_FOREVER = Identifier.of("soupapi", "textures/particles/glyph/forever.png");
+    public static final Identifier GLYPH_LINE = Identifier.of("soupapi", "textures/particles/glyph/line.png");
+    public static final Identifier GLYPH_QUAD = Identifier.of("soupapi", "textures/particles/glyph/quad.png");
+    public static final Identifier GLYPH_STAR = Identifier.of("soupapi", "textures/particles/glyph/star.png");
+    public static final Identifier GLYPH_TRIANGLE = Identifier.of("soupapi", "textures/particles/glyph/triangle.png");
+    public static final Identifier GLYPH_ZIGZAG = Identifier.of("soupapi", "textures/particles/glyph/zigzag.png");
 
     public static final Identifier ANON_SKIN = Identifier.of("soupapi", "textures/skin/anon_skin.png");
 
@@ -56,6 +79,12 @@ public class TexturesManager extends ConfigurableModule {
     public static final Identifier SWORD = Identifier.of("soupapi", "textures/gui/mctiers/sword.png");
     public static final Identifier UHC = Identifier.of("soupapi", "textures/gui/mctiers/uhc.png");
     public static final Identifier VANILLA = Identifier.of("soupapi", "textures/gui/mctiers/vanilla.png");
+
+    private static final Identifier[] GLYPH_TEXTURES = new Identifier[] {
+            GLYPH_ABS, GLYPH_LINE, GLYPH_ARROW, GLYPH_ARROW_LINE,
+            GLYPH_CIRCLE, GLYPH_CROSS, GLYPH_FLOWER, GLYPH_FOREVER,
+            GLYPH_QUAD, GLYPH_STAR, GLYPH_TRIANGLE, GLYPH_ZIGZAG,
+    };
 
     public static Identifier getJumpCircleUnblack() {
         return switch (CONFIG.jumpCirclesStyle) {
@@ -102,5 +131,10 @@ public class TexturesManager extends ConfigurableModule {
             case UHC -> UHC;
             case VANILLA -> VANILLA;
         };
+    }
+
+    public static Identifier getRandomGlyphParticle() {
+        int index = random.nextInt(GLYPH_TEXTURES.length);
+        return GLYPH_TEXTURES[index];
     }
 }

@@ -33,6 +33,14 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetHud.Config configPos_BUTTON = TargetHud.Config.CONFIG_POS;
 
+    @ConfigEntry.Gui.PrefixText // Watermark
+    @ConfigEntry.Category("main")
+    public boolean waterMarkEnabled = true;
+    @ConfigEntry.Category("main")
+    public int waterMarkX = 2;
+    @ConfigEntry.Category("main")
+    public int waterMarkY = 2;
+
     @ConfigEntry.Gui.PrefixText // Theme
     @ConfigEntry.Category("main")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
@@ -155,6 +163,20 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.PrefixText // ambient particles
     @ConfigEntry.Category("world")
     public boolean ambientParticlesEnabled = false;
+
+    @ConfigEntry.Category("world")
+    public boolean ambientParticlesIncludeFirefly = false;
+    @ConfigEntry.Category("world")
+    public boolean ambientParticlesIncludeDollar = false;
+    @ConfigEntry.Category("world")
+    public boolean ambientParticlesIncludeSnowflake = false;
+    @ConfigEntry.Category("world")
+    public boolean ambientParticlesIncludeHeart = false;
+    @ConfigEntry.Category("world")
+    public boolean ambientParticlesIncludeStar = false;
+    @ConfigEntry.Category("world")
+    public boolean ambientParticlesIncludeGlyphs = false;
+
     @ConfigEntry.Gui.PrefixText
     @ConfigEntry.Category("world")
     @ConfigEntry.BoundedDiscrete(min = 50, max = 200)
@@ -269,6 +291,8 @@ public class SoupAPI_Config implements ConfigData {
     public boolean targetHudIncludeHeart = false;
     @ConfigEntry.Category("target_hud")
     public boolean targetHudIncludeStar = false;
+    @ConfigEntry.Category("target_hud")
+    public boolean targetHudIncludeGlyphs = false;
     @ConfigEntry.Category("target_hud")
     @ConfigEntry.BoundedDiscrete(min = 50, max = 120)
     public int targetHudParticleScale = 100;

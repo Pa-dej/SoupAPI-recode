@@ -13,6 +13,7 @@ import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
@@ -198,18 +199,15 @@ public class Render3D extends ConfigurableModule {
     }
 
     public static void renderSoulsEsp(float tickDelta, Entity targetEntity) {
-        int espLength = CONFIG.targetRenderSoulLenght; // 4 - 20
-        float factor = CONFIG.targetRenderSoulFactor; // spin speed
+        int espLength = CONFIG.targetRenderSoulLenght;
+        float factor = CONFIG.targetRenderSoulFactor;
         float shaking = CONFIG.targetRenderSoulShaking;
 
         float layerSpacing = 2;
-
         float amplitude = CONFIG.targetRenderSoulAmplitude;
         float radius = CONFIG.targetRenderSoulRadius / 100f;
-
-        float startSize = CONFIG.targetRenderSoulStartSize / 100f; // 20 - 100
+        float startSize = CONFIG.targetRenderSoulStartSize / 100f;
         float endSize = CONFIG.targetRenderSoulEndSize / 100f;
-
         float scaleModifier = CONFIG.targetRenderSoulScale / 100f;
         int subdivisions = CONFIG.targetRenderSoulSubdivision;
 
@@ -217,8 +215,13 @@ public class Render3D extends ConfigurableModule {
         Camera camera = mc.gameRenderer.getCamera();
 
         if (targetEntity == null) return;
+
+        // Нормализуем tickDelta как будто всегда 60 FPS
+        float frameTime = 1.0f / 60.0f;
+        float normalizedTickDelta = tickDelta / frameTime;
+
         Vec3d newPos = calculateEntityPositionRelativeToCamera(camera, tickDelta, targetEntity);
-        float iAge = MathHelper.lerp(tickDelta, targetEntity.age - 1, targetEntity.age);
+        float entityAge = targetEntity.age + tickDelta;
 
         MatrixStack matrices = new MatrixStack();
         MatrixStack matricesB = new MatrixStack();
@@ -248,28 +251,26 @@ public class Render3D extends ConfigurableModule {
                     float t = (float) sub / subdivisions;
                     float stepIndex = i + t;
 
-                    double radians = Math.toRadians((((stepIndex) / 1.5f + iAge) * factor + (j * 120)) % (factor * 360));
-                    double sinQuad = Math.sin(Math.toRadians(iAge * 2.5f + stepIndex * (j + 1)) * amplitude) / shaking;
+                    double radians = Math.toRadians((((stepIndex) / 1.5f + entityAge) * factor + (j * 120)) % (factor * 360));
+                    double sinQuad = Math.sin(Math.toRadians(entityAge * 2.5f + stepIndex * (j + 1)) * amplitude) / shaking;
 
                     float offset = ((stepIndex) / espLength) * layerSpacing;
-
                     float x = (float) (Math.cos(radians) * radius);
                     float z = (float) (Math.sin(radians) * radius);
                     float y = (float) sinQuad;
 
                     MatrixStack particleMatrix = new MatrixStack();
-                    particleMatrix.multiplyPositionMatrix(baseMatrix); // только yaw, без pitch
+                    particleMatrix.multiplyPositionMatrix(baseMatrix);
                     particleMatrix.translate(x, y, z);
 
                     Quaternionf billboardRot = new Quaternionf().identity();
-                    billboardRot.rotateY(Math.toRadians(-camera.getYaw()));
-                    billboardRot.rotateX(Math.toRadians(camera.getPitch())); // хотим только для квадрата
-
+                    billboardRot.rotateY((float) Math.toRadians(-camera.getYaw()));
+                    billboardRot.rotateX((float) Math.toRadians(camera.getPitch()));
                     particleMatrix.multiply(billboardRot);
 
                     Matrix4f matrix = particleMatrix.peek().getPositionMatrix();
 
-                    float animProgress = (iAge * 0.03f + stepIndex * 0.07f + j * 0.15f) % 1f;
+                    float animProgress = ((entityAge * 0.03f + stepIndex * 0.07f + j * 0.15f) * normalizedTickDelta) % 1f;
                     Color color = Palette.getInterpolatedPaletteColor(animProgress);
                     int argb = 0xFF000000 | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
 
@@ -304,6 +305,7 @@ public class Render3D extends ConfigurableModule {
         Camera camera = mc.gameRenderer.getCamera();
 
         if (targetEntity == null) return;
+        if (targetEntity instanceof PlayerEntity playerEntity && playerEntity.isGliding()) return;
         Vec3d newPos = calculateEntityPositionRelativeToCamera(camera, tickDelta, targetEntity);
         float iAge = MathHelper.lerp(tickDelta, targetEntity.age - 1, targetEntity.age);
 

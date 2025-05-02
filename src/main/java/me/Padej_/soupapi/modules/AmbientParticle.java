@@ -9,6 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -24,12 +25,19 @@ public class AmbientParticle extends ConfigurableModule {
     private static final int POSITION_CHECK_INTERVAL = 20;
     private static final Random RANDOM = new Random();
 
+    private static final List<Particle> particles = new ArrayList<>();
+    private static final List<Identifier> AVAILABLE_TEXTURES = new ArrayList<>();
+
+    private static Vec3d lastPlayerPos = null;
+    private static int ticksSinceLastCheck = 0;
+
     private static class Particle {
         public int age;
         double posX, posY, posZ;
         double prevPosX, prevPosY, prevPosZ;
         double motionX, motionY, motionZ;
-        float initialSize; // Начальный размер частицы
+        float initialSize;
+        public Identifier texture;
 
         Particle(double x, double y, double z) {
             this.posX = this.prevPosX = x;
@@ -40,6 +48,7 @@ public class AmbientParticle extends ConfigurableModule {
             this.motionZ = (RANDOM.nextFloat() - 0.5f) * 0.1f;
             this.age = 0;
             this.initialSize = 0.1f + RANDOM.nextFloat() * 0.1f;
+            this.texture = getRandomTexture();
         }
 
         void update() {
@@ -48,12 +57,10 @@ public class AmbientParticle extends ConfigurableModule {
             prevPosY = posY;
             prevPosZ = posZ;
 
-            // Случайное изменение направления, как у мотылька
             motionX += (RANDOM.nextFloat() - 0.5f) * 0.02f;
             motionY += (RANDOM.nextFloat() - 0.5f) * 0.02f;
             motionZ += (RANDOM.nextFloat() - 0.5f) * 0.02f;
 
-            // Ограничиваем скорость
             motionX = MathHelper.clamp(motionX, -0.1f, 0.1f);
             motionY = MathHelper.clamp(motionY, -0.05f, 0.05f);
             motionZ = MathHelper.clamp(motionZ, -0.1f, 0.1f);
@@ -62,50 +69,53 @@ public class AmbientParticle extends ConfigurableModule {
             posY += motionY;
             posZ += motionZ;
 
-            // Затухание скорости
             motionX *= 0.95f;
             motionY *= 0.95f;
             motionZ *= 0.95f;
         }
     }
 
-    private static final List<Particle> particles = new ArrayList<>();
-    private static Vec3d lastPlayerPos = null; // Последняя записанная позиция игрока
-    private static int ticksSinceLastCheck = 0; // Счетчик тиков для проверки позиции
+    public static void updateAvailableTextures() {
+        AVAILABLE_TEXTURES.clear();
+        if (CONFIG.ambientParticlesIncludeFirefly) AVAILABLE_TEXTURES.add(TexturesManager.FIREFLY_ALT_GLOW);
+        if (CONFIG.ambientParticlesIncludeDollar) AVAILABLE_TEXTURES.add(TexturesManager.DOLLAR_UNBLACK);
+        if (CONFIG.ambientParticlesIncludeSnowflake) AVAILABLE_TEXTURES.add(TexturesManager.SNOWFLAKE_UNBLACK);
+        if (CONFIG.ambientParticlesIncludeHeart) AVAILABLE_TEXTURES.add(TexturesManager.HEART_UNBLACK);
+        if (CONFIG.ambientParticlesIncludeStar) AVAILABLE_TEXTURES.add(TexturesManager.STAR_UNBLACK);
+        if (CONFIG.ambientParticlesIncludeGlyphs) AVAILABLE_TEXTURES.add(TexturesManager.getRandomGlyphParticle());
+        if (AVAILABLE_TEXTURES.isEmpty()) AVAILABLE_TEXTURES.add(TexturesManager.FIREFLY_ALT_GLOW);
+    }
+
+    private static Identifier getRandomTexture() {
+        updateAvailableTextures();
+        return AVAILABLE_TEXTURES.get(RANDOM.nextInt(AVAILABLE_TEXTURES.size()));
+    }
 
     public static void onTick() {
         if (mc.player == null || mc.world == null) return;
         if (!CONFIG.ambientParticlesEnabled) return;
 
-        // Увеличиваем счетчик тиков
         ticksSinceLastCheck++;
 
-        // Проверяем позицию игрока каждые 10 секунд
         if (ticksSinceLastCheck >= POSITION_CHECK_INTERVAL) {
-            lastPlayerPos = mc.player.getPos(); // Записываем текущую позицию
-            ticksSinceLastCheck = 0; // Сбрасываем счетчик
+            lastPlayerPos = mc.player.getPos();
+            ticksSinceLastCheck = 0;
         }
 
-        // Удаляем частицы, чей возраст превысил время жизни
-        particles.removeIf(particle -> particle.age >= CONFIG.ambientParticlesLiveTime);
+        particles.removeIf(p -> p.age >= CONFIG.ambientParticlesLiveTime);
 
-        // Создаем новую частицу, если их меньше 10 и игрок не путешествует
         if (particles.size() < CONFIG.ambientParticlesMaxCount && !isPlayerTraveling(mc)) {
             spawnNewParticle(mc);
         }
 
-        // Обновляем все частицы
-        for (Particle particle : particles) {
-            particle.update();
+        for (Particle p : particles) {
+            p.update();
         }
     }
 
     private static boolean isPlayerTraveling(MinecraftClient client) {
-        if (lastPlayerPos == null) return false; // Если позиция ещё не записана, считаем, что игрок не путешествует
-
-        Vec3d currentPos = client.player.getPos();
-        double distance = currentPos.distanceTo(lastPlayerPos); // Расстояние между текущей и последней позицией
-        return distance > CONFIG.ambientParticlesSpawnRadius; // Если игрок удалился больше чем на радиус спавна, он путешествует
+        if (lastPlayerPos == null) return false;
+        return client.player.getPos().distanceTo(lastPlayerPos) > CONFIG.ambientParticlesSpawnRadius;
     }
 
     private static void spawnNewParticle(MinecraftClient client) {
@@ -115,11 +125,11 @@ public class AmbientParticle extends ConfigurableModule {
         for (int i = 0; i < 4; i++) {
             int spawnRadius = CONFIG.ambientParticlesSpawnRadius;
             int minSpawnRadius = CONFIG.ambientParticlesIgnoreSpawnRadius;
-            double angle = RANDOM.nextFloat() * 2 * Math.PI; // Случайный угол
-            double distance = minSpawnRadius + RANDOM.nextFloat() * (spawnRadius - minSpawnRadius); // Расстояние от 3 до 5
+            double angle = RANDOM.nextFloat() * 2 * Math.PI;
+            double distance = minSpawnRadius + RANDOM.nextFloat() * (spawnRadius - minSpawnRadius);
             double offsetX = Math.cos(angle) * distance;
             double offsetZ = Math.sin(angle) * distance;
-            double offsetY = RANDOM.nextFloat() * spawnRadius; // Высота только вверх
+            double offsetY = RANDOM.nextFloat() * spawnRadius;
 
             BlockPos randomPos = playerPos.add((int) offsetX, (int) offsetY, (int) offsetZ);
 
@@ -143,12 +153,11 @@ public class AmbientParticle extends ConfigurableModule {
         float tickDelta = context.tickCounter().getTickDelta(true);
 
         RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
-        RenderSystem.setShaderTexture(0, TexturesManager.FIREFLY_ALT_GLOW);
-        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 
-        int color1 = Palette.getColor(0f).getRGB(); // Основной цвет из конфига
-        int color2 = Palette.getColor(0.33f).getRGB(); // Вторичный цвет из конфига
+        int color1 = Palette.getColor(0f).getRGB();
+        int color2 = Palette.getColor(0.33f).getRGB();
 
         for (Particle particle : particles) {
             float iAge = particle.age + tickDelta;
@@ -158,18 +167,8 @@ public class AmbientParticle extends ConfigurableModule {
                     MathHelper.lerp(tickDelta, particle.prevPosZ, particle.posZ)
             ).subtract(camera.getPos());
 
-            matrices.push();
-            matrices.translate(currentPos.getX(), currentPos.getY(), currentPos.getZ());
-
-            Quaternionf rotation = new Quaternionf().identity();
-            rotation.rotateY(-camera.getYaw() * (float) Math.PI / 180.0f);
-            rotation.rotateX(camera.getPitch() * (float) Math.PI / 180.0f);
-            matrices.multiply(rotation);
-
-            Matrix4f baseMatrix = matrices.peek().getPositionMatrix();
-
             float lerpFactor = (float) Math.abs(Math.sin(iAge * 0.1f));
-            int interpolatedColor = interpolateColor(color1, color2, lerpFactor) + 0xFF000000; // Фиксированная альфа
+            int interpolatedColor = interpolateColor(color1, color2, lerpFactor) + 0xFF000000;
 
             float scale;
             int liveTime = CONFIG.ambientParticlesLiveTime;
@@ -177,22 +176,34 @@ public class AmbientParticle extends ConfigurableModule {
             if (iAge <= halfLife) {
                 scale = particle.initialSize;
             } else {
-                float shrinkFactor = (liveTime - iAge) / halfLife; // От 1 до 0
-                scale = particle.initialSize * shrinkFactor; // Уменьшение размера
+                float shrinkFactor = (liveTime - iAge) / halfLife;
+                scale = particle.initialSize * shrinkFactor;
                 scale = Math.max(scale, 0.0f);
             }
 
-            buffer.vertex(baseMatrix, -scale, scale, 0).texture(0f, 1f).color(interpolatedColor);
-            buffer.vertex(baseMatrix, scale, scale, 0).texture(1f, 1f).color(interpolatedColor);
-            buffer.vertex(baseMatrix, scale, -scale, 0).texture(1f, 0f).color(interpolatedColor);
-            buffer.vertex(baseMatrix, -scale, -scale, 0).texture(0f, 0f).color(interpolatedColor);
+            matrices.push();
+            matrices.translate(currentPos.getX(), currentPos.getY(), currentPos.getZ());
 
+            Quaternionf rotation = new Quaternionf().identity();
+            rotation.rotateY(-camera.getYaw() * (float) Math.PI / 180.0f);
+            rotation.rotateX(camera.getPitch() * (float) Math.PI / 180.0f);
+            rotation.rotateZ((float) Math.PI);
+            matrices.multiply(rotation);
+
+            RenderSystem.setShaderTexture(0, particle.texture);
+            BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+            Matrix4f mat = matrices.peek().getPositionMatrix();
+
+            buffer.vertex(mat, -scale, scale, 0).texture(0f, 1f).color(interpolatedColor);
+            buffer.vertex(mat, scale, scale, 0).texture(1f, 1f).color(interpolatedColor);
+            buffer.vertex(mat, scale, -scale, 0).texture(1f, 0f).color(interpolatedColor);
+            buffer.vertex(mat, -scale, -scale, 0).texture(0f, 0f).color(interpolatedColor);
+
+            BufferRenderer.drawWithGlobalProgram(buffer.end());
             matrices.pop();
         }
 
-        BufferRenderer.drawWithGlobalProgram(buffer.end());
         RenderSystem.setShaderTexture(0, 0);
-        RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
     }
 
@@ -212,3 +223,4 @@ public class AmbientParticle extends ConfigurableModule {
         return (r << 16) | (g << 8) | b;
     }
 }
+

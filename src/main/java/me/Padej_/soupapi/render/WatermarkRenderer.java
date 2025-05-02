@@ -2,12 +2,10 @@ package me.Padej_.soupapi.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.font.FontRenderers;
-import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.opengl.GL40C;
@@ -19,75 +17,33 @@ import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 public class WatermarkRenderer {
     private static MinecraftClient mc = MinecraftClient.getInstance();
 
-    public static float colorAnimationProgress = 0f;
-    private static long lastUpdateTime = System.currentTimeMillis();
-
     public static void render(DrawContext context) {
-        long currentTime = System.currentTimeMillis();
-        float deltaTime = (currentTime - lastUpdateTime) / 1000f;
-        deltaTime = Math.min(deltaTime, 0.1f);
-        lastUpdateTime = currentTime;
+        float x = CONFIG.waterMarkX;
+        float y = CONFIG.waterMarkY;
+        float xOffset = -14f;
+        float yOffset = -14f;
 
-        float frameTime = 1.0f / 60.0f;
-        float normalizedDelta = deltaTime / frameTime;
-
-        colorAnimationProgress = (colorAnimationProgress + normalizedDelta * 0.0025f) % 1.0f;
-
-        renderBackground(context, 4.5f, 2);
-        renderName(context, 2, 2);
-        renderHead(context, 2, 2);
+        renderBackground(context, x + 2.5f + xOffset, y + yOffset);
+        renderName(context, x + xOffset, y + yOffset);
+        renderHead(context, x + xOffset, y + yOffset);
     }
 
     private static void renderBackground(DrawContext context, float x, float y) {
-        Color c1 = Palette.getColor(0f);    // Нижний левый
-        Color c2 = Palette.getColor(0.33f); // Нижний правый
-        Color c3 = Palette.getColor(0.66f); // Верхний правый
-        Color c4 = Palette.getColor(1f);    // Верхний левый
-
-        float progress = colorAnimationProgress % 1.0f;
-        Color topLeft, topRight, bottomRight, bottomLeft;
-
-        if (progress < 0.25f) {
-            float phaseProgress = progress / 0.25f;
-            topLeft = interpolateColor(c1, c2, phaseProgress);
-            topRight = interpolateColor(c2, c3, phaseProgress);
-            bottomRight = interpolateColor(c3, c4, phaseProgress);
-            bottomLeft = interpolateColor(c4, c1, phaseProgress);
-        } else if (progress < 0.5f) {
-            float phaseProgress = (progress - 0.25f) / 0.25f;
-            topLeft = interpolateColor(c2, c3, phaseProgress);
-            topRight = interpolateColor(c3, c4, phaseProgress);
-            bottomRight = interpolateColor(c4, c1, phaseProgress);
-            bottomLeft = interpolateColor(c1, c2, phaseProgress);
-        } else if (progress < 0.75f) {
-            float phaseProgress = (progress - 0.5f) / 0.25f;
-            topLeft = interpolateColor(c3, c4, phaseProgress);
-            topRight = interpolateColor(c4, c1, phaseProgress);
-            bottomRight = interpolateColor(c1, c2, phaseProgress);
-            bottomLeft = interpolateColor(c2, c3, phaseProgress);
-        } else {
-            float phaseProgress = (progress - 0.75f) / 0.25f;
-            topLeft = interpolateColor(c4, c1, phaseProgress);
-            topRight = interpolateColor(c1, c2, phaseProgress);
-            bottomRight = interpolateColor(c2, c3, phaseProgress);
-            bottomLeft = interpolateColor(c3, c4, phaseProgress);
-        }
-
         float width = FontRenderers.sf_bold.getStringWidth(mc.player.getName().getString()) + 20;
         float height = 14;
         x += 13;
         if (CONFIG.mctiersEnabled) width += 18;
         y += 16;
 
-        Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 1, y + 1, width, height, 10, bottomLeft, bottomRight, topRight, topLeft);
-        Render2D.renderRoundedGradientRect(context.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x + 0.5f, y + 0.5f, width, height, 4);
+        Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 1, y + 1, width, height, 10, TargetHudRenderer.bottomLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.topRight, TargetHudRenderer.topLeft);
+        Render2D.renderRoundedGradientRect(context.getMatrices(), TargetHudRenderer.topLeft, TargetHudRenderer.topLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.bottomLeft, x + 0.5f, y + 0.5f, width, height, 4);
         Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, width, height, 4, Render2D.injectAlpha(Color.BLACK, 180));
     }
 
     private static void renderName(DrawContext context, float x, float y) {
         String displayName = mc.player.getName().getString();
         y += 21.5f;
-        FontRenderers.sf_bold.drawString(context.getMatrices(), displayName, x + 32, y, Colors.WHITE);
+        FontRenderers.sf_bold.drawString(context.getMatrices(), displayName, x + 32, y, 0xFFFFFFFF);
 
         if (!CONFIG.mctiersEnabled) return;
         float textWidth = FontRenderers.sf_bold.getStringWidth(mc.player.getName().getString());
@@ -134,3 +90,4 @@ public class WatermarkRenderer {
         return new Color(r, g, b, a);
     }
 }
+

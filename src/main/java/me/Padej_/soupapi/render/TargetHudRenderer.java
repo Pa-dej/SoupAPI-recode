@@ -30,6 +30,7 @@ public class TargetHudRenderer extends ConfigurableModule {
     public static float ticks = 0f;
     public static float hpColorAnimationProgress = 0f;
     public static float colorAnimationProgress = 0f;
+    public static Color topLeft, topRight, bottomRight, bottomLeft;
 
     private static final String[] effectNames = {
             "absorption", "blindness", "fire_resistance", "haste", "health_boost",
@@ -40,43 +41,11 @@ public class TargetHudRenderer extends ConfigurableModule {
     public static void renderTinyHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target) {
         float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
-        Color c1 = Palette.getColor(0f);   // Нижний левый
-        Color c2 = Palette.getColor(0.33f); // Нижний правый
-        Color c3 = Palette.getColor(0.66f); // Верхний правый
-        Color c4 = Palette.getColor(1f);   // Верхний левый
-
         int x = context.getScaledWindowWidth() / 2 + CONFIG.targetHudOffsetX;
         int y = context.getScaledWindowHeight() / 2 - CONFIG.targetHudOffsetY;
 
-        // Определяем текущий этап вращения фона
-        float progress = colorAnimationProgress % 1.0f;
-        Color topLeft, topRight, bottomRight, bottomLeft;
-
-        if (progress < 0.25f) {
-            float phaseProgress = progress / 0.25f;
-            topLeft = interpolateColor(c1, c2, phaseProgress);
-            topRight = interpolateColor(c2, c3, phaseProgress);
-            bottomRight = interpolateColor(c3, c4, phaseProgress);
-            bottomLeft = interpolateColor(c4, c1, phaseProgress);
-        } else if (progress < 0.5f) {
-            float phaseProgress = (progress - 0.25f) / 0.25f;
-            topLeft = interpolateColor(c2, c3, phaseProgress);
-            topRight = interpolateColor(c3, c4, phaseProgress);
-            bottomRight = interpolateColor(c4, c1, phaseProgress);
-            bottomLeft = interpolateColor(c1, c2, phaseProgress);
-        } else if (progress < 0.75f) {
-            float phaseProgress = (progress - 0.5f) / 0.25f;
-            topLeft = interpolateColor(c3, c4, phaseProgress);
-            topRight = interpolateColor(c4, c1, phaseProgress);
-            bottomRight = interpolateColor(c1, c2, phaseProgress);
-            bottomLeft = interpolateColor(c2, c3, phaseProgress);
-        } else {
-            float phaseProgress = (progress - 0.75f) / 0.25f;
-            topLeft = interpolateColor(c4, c1, phaseProgress);
-            topRight = interpolateColor(c1, c2, phaseProgress);
-            bottomRight = interpolateColor(c2, c3, phaseProgress);
-            bottomLeft = interpolateColor(c3, c4, phaseProgress);
-        }
+        Color c1 = Palette.getColor(0f);   // Нижний левый
+        Color c3 = Palette.getColor(0.66f); // Верхний правый
 
         // Градиентный фон с вращением цветов
         int w = 55;
@@ -192,42 +161,10 @@ public class TargetHudRenderer extends ConfigurableModule {
         float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
         Color c1 = Palette.getColor(0f);
-        Color c2 = Palette.getColor(0.33f);
         Color c3 = Palette.getColor(0.66f);
-        Color c4 = Palette.getColor(1f);
 
         int x = context.getScaledWindowWidth() / 2 + CONFIG.targetHudOffsetX;
         int y = context.getScaledWindowHeight() / 2 - CONFIG.targetHudOffsetY;
-
-        // Определяем текущий этап вращения фона
-        float progress = colorAnimationProgress % 1.0f;
-        Color topLeft, topRight, bottomRight, bottomLeft;
-
-        if (progress < 0.25f) {
-            float phaseProgress = progress / 0.25f;
-            topLeft = interpolateColor(c1, c2, phaseProgress);
-            topRight = interpolateColor(c2, c3, phaseProgress);
-            bottomRight = interpolateColor(c3, c4, phaseProgress);
-            bottomLeft = interpolateColor(c4, c1, phaseProgress);
-        } else if (progress < 0.5f) {
-            float phaseProgress = (progress - 0.25f) / 0.25f;
-            topLeft = interpolateColor(c2, c3, phaseProgress);
-            topRight = interpolateColor(c3, c4, phaseProgress);
-            bottomRight = interpolateColor(c4, c1, phaseProgress);
-            bottomLeft = interpolateColor(c1, c2, phaseProgress);
-        } else if (progress < 0.75f) {
-            float phaseProgress = (progress - 0.5f) / 0.25f;
-            topLeft = interpolateColor(c3, c4, phaseProgress);
-            topRight = interpolateColor(c4, c1, phaseProgress);
-            bottomRight = interpolateColor(c1, c2, phaseProgress);
-            bottomLeft = interpolateColor(c2, c3, phaseProgress);
-        } else {
-            float phaseProgress = (progress - 0.75f) / 0.25f;
-            topLeft = interpolateColor(c4, c1, phaseProgress);
-            topRight = interpolateColor(c1, c2, phaseProgress);
-            bottomRight = interpolateColor(c2, c3, phaseProgress);
-            bottomLeft = interpolateColor(c3, c4, phaseProgress);
-        }
 
         // Градиентный фон
         Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 91, 31, 20, bottomLeft, bottomRight, topRight, topLeft);
@@ -324,42 +261,10 @@ public class TargetHudRenderer extends ConfigurableModule {
         float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
         Color c1 = Palette.getColor(0f);
-        Color c2 = Palette.getColor(0.33f);
         Color c3 = Palette.getColor(0.66f);
-        Color c4 = Palette.getColor(1f);
 
         int x = context.getScaledWindowWidth() / 2 + CONFIG.targetHudOffsetX;
         int y = context.getScaledWindowHeight() / 2 - CONFIG.targetHudOffsetY;
-
-        // Определяем текущий этап вращения фона
-        float progress = colorAnimationProgress % 1.0f;
-        Color topLeft, topRight, bottomRight, bottomLeft;
-
-        if (progress < 0.25f) {
-            float phaseProgress = progress / 0.25f;
-            topLeft = interpolateColor(c1, c2, phaseProgress);
-            topRight = interpolateColor(c2, c3, phaseProgress);
-            bottomRight = interpolateColor(c3, c4, phaseProgress);
-            bottomLeft = interpolateColor(c4, c1, phaseProgress);
-        } else if (progress < 0.5f) {
-            float phaseProgress = (progress - 0.25f) / 0.25f;
-            topLeft = interpolateColor(c2, c3, phaseProgress);
-            topRight = interpolateColor(c3, c4, phaseProgress);
-            bottomRight = interpolateColor(c4, c1, phaseProgress);
-            bottomLeft = interpolateColor(c1, c2, phaseProgress);
-        } else if (progress < 0.75f) {
-            float phaseProgress = (progress - 0.5f) / 0.25f;
-            topLeft = interpolateColor(c3, c4, phaseProgress);
-            topRight = interpolateColor(c4, c1, phaseProgress);
-            bottomRight = interpolateColor(c1, c2, phaseProgress);
-            bottomLeft = interpolateColor(c2, c3, phaseProgress);
-        } else {
-            float phaseProgress = (progress - 0.75f) / 0.25f;
-            topLeft = interpolateColor(c4, c1, phaseProgress);
-            topRight = interpolateColor(c1, c2, phaseProgress);
-            bottomRight = interpolateColor(c2, c3, phaseProgress);
-            bottomLeft = interpolateColor(c3, c4, phaseProgress);
-        }
 
         // Градиентный фон
         Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 133, 43, 20, bottomLeft, bottomRight, topRight, topLeft);

@@ -7,6 +7,7 @@ import me.Padej_.soupapi.reduce.ModuleSupressor;
 import me.Padej_.soupapi.render.TargetHudRenderer;
 import me.Padej_.soupapi.utils.EntityUtils;
 import me.Padej_.soupapi.utils.MathUtility;
+import me.Padej_.soupapi.utils.Palette;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -15,6 +16,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class TargetHud extends ConfigurableModule {
@@ -74,6 +76,7 @@ public class TargetHud extends ConfigurableModule {
         TargetHudRenderer.hpColorAnimationProgress = (TargetHudRenderer.hpColorAnimationProgress + normalizedDelta * colorAnimationSpeed / 2) % 1.0f;
         headAnimation.update(normalizedDelta); // Обновляем анимацию головы
         TargetHudRenderer.ticks += 0.1f * normalizedDelta; // Обновляем ticks для частиц
+        updateColors(TargetHudRenderer.colorAnimationProgress);
 
         // Плавная интерполяция масштаба HUD
         if (hudTimer > 0) {
@@ -128,6 +131,41 @@ public class TargetHud extends ConfigurableModule {
         }
     }
 
+    private static void updateColors(float colorAnimationProgress) {
+        Color c1 = Palette.getColor(0f);   // Нижний левый
+        Color c2 = Palette.getColor(0.33f); // Нижний правый
+        Color c3 = Palette.getColor(0.66f); // Верхний правый
+        Color c4 = Palette.getColor(1f);   // Верхний левый
+
+        float progress = colorAnimationProgress % 1.0f;
+
+        if (progress < 0.25f) {
+            float phaseProgress = progress / 0.25f;
+            TargetHudRenderer.topLeft = interpolateColor(c1, c2, phaseProgress);
+            TargetHudRenderer.topRight = interpolateColor(c2, c3, phaseProgress);
+            TargetHudRenderer.bottomRight = interpolateColor(c3, c4, phaseProgress);
+            TargetHudRenderer.bottomLeft = interpolateColor(c4, c1, phaseProgress);
+        } else if (progress < 0.5f) {
+            float phaseProgress = (progress - 0.25f) / 0.25f;
+            TargetHudRenderer.topLeft = interpolateColor(c2, c3, phaseProgress);
+            TargetHudRenderer.topRight = interpolateColor(c3, c4, phaseProgress);
+            TargetHudRenderer.bottomRight = interpolateColor(c4, c1, phaseProgress);
+            TargetHudRenderer.bottomLeft = interpolateColor(c1, c2, phaseProgress);
+        } else if (progress < 0.75f) {
+            float phaseProgress = (progress - 0.5f) / 0.25f;
+            TargetHudRenderer.topLeft = interpolateColor(c3, c4, phaseProgress);
+            TargetHudRenderer.topRight = interpolateColor(c4, c1, phaseProgress);
+            TargetHudRenderer.bottomRight = interpolateColor(c1, c2, phaseProgress);
+            TargetHudRenderer.bottomLeft = interpolateColor(c2, c3, phaseProgress);
+        } else {
+            float phaseProgress = (progress - 0.75f) / 0.25f;
+            TargetHudRenderer.topLeft = interpolateColor(c4, c1, phaseProgress);
+            TargetHudRenderer.topRight = interpolateColor(c1, c2, phaseProgress);
+            TargetHudRenderer.bottomRight = interpolateColor(c2, c3, phaseProgress);
+            TargetHudRenderer.bottomLeft = interpolateColor(c3, c4, phaseProgress);
+        }
+    }
+
     public static void getTarget() {
         if (mc.currentScreen == null) {
             if (!(EntityUtils.getTargetEntity() instanceof LivingEntity)) return;
@@ -147,6 +185,14 @@ public class TargetHud extends ConfigurableModule {
             mc.getNetworkHandler().getServerInfo();
         }
         return lastTarget.getHealth() + lastTarget.getAbsorptionAmount();
+    }
+
+    private static Color interpolateColor(Color start, Color end, float progress) {
+        int r = MathHelper.lerp(progress, start.getRed(), end.getRed());
+        int g = MathHelper.lerp(progress, start.getGreen(), end.getGreen());
+        int b = MathHelper.lerp(progress, start.getBlue(), end.getBlue());
+        int a = MathHelper.lerp(progress, start.getAlpha(), end.getAlpha());
+        return new Color(r, g, b, a);
     }
 
     public enum Style {

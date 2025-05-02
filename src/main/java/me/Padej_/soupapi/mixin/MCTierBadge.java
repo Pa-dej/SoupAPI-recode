@@ -1,7 +1,9 @@
 package me.Padej_.soupapi.mixin;
 
+import me.Padej_.soupapi.utils.CursorUtils;
 import me.Padej_.soupapi.utils.Rectangle;
 import me.Padej_.soupapi.utils.TexturesManager;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
@@ -19,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static org.lwjgl.glfw.GLFW.*;
+
 @Mixin(InventoryScreen.class)
 public class MCTierBadge extends Screen {
     private float x = 5;
@@ -34,6 +38,9 @@ public class MCTierBadge extends Screen {
     private boolean dragging = false;
     private float dragOffsetX;
     private float dragOffsetY;
+
+    @Unique
+    private long lastUpdateTime = System.currentTimeMillis();
 
     @Unique
     private final List<Rectangle> effectRects = new ArrayList<>();
@@ -53,12 +60,19 @@ public class MCTierBadge extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         updateEffectRects();
 
+        long currentTime = System.currentTimeMillis();
+        float deltaTime = (currentTime - lastUpdateTime) / 1000f;
+        lastUpdateTime = currentTime;
+
+        float frameTime = 1.0f / 60.0f;
+        float normalizedDelta = deltaTime / frameTime;
+
         if (!dragging) {
-            vy += gravity;
-            x += vx;
-            y += vy;
-            vx *= airResistance;
-            vy *= airResistance;
+            vy += gravity * normalizedDelta;
+            x += vx * normalizedDelta;
+            y += vy * normalizedDelta;
+            vx *= (float) Math.pow(airResistance, normalizedDelta);
+            vy *= (float) Math.pow(airResistance, normalizedDelta);
 
             int width = this.width;
             int height = this.height;
@@ -96,7 +110,14 @@ public class MCTierBadge extends Screen {
             vy = 0;
         }
 
-        context.drawTexture(RenderLayer::getGuiTextured, TexturesManager.ROOKIE, (int) x, (int) y, 0, 0, (int) scale, (int) scale, 3375, 3375, 3375, 3375);
+        context.drawTexture(RenderLayer::getGuiTextured, TexturesManager.MC_TIERS_LOGO, (int) x, (int) y, 0, 0, (int) scale, (int) scale, 1268, 1153, 1268, 1153);
+
+        // Смена курсора
+        if (isInside(mouseX, mouseY)) {
+            CursorUtils.setHandCursor();
+        } else {
+            CursorUtils.setDefaultCursor();
+        }
     }
 
     private void updateEffectRects() {
@@ -104,7 +125,7 @@ public class MCTierBadge extends Screen {
 
         int i = (this.width - 176) / 2 + 176 + 2;
         int j = this.width - i;
-        Collection<StatusEffectInstance> collection = this.client.player.getStatusEffects();
+        Collection<StatusEffectInstance> collection = client.player.getStatusEffects();
 
         if (!collection.isEmpty() && j >= 32) {
             boolean wide = j >= 120;
@@ -167,8 +188,8 @@ public class MCTierBadge extends Screen {
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (button == 0 && dragging) {
             dragging = false;
-            vx = (float) (mouseX - x - dragOffsetX) * 1.5f;
-            vy = (float) (mouseY - y - dragOffsetY) * 1.5f;
+            vx = (float) (mouseX - x - dragOffsetX);
+            vy = (float) (mouseY - y - dragOffsetY);
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
@@ -203,6 +224,8 @@ public class MCTierBadge extends Screen {
                 if (xLine != null && yLine != null) {
                     x = Float.parseFloat(xLine);
                     y = Float.parseFloat(yLine) + 3;
+                    vx = 0;
+                    vy = 0;
                 }
                 reader.close();
             } catch (IOException | NumberFormatException e) {

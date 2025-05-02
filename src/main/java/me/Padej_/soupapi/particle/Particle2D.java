@@ -41,12 +41,17 @@ public class Particle2D {
         if (CONFIG.targetHudIncludeStar) {
             AVAILABLE_TEXTURES.add(TexturesManager.STAR);
         }
+        if (CONFIG.targetHudIncludeGlyphs) {
+            AVAILABLE_TEXTURES.add(TexturesManager.getRandomGlyphParticle());
+        }
         if (!CONFIG.targetHudIncludeFirefly &&
                 !CONFIG.targetHudIncludeDollar &&
                 !CONFIG.targetHudIncludeSnowflake &&
                 !CONFIG.targetHudIncludeHeart &&
-                !CONFIG.targetHudIncludeStar) {
-            AVAILABLE_TEXTURES.add(TexturesManager.FIREFLY_ALT);
+                !CONFIG.targetHudIncludeStar &&
+                !CONFIG.targetHudIncludeGlyphs
+        ) {
+            AVAILABLE_TEXTURES.add(TexturesManager.FIREFLY);
         }
     }
 
@@ -59,7 +64,6 @@ public class Particle2D {
     }
 
     public void render2D(MatrixStack matrixStack) {
-        updateAvailableTextures();
         drawOrbParticle(matrixStack, (float) x, (float) y, color);
     }
 
@@ -69,7 +73,6 @@ public class Particle2D {
         float particleScale = CONFIG.targetHudParticleScale / 100f;
 
         matrices.translate(x + size / 2f, y + size / 2f, 0);
-
         matrices.scale(particleScale, particleScale, particleScale);
 
         RenderSystem.enableBlend();
@@ -85,7 +88,6 @@ public class Particle2D {
 
         matrices.pop();
     }
-
 
     public void updatePosition(float delta) {
         x += deltaX * delta;
@@ -111,11 +113,15 @@ public class Particle2D {
         this.opacity = 254;
         this.color = color;
 
+        // Гарантируем индивидуальную текстуру для каждой частицы
+        updateAvailableTextures();
+
         if (AVAILABLE_TEXTURES.isEmpty()) {
-            this.texture = TexturesManager.FIREFLY_ALT;
+            this.texture = TexturesManager.getRandomGlyphParticle();
         } else {
             this.texture = AVAILABLE_TEXTURES.get(RANDOM.nextInt(AVAILABLE_TEXTURES.size()));
         }
     }
 }
+
 
