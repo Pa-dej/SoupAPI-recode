@@ -35,22 +35,10 @@ import java.util.stream.IntStream;
 public class FontRenderer extends ConfigurableModule implements Closeable {
     private static final MinecraftClient mc = MinecraftClient.getInstance();
     private static final Char2IntArrayMap colorCodes = new Char2IntArrayMap() {{
-        put('0', 0x000000);
-        put('1', 0x0000AA);
-        put('2', 0x00AA00);
-        put('3', 0x00AAAA);
-        put('4', 0xAA0000);
-        put('5', 0xAA00AA);
-        put('6', 0xFFAA00);
-        put('7', 0xAAAAAA);
-        put('8', 0x555555);
-        put('9', 0x5555FF);
-        put('A', 0x55FF55);
-        put('B', 0x55FFFF);
-        put('C', 0xFF5555);
-        put('D', 0xFF55FF);
-        put('E', 0xFFFF55);
-        put('F', 0xFFFFFF);
+        put('0', 0x000000);put('1', 0x0000AA);put('2', 0x00AA00);put('3', 0x00AAAA);
+        put('4', 0xAA0000);put('5', 0xAA00AA);put('6', 0xFFAA00);put('7', 0xAAAAAA);
+        put('8', 0x555555);put('9', 0x5555FF);put('A', 0x55FF55);put('B', 0x55FFFF);
+        put('C', 0xFF5555);put('D', 0xFF55FF);put('E', 0xFFFF55);put('F', 0xFFFFFF);
     }};
 
     private static final ExecutorService ASYNC_WORKER = Executors.newCachedThreadPool();
@@ -269,8 +257,8 @@ public class FontRenderer extends ConfigurableModule implements Closeable {
 
             GLYPH_PAGE_CACHE.clear();
         }
-        stack.pop();
         RenderSystem.disableBlend();
+        stack.pop();
     }
 
     public void drawCenteredString(MatrixStack stack, String s, double x, double y, int color) {

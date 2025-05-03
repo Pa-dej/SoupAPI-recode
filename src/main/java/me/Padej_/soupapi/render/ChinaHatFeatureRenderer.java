@@ -1,5 +1,6 @@
 package me.Padej_.soupapi.render;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.mixin.access.HeadFeatureRendererAccessor;
 import me.Padej_.soupapi.utils.EntityUtils;
@@ -34,7 +35,6 @@ public abstract class ChinaHatFeatureRenderer<S extends LivingEntityRenderState,
     public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int light, S state, float limbAngle, float limbDistance) {
         if (!shouldRender(state)) return;
         if (!state.headItemRenderState.isEmpty() || state.wearingSkullType != null) {
-            // Используем MixinHeldItemRenderer для доступа к headTransformation и headModels
             HeadFeatureRenderer.HeadTransformation headTransformation = ((HeadFeatureRendererAccessor) headFeatureRenderer).getHeadTransformation();
             Function<SkullBlock.SkullType, SkullBlockEntityModel> headModels = ((HeadFeatureRendererAccessor) headFeatureRenderer).getHeadModels();
 
@@ -83,7 +83,11 @@ public abstract class ChinaHatFeatureRenderer<S extends LivingEntityRenderState,
             entityModel.getHead().rotate(matrices);
 
             matrices.translate(0.0F, -0.76f, 0.0F); // Поднимаем чуть выше головы
+            RenderSystem.enableDepthTest();
+            RenderSystem.enableBlend();
             Render3D.renderChinaHat(matrices, vertexConsumer);
+            RenderSystem.disableBlend();
+            RenderSystem.disableDepthTest();
 
             matrices.pop();
         }

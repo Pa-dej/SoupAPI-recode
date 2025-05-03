@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.utils.GaussianFilter;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.Texture;
+import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
@@ -27,6 +28,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+
+import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 
 public class Render2D {
     private final static MinecraftClient mc = MinecraftClient.getInstance();
@@ -375,6 +378,7 @@ public class Render2D {
     }
 
     public static void drawGradientBlurredShadow1(MatrixStack matrices, float x, float y, float width, float height, int blurRadius, Color color1, Color color2, Color color3, Color color4) {
+        if (!CONFIG.blurShadowEnabled) return;
         width = width + blurRadius * 2;
         height = height + blurRadius * 2;
         x = x - blurRadius;
@@ -414,6 +418,15 @@ public class Render2D {
         setupRender();
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
         renderGradientTexture(matrices, x, y, width, height, 0, 0, width, height, width, height, color1, color2, color3, color4);
+        endRender();
+    }
+
+    public static void drawGlyphs(MatrixStack matrices, Identifier texture, Color c, float scale) {
+        setupRender();
+        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
+        RenderSystem.setShaderTexture(0, texture);
+        RenderSystem.setShaderColor(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, c.getAlpha() / 255f);
+        Render2D.renderGradientTexture(matrices, 0, 0, scale, scale, 0, 0, 128, 128, 128, 128, c, c, c, c);
         endRender();
     }
 

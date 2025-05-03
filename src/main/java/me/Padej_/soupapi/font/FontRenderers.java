@@ -11,6 +11,7 @@ public class FontRenderers {
     public static FontRenderer modules;
     public static FontRenderer sf_bold;
     public static FontRenderer sf_bold_mini;
+    public static FontRenderer sf_medium;
     public static FontRenderer minecraft;
 
     public static @NotNull FontRenderer create(float size, String name) throws IOException, FontFormatException {

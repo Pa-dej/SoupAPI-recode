@@ -3,7 +3,6 @@ package me.Padej_.soupapi.mixin;
 import me.Padej_.soupapi.utils.CursorUtils;
 import me.Padej_.soupapi.utils.Rectangle;
 import me.Padej_.soupapi.utils.TexturesManager;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
@@ -21,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.lwjgl.glfw.GLFW.*;
-
 @Mixin(InventoryScreen.class)
 public class MCTierBadge extends Screen {
     private float x = 5;
@@ -38,6 +35,7 @@ public class MCTierBadge extends Screen {
     private boolean dragging = false;
     private float dragOffsetX;
     private float dragOffsetY;
+    private static final float REST_THRESHOLD = 0.5f;
 
     @Unique
     private long lastUpdateTime = System.currentTimeMillis();
@@ -68,7 +66,10 @@ public class MCTierBadge extends Screen {
         float normalizedDelta = deltaTime / frameTime;
 
         if (!dragging) {
-            vy += gravity * normalizedDelta;
+            if (y + scale < this.height) {
+                vy += gravity * normalizedDelta;
+            }
+
             x += vx * normalizedDelta;
             y += vy * normalizedDelta;
             vx *= (float) Math.pow(airResistance, normalizedDelta);
@@ -88,11 +89,16 @@ public class MCTierBadge extends Screen {
             if (y < 0) {
                 y = 0;
                 vy *= -bounce;
-            } else if (y + scale > height) {
+            } else if (y + scale >= height) {
                 y = height - scale;
-                vy *= -bounce;
+                if (Math.abs(vy) < REST_THRESHOLD) {
+                    vy = 0;
+                } else {
+                    vy = -vy * bounce;
+                }
             }
 
+            // Проверка столкновений
             int invWidth = 176;
             int invHeight = 166;
             int invX = (width - invWidth) / 2;
@@ -104,8 +110,8 @@ public class MCTierBadge extends Screen {
                 bounceFromRect(rect.x, rect.y, rect.width, rect.height);
             }
         } else {
-            x = (float) mouseX - dragOffsetX;
-            y = (float) mouseY - dragOffsetY;
+            x = (float) mouseX - dragOffsetX * 1.3f;
+            y = (float) mouseY - dragOffsetY * 1.3f;
             vx = 0;
             vy = 0;
         }
@@ -119,6 +125,7 @@ public class MCTierBadge extends Screen {
             CursorUtils.setDefaultCursor();
         }
     }
+
 
     private void updateEffectRects() {
         effectRects.clear();
@@ -178,6 +185,8 @@ public class MCTierBadge extends Screen {
                 dragging = true;
                 dragOffsetX = (float) mouseX - x;
                 dragOffsetY = (float) mouseY - y;
+                vx = 0;
+                vy = 0;
             }
             return true;
         }
@@ -188,8 +197,8 @@ public class MCTierBadge extends Screen {
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (button == 0 && dragging) {
             dragging = false;
-            vx = (float) (mouseX - x - dragOffsetX);
-            vy = (float) (mouseY - y - dragOffsetY);
+            vx = (float) (mouseX - x - dragOffsetX) * 1.3f;
+            vy = (float) (mouseY - y - dragOffsetY) * 1.3f;
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }

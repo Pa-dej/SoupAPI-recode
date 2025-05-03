@@ -21,6 +21,7 @@ repositories {
     flatDir {
         dirs 'libs'
     }
+//    maven { url "https://maven.tr7zw.dev/" }// exordium
 }
 
 dependencies {
@@ -50,6 +51,9 @@ dependencies {
     }
     // RPC
     implementation 'net.java.dev.jna:jna:5.13.0'
+
+//    modCompileOnly files('libs/exordium-fabric-1.4.1.jar')
+
 }
 
 processResources {

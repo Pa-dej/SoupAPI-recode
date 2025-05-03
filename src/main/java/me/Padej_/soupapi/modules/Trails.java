@@ -4,18 +4,21 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.interfaces.TrailEntity;
 import me.Padej_.soupapi.render.CustomRenderLayers;
+import me.Padej_.soupapi.render.Render2D;
+import me.Padej_.soupapi.render.Render3D;
 import me.Padej_.soupapi.utils.EntityUtils;
 import me.Padej_.soupapi.utils.Palette;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.gl.ShaderProgramKeys;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.List;
@@ -29,6 +32,8 @@ public class Trails extends ConfigurableModule {
         int trailLifetime = CONFIG.trailsLenght;
 
         for (PlayerEntity player : mc.world.getPlayers()) {
+            Vec3d velocity = player.getVelocity();
+            if (Math.abs((velocity.getY() + velocity.getY() + velocity.getX())) / 3 <= 0.001f) return;
             if (player.getPos().getZ() != player.prevZ || player.getPos().getX() != player.prevX) {
                 ((TrailEntity) player).soupAPI$getTrails().add(new TrailSegment(
                         new Vec3d(player.prevX, player.prevY, player.prevZ),
@@ -58,90 +63,62 @@ public class Trails extends ConfigurableModule {
     }
 
     public static void renderTrail(WorldRenderContext context) {
-        VertexConsumerProvider.Immediate vertexConsumerProvider = mc.getBufferBuilders().getEntityVertexConsumers();
+        MatrixStack matrixStack = context.matrixStack();
+        float tickDelta = context.tickCounter().getTickDelta(true);
 
-        for (PlayerEntity entity : mc.world.getPlayers()) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+
+        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
+        matrixStack.push();
+
+        RenderSystem.disableCull();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableDepthTest(); // перед рендером
+        RenderSystem.depthMask(false);  // запрет записи в Z-буфер
+        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
+
+        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR);
+
+        for (Entity entity : mc.world.getEntities()) {
+            if ((entity instanceof PlayerEntity && !EntityUtils.isFriend(entity) && entity != mc.player) ||
+                    (!CONFIG.trailsForGliders && entity != mc.player && !(entity instanceof PlayerEntity))) continue;
+
             if (entity == mc.player && mc.options.getPerspective().isFirstPerson() && !CONFIG.trailsFirstPerson) continue;
-            if (!EntityUtils.isFriend(entity) && entity != mc.player) continue;
+            if (!(entity instanceof LivingEntity) || !mc.player.canSee(entity)) continue;
 
-            List<Trails.TrailSegment> trails = ((TrailEntity) entity).soupAPI$getTrails();
-            MatrixStack matrixStack = context.matrixStack();
-            float tickDelta = context.tickCounter().getTickDelta(true);
+            List<TrailSegment> trails = ((TrailEntity) entity).soupAPI$getTrails();
             if (trails.isEmpty()) continue;
 
-            VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(CustomRenderLayers.CHINA_HAT_LAYER.apply(1.0));
-
-            matrixStack.push();
-            RenderSystem.disableCull();
-            RenderSystem.disableDepthTest();
-
-            Matrix4f matrix = matrixStack.peek().getPositionMatrix();
             float width = entity.getHeight() * (CONFIG.trailsHeight / 100f);
             int alpha = 255;
 
-            for (Trails.TrailSegment trailSegment : trails) {
-                Vec3d pos = trailSegment.interpolate(tickDelta);
-                float progress = (float) trailSegment.animation(tickDelta);
+            for (TrailSegment segment : trails) {
+                Vec3d interpolated = segment.interpolate(tickDelta);
+                float progress = (float) segment.animation(tickDelta);
                 float alphaFactor = progress * alpha;
 
                 Color color = Palette.getInterpolatedPaletteColor(progress);
                 int bottomAlpha = (int) alphaFactor;
                 int topAlpha = CONFIG.trailsRenderHalf ? 0 : (int) alphaFactor;
 
-                vertexConsumer.vertex(matrix, (float) pos.x, (float) pos.y, (float) pos.z)
-                        .color(color.getRed(), color.getGreen(), color.getBlue(), bottomAlpha);
-                vertexConsumer.vertex(matrix, (float) pos.x, (float) pos.y + width, (float) pos.z)
-                        .color(color.getRed(), color.getGreen(), color.getBlue(), topAlpha);
-            }
+                float x = (float) (interpolated.x);
+                float y = (float) (interpolated.y);
+                float z = (float) (interpolated.z);
 
-            matrixStack.pop();
-            RenderSystem.enableCull();
-            RenderSystem.enableDepthTest();
-            vertexConsumerProvider.draw();
-        }
-
-        if (CONFIG.trailsForGliders) {
-            for (Entity entity : mc.world.getEntities()) {
-                if (entity == mc.player || !(entity instanceof LivingEntity livingEntity) || !livingEntity.isGliding()) {
-                    continue;
-                }
-
-                List<Trails.TrailSegment> trails = ((TrailEntity) entity).soupAPI$getTrails();
-                MatrixStack matrixStack = context.matrixStack();
-                float tickDelta = context.tickCounter().getTickDelta(true);
-                if (trails.isEmpty()) continue;
-
-                VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(CustomRenderLayers.CHINA_HAT_LAYER.apply(1.0));
-
-                matrixStack.push();
-                RenderSystem.disableCull();
-                RenderSystem.disableDepthTest();
-
-                Matrix4f matrix = matrixStack.peek().getPositionMatrix();
-                float width = entity.getHeight() * (CONFIG.trailsHeight / 100f);
-                int alpha = 255;
-
-                for (Trails.TrailSegment trailSegment : trails) {
-                    Vec3d pos = trailSegment.interpolate(tickDelta);
-                    float progress = (float) trailSegment.animation(tickDelta);
-                    float alphaFactor = progress * alpha;
-
-                    Color color = Palette.getInterpolatedPaletteColor(progress);
-                    int bottomAlpha = (int) alphaFactor;
-                    int topAlpha = CONFIG.trailsRenderHalf ? 0 : (int) alphaFactor;
-
-                    vertexConsumer.vertex(matrix, (float) pos.x, (float) pos.y, (float) pos.z)
-                            .color(color.getRed(), color.getGreen(), color.getBlue(), bottomAlpha);
-                    vertexConsumer.vertex(matrix, (float) pos.x, (float) pos.y + width, (float) pos.z)
-                            .color(color.getRed(), color.getGreen(), color.getBlue(), topAlpha);
-                }
-
-                matrixStack.pop();
-                RenderSystem.enableCull();
-                RenderSystem.enableDepthTest();
-                vertexConsumerProvider.draw();
+                bufferBuilder.vertex(matrix, x, y, z).color(color.getRed(), color.getGreen(), color.getBlue(), bottomAlpha);
+                bufferBuilder.vertex(matrix, x, y + width, z).color(color.getRed(), color.getGreen(), color.getBlue(), topAlpha);
             }
         }
+
+        Render2D.endBuilding(bufferBuilder);
+
+        RenderSystem.disableBlend();
+        RenderSystem.enableCull();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        matrixStack.pop();
     }
 
     public static class TrailSegment {

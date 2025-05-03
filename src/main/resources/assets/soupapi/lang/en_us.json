@@ -143,5 +143,13 @@
   "text.autoconfig.soupapi.option.swingHand_zSwingRot": "Swing Rotation Z",
   "text.autoconfig.soupapi.option.swingHand_speed": "Speed",
 
+  "text.autoconfig.soupapi.category.aspect_ratio": "Aspect Ratio",
+
+  "text.autoconfig.soupapi.category.no_render": "No Render",
+
+  "text.autoconfig.soupapi.category.totem": "Totem",
+
+  "text.autoconfig.soupapi.category.hit_particles": "Hit Particles",
+
   "": ""
 }

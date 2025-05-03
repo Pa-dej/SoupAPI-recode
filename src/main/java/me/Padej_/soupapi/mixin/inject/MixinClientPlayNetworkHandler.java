@@ -1,39 +1,71 @@
 package me.Padej_.soupapi.mixin.inject;
 
+import me.Padej_.soupapi.modules.HitParticle;
+import me.Padej_.soupapi.modules.TotemPopParticles;
+import me.Padej_.soupapi.utils.MathUtility;
+import me.Padej_.soupapi.utils.Palette;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientAdvancementManager;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ServerInfo;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.awt.*;
+
 import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
-import static me.Padej_.soupapi.config.ConfigurableModule.mc;
 
 @Mixin(ClientPlayNetworkHandler.class)
-public class MixinClientPlayNetworkHandler {
+public abstract class MixinClientPlayNetworkHandler {
+
+    @Shadow private ClientWorld world;
+
+    @Shadow public abstract ClientAdvancementManager getAdvancementHandler();
+
+    @Shadow
+    private static ItemStack getActiveDeathProtector(PlayerEntity player) {
+        return null;
+    }
 
     @Inject(method = "getServerInfo", at = @At("HEAD"), cancellable = true)
     private void injectFakeServerInfo(CallbackInfoReturnable<ServerInfo> cir) {
-        if (MinecraftClient.getInstance().isInSingleplayer()) {
-            ServerInfo fakeInfo = new ServerInfo("Singleplayer", "localhost", ServerInfo.ServerType.LAN);
-            cir.setReturnValue(fakeInfo);
-        }
+        ServerInfo fakeInfo = new ServerInfo("Singleplayer", "localhost", ServerInfo.ServerType.LAN);
+        cir.setReturnValue(fakeInfo);
     }
 
     @Inject(method = "onPlaySound", at = @At("HEAD"), cancellable = true)
     private void onPlaySound(PlaySoundS2CPacket packet, CallbackInfo ci) {
-        SoundEvent sound = packet.getSound().value();
-        if (!CONFIG.hitSoundOverwriteEnabled || mc.isInSingleplayer()) return;
+        MinecraftClient mc = MinecraftClient.getInstance();
 
-        packet.getVolume();
+        if (CONFIG == null) return;
+        if (!CONFIG.hitSoundOverwriteEnabled || mc.isInSingleplayer()) return;
+        if (mc.player == null || mc.player.getWorld() == null) return;
+
+        RegistryEntry<SoundEvent> soundEntry = packet.getSound();
+        if (soundEntry == null || !soundEntry.hasKeyAndValue()) return;
+
+        SoundEvent sound;
+        try {
+            sound = soundEntry.value();
+        } catch (IllegalStateException e) {
+            return;
+        }
+
         float volume;
-        float pitch = 1;
+        float pitch = 1.0f;
 
         if (sound == SoundEvents.ENTITY_PLAYER_ATTACK_CRIT) {
             volume = CONFIG.hitSoundOverwriteCritVolume / 100.0f;
@@ -56,6 +88,29 @@ public class MixinClientPlayNetworkHandler {
                 sound, packet.getCategory(), volume, pitch, false
         );
         ci.cancel();
+    }
+
+    @Inject(method = "onEntityStatus", at = @At("HEAD"), cancellable = true)
+    private void onTotemCustomParticles(EntityStatusS2CPacket packet, CallbackInfo ci) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (!CONFIG.totemPopParticlesEnabled) return;
+        if (packet.getStatus() == 35) {
+            Entity entity = packet.getEntity(this.world);
+            if (entity != null) {
+                this.world.playSound(entity.getX(), entity.getY(), entity.getZ(),
+                        SoundEvents.ITEM_TOTEM_USE,
+                        entity.getSoundCategory(),
+                        1.0F, 1.0F, false);
+
+                if (entity == client.player) {
+                    client.gameRenderer.showFloatingItem(getActiveDeathProtector(client.player));
+                }
+
+                TotemPopParticles.onTotemPop(entity);
+
+                ci.cancel();
+            }
+        }
     }
 }
 

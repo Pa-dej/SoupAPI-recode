@@ -30,7 +30,10 @@ public class TargetHudRenderer extends ConfigurableModule {
     public static float ticks = 0f;
     public static float hpColorAnimationProgress = 0f;
     public static float colorAnimationProgress = 0f;
-    public static Color topLeft, topRight, bottomRight, bottomLeft;
+    public static Color topLeft = new Color(0xFFFFFFFF);
+    public static Color topRight = new Color(0xFFFFFFFF);
+    public static Color bottomLeft = new Color(0xFFFFFFFF);
+    public static Color bottomRight = new Color(0xFFFFFFFF);
 
     private static final String[] effectNames = {
             "absorption", "blindness", "fire_resistance", "haste", "health_boost",
@@ -38,11 +41,8 @@ public class TargetHudRenderer extends ConfigurableModule {
             "resistance", "slow_falling", "slowness", "speed", "strength", "weakness", "wither"
     };
 
-    public static void renderTinyHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target) {
+    public static void renderTinyHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y) {
         float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
-
-        int x = context.getScaledWindowWidth() / 2 + CONFIG.targetHudOffsetX;
-        int y = context.getScaledWindowHeight() / 2 - CONFIG.targetHudOffsetY;
 
         Color c1 = Palette.getColor(0f);   // Нижний левый
         Color c3 = Palette.getColor(0.66f); // Верхний правый
@@ -53,7 +53,6 @@ public class TargetHudRenderer extends ConfigurableModule {
         int r = 3;
         int xOffset = 24;
         int yOffset = 3;
-        Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2 + xOffset, y + 2 + yOffset, w + 1, h + 1, 20, bottomLeft, bottomRight, topRight, topLeft);
         Render2D.renderRoundedGradientRect(context.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x + xOffset, y + yOffset, w + 5, h + 5, r);
         Render2D.drawRound(context.getMatrices(), x + 0.5f + xOffset, y + 0.5f + yOffset, w + 4, h + 5, r, Render2D.injectAlpha(Color.BLACK, 180));
 
@@ -157,14 +156,11 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
 
-    public static void renderMiniHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target) {
+    public static void renderMiniHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y) {
         float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
         Color c1 = Palette.getColor(0f);
         Color c3 = Palette.getColor(0.66f);
-
-        int x = context.getScaledWindowWidth() / 2 + CONFIG.targetHudOffsetX;
-        int y = context.getScaledWindowHeight() / 2 - CONFIG.targetHudOffsetY;
 
         // Градиентный фон
         Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 91, 31, 20, bottomLeft, bottomRight, topRight, topLeft);
@@ -239,7 +235,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         FontRenderers.sf_bold_mini.drawString(context.getMatrices(), displayName, x + 38, y + 5, Render2D.applyOpacity(Colors.WHITE, animationFactor));
 
         RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
-        java.util.List<ItemStack> armor = target.getInventory().armor;
+        List<ItemStack> armor = target.getInventory().armor;
         ItemStack[] items = new ItemStack[]{target.getMainHandStack(), armor.get(3), armor.get(2), armor.get(1), armor.get(0), target.getOffHandStack()};
 
         float xItemOffset = x + 38;
@@ -257,14 +253,11 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
 
-    public static void renderNormalHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target) {
+    public static void renderNormalHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y) {
         float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
         Color c1 = Palette.getColor(0f);
         Color c3 = Palette.getColor(0.66f);
-
-        int x = context.getScaledWindowWidth() / 2 + CONFIG.targetHudOffsetX;
-        int y = context.getScaledWindowHeight() / 2 - CONFIG.targetHudOffsetY;
 
         // Градиентный фон
         Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 133, 43, 20, bottomLeft, bottomRight, topRight, topLeft);

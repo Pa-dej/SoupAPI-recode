@@ -18,6 +18,7 @@ public class WatermarkRenderer {
     private static MinecraftClient mc = MinecraftClient.getInstance();
 
     public static void render(DrawContext context) {
+        if (!CONFIG.waterMarkEnabled) return;
         float x = CONFIG.waterMarkX;
         float y = CONFIG.waterMarkY;
         float xOffset = -14f;

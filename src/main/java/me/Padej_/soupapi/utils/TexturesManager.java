@@ -32,33 +32,33 @@ public class TexturesManager extends ConfigurableModule {
     private static final Identifier VEGAS = Identifier.of("soupapi", "textures/target_render/vegas.png");
     private static final Identifier JEKA = Identifier.of("soupapi", "textures/target_render/jeka.png");
 
-    public static final Identifier FIREFLY = Identifier.of("soupapi", "textures/particles/firefly.png");
-    public static final Identifier FIREFLY_GLOW = Identifier.of("soupapi", "textures/particles/firefly_glow.png");
-    public static final Identifier FIREFLY_ALT = Identifier.of("soupapi", "textures/particles/firefly_alt.png");
-    public static final Identifier FIREFLY_ALT_GLOW = Identifier.of("soupapi", "textures/particles/firefly_alt_glow.png");
-    public static final Identifier DOLLAR = Identifier.of("soupapi", "textures/particles/dollar.png");
-    public static final Identifier DOLLAR_UNBLACK = Identifier.of("soupapi", "textures/particles/dollar_unblack.png");
-    public static final Identifier SNOWFLAKE = Identifier.of("soupapi", "textures/particles/snowflake.png");
-    public static final Identifier SNOWFLAKE_UNBLACK = Identifier.of("soupapi", "textures/particles/snowflake_unblack.png");
-    public static final Identifier HEART = Identifier.of("soupapi", "textures/particles/heart.png");
-    public static final Identifier HEART_UNBLACK = Identifier.of("soupapi", "textures/particles/heart_unblack.png");
-    public static final Identifier STAR = Identifier.of("soupapi", "textures/particles/star.png");
-    public static final Identifier STAR_UNBLACK = Identifier.of("soupapi", "textures/particles/star_unblack.png");
+    public static final Identifier FIREFLY = Identifier.of("soupapi", "textures/particle/firefly.png");
+    public static final Identifier FIREFLY_GLOW = Identifier.of("soupapi", "textures/particle/firefly_glow.png");
+    public static final Identifier FIREFLY_ALT = Identifier.of("soupapi", "textures/particle/firefly_alt.png");
+    public static final Identifier FIREFLY_ALT_GLOW = Identifier.of("soupapi", "textures/particle/firefly_alt_glow.png");
+    public static final Identifier DOLLAR = Identifier.of("soupapi", "textures/particle/dollar.png");
+    public static final Identifier DOLLAR_UNBLACK = Identifier.of("soupapi", "textures/particle/dollar_unblack.png");
+    public static final Identifier SNOWFLAKE = Identifier.of("soupapi", "textures/particle/snowflake.png");
+    public static final Identifier SNOWFLAKE_UNBLACK = Identifier.of("soupapi", "textures/particle/snowflake_unblack.png");
+    public static final Identifier HEART = Identifier.of("soupapi", "textures/particle/heart.png");
+    public static final Identifier HEART_UNBLACK = Identifier.of("soupapi", "textures/particle/heart_unblack.png");
+    public static final Identifier STAR = Identifier.of("soupapi", "textures/particle/star.png");
+    public static final Identifier STAR_UNBLACK = Identifier.of("soupapi", "textures/particle/star_unblack.png");
     /**
      * GLYPHS
      **/
-    public static final Identifier GLYPH_ABS = Identifier.of("soupapi", "textures/particles/glyph/abs.png");
-    public static final Identifier GLYPH_ARROW = Identifier.of("soupapi", "textures/particles/glyph/arrow.png");
-    public static final Identifier GLYPH_ARROW_LINE = Identifier.of("soupapi", "textures/particles/glyph/arrow_line.png");
-    public static final Identifier GLYPH_CIRCLE = Identifier.of("soupapi", "textures/particles/glyph/circle.png");
-    public static final Identifier GLYPH_CROSS = Identifier.of("soupapi", "textures/particles/glyph/cross.png");
-    public static final Identifier GLYPH_FLOWER = Identifier.of("soupapi", "textures/particles/glyph/flower.png");
-    public static final Identifier GLYPH_FOREVER = Identifier.of("soupapi", "textures/particles/glyph/forever.png");
-    public static final Identifier GLYPH_LINE = Identifier.of("soupapi", "textures/particles/glyph/line.png");
-    public static final Identifier GLYPH_QUAD = Identifier.of("soupapi", "textures/particles/glyph/quad.png");
-    public static final Identifier GLYPH_STAR = Identifier.of("soupapi", "textures/particles/glyph/star.png");
-    public static final Identifier GLYPH_TRIANGLE = Identifier.of("soupapi", "textures/particles/glyph/triangle.png");
-    public static final Identifier GLYPH_ZIGZAG = Identifier.of("soupapi", "textures/particles/glyph/zigzag.png");
+    public static final Identifier GLYPH_ABS = Identifier.of("soupapi", "textures/particle/glyph/abs.png");
+    public static final Identifier GLYPH_ARROW = Identifier.of("soupapi", "textures/particle/glyph/arrow.png");
+    public static final Identifier GLYPH_ARROW_LINE = Identifier.of("soupapi", "textures/particle/glyph/arrow_line.png");
+    public static final Identifier GLYPH_CIRCLE = Identifier.of("soupapi", "textures/particle/glyph/circle.png");
+    public static final Identifier GLYPH_CROSS = Identifier.of("soupapi", "textures/particle/glyph/cross.png");
+    public static final Identifier GLYPH_FLOWER = Identifier.of("soupapi", "textures/particle/glyph/flower.png");
+    public static final Identifier GLYPH_FOREVER = Identifier.of("soupapi", "textures/particle/glyph/forever.png");
+    public static final Identifier GLYPH_LINE = Identifier.of("soupapi", "textures/particle/glyph/line.png");
+    public static final Identifier GLYPH_QUAD = Identifier.of("soupapi", "textures/particle/glyph/quad.png");
+    public static final Identifier GLYPH_STAR = Identifier.of("soupapi", "textures/particle/glyph/star.png");
+    public static final Identifier GLYPH_TRIANGLE = Identifier.of("soupapi", "textures/particle/glyph/triangle.png");
+    public static final Identifier GLYPH_ZIGZAG = Identifier.of("soupapi", "textures/particle/glyph/zigzag.png");
 
     public static final Identifier ANON_SKIN = Identifier.of("soupapi", "textures/skin/anon_skin.png");
 

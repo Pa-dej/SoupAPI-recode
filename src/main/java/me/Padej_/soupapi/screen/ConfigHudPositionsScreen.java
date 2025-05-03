@@ -138,6 +138,7 @@ public class ConfigHudPositionsScreen extends Screen {
         CONFIG.waterMarkX = watermarkFrame.getOffsetX(0);
         CONFIG.waterMarkY = watermarkFrame.getOffsetY(0);
         ConfigurableModule.saveConfig();
+        CursorUtils.setDefaultCursor();
         super.close();
     }
 

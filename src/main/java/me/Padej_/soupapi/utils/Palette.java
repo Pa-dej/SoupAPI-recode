@@ -4,8 +4,10 @@ import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.render.RenderWithAnimatedColor;
 
 import java.awt.*;
+import java.util.Random;
 
 public class Palette {
+    private static final Random random = new Random();
 
     public static int getRawColor1() {
         return SoupAPI_Main.configHolder.get().c1;
@@ -85,6 +87,14 @@ public class Palette {
         } else {
             return OklabUtils.interpolate(c3, c4, (t - 2f / 3f) * 3f);
         }
+    }
+
+    public static Color getRandomColor() {
+        int steps = 20;
+        int index = random.nextInt(steps);
+        float position = index / (float) (steps - 1); // от 0 до 1 включительно
+
+        return getColor(position);
     }
 
     public enum ColorsStyle {

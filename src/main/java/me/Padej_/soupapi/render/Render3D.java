@@ -26,9 +26,6 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class Render3D extends ConfigurableModule {
-    public static final Matrix4f lastProjMat = new Matrix4f();
-    public static final Matrix4f lastModMat = new Matrix4f();
-    public static final Matrix4f lastWorldSpaceMatrix = new Matrix4f();
 
     public static void renderChinaHat(MatrixStack matrices, VertexConsumer vertexConsumer) {
         Matrix4f matrix = matrices.peek().getPositionMatrix();
@@ -264,8 +261,8 @@ public class Render3D extends ConfigurableModule {
                     particleMatrix.translate(x, y, z);
 
                     Quaternionf billboardRot = new Quaternionf().identity();
-                    billboardRot.rotateY((float) Math.toRadians(-camera.getYaw()));
-                    billboardRot.rotateX((float) Math.toRadians(camera.getPitch()));
+                    billboardRot.rotateY(Math.toRadians(-camera.getYaw()));
+                    billboardRot.rotateX(Math.toRadians(camera.getPitch()));
                     particleMatrix.multiply(billboardRot);
 
                     Matrix4f matrix = particleMatrix.peek().getPositionMatrix();
@@ -307,7 +304,11 @@ public class Render3D extends ConfigurableModule {
         if (targetEntity == null) return;
         if (targetEntity instanceof PlayerEntity playerEntity && playerEntity.isGliding()) return;
         Vec3d newPos = calculateEntityPositionRelativeToCamera(camera, tickDelta, targetEntity);
-        float iAge = MathHelper.lerp(tickDelta, targetEntity.age - 1, targetEntity.age);
+        float entityAge = targetEntity.age + tickDelta;
+
+        // Нормализуем tickDelta для плавной анимации
+        float frameTime = 1.0f / 60.0f;
+        float normalizedTickDelta = tickDelta / frameTime;
 
         MatrixStack matrices = new MatrixStack();
         matrices.push();
@@ -330,7 +331,7 @@ public class Render3D extends ConfigurableModule {
                     float t = (float) sub / subdivisions;
                     float stepIndex = i + t;
 
-                    double radians = Math.toRadians((((stepIndex) / 1.5f + iAge) * factor + (j * 180)) % (factor * 360));
+                    double radians = Math.toRadians((((stepIndex) / 1.5f + entityAge) * factor + (j * 180)) % (factor * 360));
                     double sinQuad = 0;
 
                     float offset = ((stepIndex) / espLength) * layerSpacing;
@@ -351,7 +352,8 @@ public class Render3D extends ConfigurableModule {
 
                     Matrix4f matrix = particleMatrix.peek().getPositionMatrix();
 
-                    float animProgress = (iAge * 0.03f + stepIndex * 0.07f + j * 0.15f) % 1f;
+                    // Нормализуем прогресс анимации для плавности
+                    float animProgress = ((entityAge * 0.03f + stepIndex * 0.07f + j * 0.15f) * normalizedTickDelta) % 1f;
                     Color color = Palette.getInterpolatedPaletteColor(animProgress);
                     int argb = 0xFF000000 | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
 
@@ -647,25 +649,4 @@ public class Render3D extends ConfigurableModule {
     public static void endRender() {
         RenderSystem.disableBlend();
     }
-
-    public static @NotNull Vec3d worldSpaceToScreenSpace(@NotNull Vec3d pos) {
-        Camera camera = mc.getEntityRenderDispatcher().camera;
-        int displayHeight = mc.getWindow().getHeight();
-        int[] viewport = new int[4];
-        GL11.glGetIntegerv(GL11.GL_VIEWPORT, viewport);
-        Vector3f target = new Vector3f();
-        double scale = mc.getWindow().getScaleFactor();
-
-        double deltaX = pos.x - camera.getPos().x;
-        double deltaY = pos.y - camera.getPos().y;
-        double deltaZ = pos.z - camera.getPos().z;
-
-        Vector4f transformedCoordinates = new Vector4f((float) deltaX, (float) deltaY, (float) deltaZ, 1.f).mul(lastWorldSpaceMatrix);
-        Matrix4f matrixProj = new Matrix4f(lastProjMat);
-        Matrix4f matrixModel = new Matrix4f(lastModMat);
-        matrixProj.mul(matrixModel).project(transformedCoordinates.x(), transformedCoordinates.y(), transformedCoordinates.z(), viewport, target);
-
-        return new Vec3d(target.x / scale, (displayHeight - target.y) / scale, target.z);
-    }
-
 }

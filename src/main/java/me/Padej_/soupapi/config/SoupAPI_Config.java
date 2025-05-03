@@ -30,6 +30,8 @@ public class SoupAPI_Config implements ConfigData {
 
     @ConfigEntry.Gui.PrefixText // Config Screen
     @ConfigEntry.Category("main")
+    public boolean blurShadowEnabled = true;
+    @ConfigEntry.Category("main")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetHud.Config configPos_BUTTON = TargetHud.Config.CONFIG_POS;
 
@@ -162,6 +164,10 @@ public class SoupAPI_Config implements ConfigData {
      **/
     @ConfigEntry.Gui.PrefixText // ambient particles
     @ConfigEntry.Category("world")
+    public boolean coloredSkyEnabled = false;
+
+    @ConfigEntry.Gui.PrefixText // ambient particles
+    @ConfigEntry.Category("world")
     public boolean ambientParticlesEnabled = false;
 
     @ConfigEntry.Category("world")
@@ -274,6 +280,8 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("target_hud")
     public boolean targetHudEnabled = false;
     @ConfigEntry.Category("target_hud")
+    public boolean targetHudFollow = false;
+    @ConfigEntry.Category("target_hud")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetHud.Style targetHudStyle = TargetHud.Style.MINI;
     @ConfigEntry.Category("target_hud")
@@ -300,6 +308,12 @@ public class SoupAPI_Config implements ConfigData {
     public int targetHudOffsetX = 0;
     @ConfigEntry.Category("target_hud")
     public int targetHudOffsetY = 0;
+    @ConfigEntry.Category("target_hud")
+    @ConfigEntry.BoundedDiscrete(min = -50, max = 50)
+    public int targetHudEntityOffsetX = 20;
+    @ConfigEntry.Category("target_hud")
+    @ConfigEntry.BoundedDiscrete(min = -50, max = 50)
+    public int targetHudEntityOffsetY = 0;
 
     /**
      * HUD
@@ -367,22 +381,22 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hit_sound")
     public boolean hitSoundOverwriteEnabled = false;
     @ConfigEntry.Category("hit_sound")
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
     public int hitSoundOverwriteCritVolume = 50;
     @ConfigEntry.Category("hit_sound")
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
     public int hitSoundOverwriteSweepVolume = 50;
     @ConfigEntry.Category("hit_sound")
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
     public int hitSoundOverwriteNoDamageVolume = 50;
     @ConfigEntry.Category("hit_sound")
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
     public int hitSoundOverwriteKnockbackVolume = 50;
     @ConfigEntry.Category("hit_sound")
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
     public int hitSoundOverwriteStrongVolume = 50;
     @ConfigEntry.Category("hit_sound")
-    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
     public int hitSoundOverwriteWeakVolume = 50;
 
     /**
@@ -426,4 +440,112 @@ public class SoupAPI_Config implements ConfigData {
     public int swingHand_zSwingRot = 90;
     @ConfigEntry.Category("swing_hand")
     public int swingHand_speed = 100;
+
+    /**
+     * ASPECT RATIO
+     **/
+    @ConfigEntry.Category("aspect_ratio")
+    public boolean aspectRatioEnabled = false;
+    @ConfigEntry.Category("aspect_ratio")
+    public boolean aspectRatioUsePreset = false;
+    @ConfigEntry.Category("aspect_ratio")
+    @ConfigEntry.BoundedDiscrete(min = 120, max = 220)
+    public int aspectRatioFactor = 150;
+    @ConfigEntry.Category("aspect_ratio")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public AspectRatio.Preset aspectRatioPreset = AspectRatio.Preset._16_9_;
+
+    /**
+     * NO RENDER
+     **/
+    @ConfigEntry.Gui.PrefixText // no fire overlay
+    @ConfigEntry.Category("no_render")
+    public boolean noFireOverlayEnabled = false;
+    @ConfigEntry.Category("no_render")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    public int noFireOverlayY = 35;
+
+    /**
+     * TOTEM
+     **/
+    @ConfigEntry.Gui.PrefixText // small totem pop
+    @ConfigEntry.Category("totem")
+    public boolean totemOverwriteScaleEnable = false;
+    @ConfigEntry.Category("totem")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
+    public int totemOverwriteScale = 30;
+
+    @ConfigEntry.Gui.PrefixText // totem pop particles
+    @ConfigEntry.Category("totem")
+    public boolean totemPopParticlesEnabled = false;
+    @ConfigEntry.Category("totem")
+    public boolean totemPopParticlesIncludeFirefly = false;
+    @ConfigEntry.Category("totem")
+    public boolean totemPopParticlesIncludeDollar = false;
+    @ConfigEntry.Category("totem")
+    public boolean totemPopParticlesIncludeSnowflake = false;
+    @ConfigEntry.Category("totem")
+    public boolean totemPopParticlesIncludeHeart = false;
+    @ConfigEntry.Category("totem")
+    public boolean totemPopParticlesIncludeStar = false;
+    @ConfigEntry.Category("totem")
+    public boolean totemPopParticlesIncludeGlyphs = false;
+    @ConfigEntry.Category("totem")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public TotemPopParticles.Physic totemPopParticlesPhysic = TotemPopParticles.Physic.FLY;
+    @ConfigEntry.Category("totem")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
+    public int totemPopParticlesCount = 2;
+    @ConfigEntry.Category("totem")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
+    public int totemPopParticlesSpeed = 2;
+    @ConfigEntry.Category("totem")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
+    public int totemPopParticlesRenderTime = 2;
+    @ConfigEntry.Category("totem")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
+    public int totemPopParticlesScale = 3;
+
+    /**
+     * HIT PARTICLES
+     **/
+    @ConfigEntry.Category("hit_particles")
+    public boolean hitParticlesEnabled = false;
+    @ConfigEntry.Category("hit_particles")
+    public boolean hitParticlesTextShowHeal = false;
+    @ConfigEntry.Category("hit_particles")
+    public boolean hitParticleIncludeFirefly = false;
+    @ConfigEntry.Category("hit_particles")
+    public boolean hitParticleIncludeDollar = false;
+    @ConfigEntry.Category("hit_particles")
+    public boolean hitParticleIncludeSnowflake = false;
+    @ConfigEntry.Category("hit_particles")
+    public boolean hitParticleIncludeHeart = false;
+    @ConfigEntry.Category("hit_particles")
+    public boolean hitParticleIncludeStar = false;
+    @ConfigEntry.Category("hit_particles")
+    public boolean hitParticleIncludeGlyphs = false;
+
+    @ConfigEntry.Category("hit_particles")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public HitParticle.HitTextMode hitParticlesTextMode = HitParticle.HitTextMode.ALL_ENTITIES;
+    @ConfigEntry.Category("hit_particles")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public HitParticle.Physic hitParticlesPhysic = HitParticle.Physic.FLY;
+
+    @ConfigEntry.Category("hit_particles")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
+    public int hitParticlesCount = 2;
+    @ConfigEntry.Category("hit_particles")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
+    public int hitParticlesSpeed = 2;
+    @ConfigEntry.Category("hit_particles")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
+    public int hitParticlesRenderTime = 2;
+    @ConfigEntry.Category("hit_particles")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
+    public int hitParticlesTextScale = 3;
+    @ConfigEntry.Category("hit_particles")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
+    public int hitParticlesScale = 3;
 }

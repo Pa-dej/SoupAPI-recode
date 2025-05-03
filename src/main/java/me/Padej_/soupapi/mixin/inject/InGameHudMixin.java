@@ -326,7 +326,8 @@ public abstract class InGameHudMixin {
 
             Render2D.drawGradientBlurredShadow1(context.getMatrices(), barX, barY, barWidth * progress, barHeight, 4, color, color, color, color);
             Render2D.drawRound(context.getMatrices(), barX, barY, barWidth, barHeight, 1.5f, background);
-            if (progress > 0) Render2D.renderRoundedGradientRect(context.getMatrices(), color, color, color, color, barX, barY, barWidth * progress, barHeight, 1.5f);
+            if (progress > 0)
+                Render2D.renderRoundedGradientRect(context.getMatrices(), color, color, color, color, barX, barY, barWidth * progress, barHeight, 1.5f);
         }
 
         Profilers.get().pop();
