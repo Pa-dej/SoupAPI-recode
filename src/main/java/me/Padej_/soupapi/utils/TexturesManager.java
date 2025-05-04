@@ -28,7 +28,7 @@ public class TexturesManager extends ConfigurableModule {
     private static final Identifier BO = Identifier.of("soupapi", "textures/target_render/bo.png");
     private static final Identifier MARKER = Identifier.of("soupapi", "textures/target_render/marker.png");
     private static final Identifier SKULL = Identifier.of("soupapi", "textures/target_render/skull.png");
-    private static final Identifier AMOGUS = Identifier.of("soupapi", "textures/target_render/amongus.png");
+    public static final Identifier AMOGUS = Identifier.of("soupapi", "textures/target_render/amongus.png");
     private static final Identifier VEGAS = Identifier.of("soupapi", "textures/target_render/vegas.png");
     private static final Identifier JEKA = Identifier.of("soupapi", "textures/target_render/jeka.png");
 
@@ -67,6 +67,7 @@ public class TexturesManager extends ConfigurableModule {
     public static final Identifier GUI_HEART = Identifier.of("soupapi", "textures/gui/heart.png");
     public static final Identifier GUI_SHIELD = Identifier.of("soupapi", "textures/gui/shield.png");
     public static final Identifier GUI_POTION = Identifier.of("soupapi", "textures/gui/potion.png");
+    public static final Identifier GUI_HITBOX = Identifier.of("soupapi", "textures/gui/hitbox.png");
 
     public static final Identifier MC_TIERS_LOGO = Identifier.of("soupapi", "textures/gui/mctiers/mctiers.png");
     public static final Identifier ROOKIE = Identifier.of("soupapi", "textures/gui/mctiers/rookie.png");

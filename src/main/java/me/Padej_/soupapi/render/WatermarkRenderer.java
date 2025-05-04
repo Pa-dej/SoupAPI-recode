@@ -2,12 +2,12 @@ package me.Padej_.soupapi.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.font.FontRenderers;
+import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 import org.lwjgl.opengl.GL40C;
 
 import java.awt.*;
@@ -44,7 +44,7 @@ public class WatermarkRenderer {
     private static void renderName(DrawContext context, float x, float y) {
         String displayName = mc.player.getName().getString();
         y += 21.5f;
-        FontRenderers.sf_bold.drawString(context.getMatrices(), displayName, x + 32, y, 0xFFFFFFFF);
+        FontRenderers.sf_bold.drawString(context.getMatrices(), displayName, x + 32, y, Palette.getTextColor());
 
         if (!CONFIG.mctiersEnabled) return;
         float textWidth = FontRenderers.sf_bold.getStringWidth(mc.player.getName().getString());
@@ -54,7 +54,7 @@ public class WatermarkRenderer {
         context.getMatrices().push();
         context.getMatrices().translate(x + 40 + textWidth, y - 3.7, 0);
         context.getMatrices().scale(0.3f, 0.3f, 0.3f);
-        context.drawTexture(RenderLayer::getGuiTextured, TexturesManager.getMC_TiersGameModeTexture(), 0, 0, 0, 0, 40, 40, 1268, 1153, 1268, 1153);
+        context.drawTexture(RenderLayer::getGuiTextured, TexturesManager.getMC_TiersGameModeTexture(), 0, 0, 0, 0, 40, 40, 1268, 1153, 1268, 1153, Palette.getTextColor());
         context.getMatrices().pop();
     }
 
@@ -81,14 +81,6 @@ public class WatermarkRenderer {
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         context.getMatrices().pop();
-    }
-
-    private static Color interpolateColor(Color start, Color end, float progress) {
-        int r = MathHelper.lerp(progress, start.getRed(), end.getRed());
-        int g = MathHelper.lerp(progress, start.getGreen(), end.getGreen());
-        int b = MathHelper.lerp(progress, start.getBlue(), end.getBlue());
-        int a = MathHelper.lerp(progress, start.getAlpha(), end.getAlpha());
-        return new Color(r, g, b, a);
     }
 }
 

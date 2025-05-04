@@ -16,6 +16,7 @@ import java.util.Random;
 import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 
 public class Particle2D {
+    public double hudOffsetX, hudOffsetY; // Смещение для слежения за HUD
     public double x, y, deltaX, deltaY, size, opacity;
     public Color color;
     private Identifier texture;
@@ -63,30 +64,30 @@ public class Particle2D {
         return new Color(redPart, greenPart, bluePart);
     }
 
-    public void render2D(MatrixStack matrixStack) {
-        drawOrbParticle(matrixStack, (float) x, (float) y, color);
-    }
-
-    public void drawOrbParticle(MatrixStack matrices, float x, float y, Color c) {
-        matrices.push();
+    public void render2D(MatrixStack matrixStack, float hudX, float hudY, float depthFactor) {
+        if (!CONFIG.targetHudParticles) return;
+        matrixStack.push();
 
         float particleScale = CONFIG.targetHudParticleScale / 100f;
 
-        matrices.translate(x + size / 2f, y + size / 2f, 0);
-        matrices.scale(particleScale, particleScale, particleScale);
+        // Применяем смещение HUD и масштаб глубины
+        float renderX = (float) (x + hudX);
+        float renderY = (float) (y + hudY);
+        matrixStack.translate(renderX + size / 2f, renderY + size / 2f, 0);
+        matrixStack.scale(particleScale * depthFactor, particleScale * depthFactor, particleScale);
 
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
         RenderSystem.setShaderTexture(0, texture);
-        RenderSystem.setShaderColor(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, (float) (opacity / 255f));
+        RenderSystem.setShaderColor(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, (float) (opacity / 255f));
 
-        Render2D.renderTexture(matrices, -size / 2f, -size / 2f, size, size, 0, 0, 256, 256, 256, 256);
+        Render2D.renderTexture(matrixStack, -size / 2f, -size / 2f, size, size, 0, 0, 256, 256, 256, 256);
 
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         RenderSystem.setShaderTexture(0, 0);
 
-        matrices.pop();
+        matrixStack.pop();
     }
 
     public void updatePosition(float delta) {
@@ -104,7 +105,7 @@ public class Particle2D {
         }
     }
 
-    public void init(final double x, final double y, final double deltaX, final double deltaY, final double size, final Color color) {
+    public void init(final double x, final double y, final double deltaX, final double deltaY, final double size, final Color color, boolean followHud) {
         this.x = x;
         this.y = y;
         this.deltaX = deltaX;
@@ -112,6 +113,15 @@ public class Particle2D {
         this.size = size;
         this.opacity = 254;
         this.color = color;
+
+        // Сохраняем начальное смещение HUD, если followHud включен
+        if (followHud) {
+            this.hudOffsetX = x;
+            this.hudOffsetY = y;
+        } else {
+            this.hudOffsetX = 0;
+            this.hudOffsetY = 0;
+        }
 
         // Гарантируем индивидуальную текстуру для каждой частицы
         updateAvailableTextures();

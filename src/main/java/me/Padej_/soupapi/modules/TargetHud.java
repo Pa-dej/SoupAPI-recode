@@ -36,8 +36,8 @@ public class TargetHud extends ConfigurableModule {
     private static final float healthChangeSpeed = 0.2f;
     private static final float colorAnimationSpeed = 0.01f;
     private static long lastUpdateTime = System.currentTimeMillis();
-    private static float smoothedScreenX = 0f;
-    private static float smoothedScreenY = 0f;
+    public static float smoothedScreenX = 0f;
+    public static float smoothedScreenY = 0f;
     private static final float smoothingFactor = 0.8f;
 
     public static final Matrix4f lastProjMat = new Matrix4f();
@@ -172,11 +172,11 @@ public class TargetHud extends ConfigurableModule {
             float animationFactor = MathUtility.clamp(hudScale, 0, 1f);
             switch (CONFIG.targetHudStyle) {
                 case MINI ->
-                        TargetHudRenderer.renderMiniHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY);
+                        TargetHudRenderer.renderMiniHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY, screenPos);
                 case TINY ->
-                        TargetHudRenderer.renderTinyHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY);
+                        TargetHudRenderer.renderTinyHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY, screenPos);
                 default ->
-                        TargetHudRenderer.renderNormalHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY);
+                        TargetHudRenderer.renderNormalHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY, screenPos);
             }
 
             context.getMatrices().pop();

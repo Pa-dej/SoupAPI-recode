@@ -18,11 +18,15 @@ import net.minecraft.registry.Registries;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import org.lwjgl.opengl.GL40C;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static me.Padej_.soupapi.modules.TargetHud.smoothedScreenX;
+import static me.Padej_.soupapi.modules.TargetHud.smoothedScreenY;
 
 public class TargetHudRenderer extends ConfigurableModule {
     public static final ArrayList<Particle2D> particles = new ArrayList<>();
@@ -41,7 +45,7 @@ public class TargetHudRenderer extends ConfigurableModule {
             "resistance", "slow_falling", "slowness", "speed", "strength", "weakness", "wither"
     };
 
-    public static void renderTinyHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y) {
+    public static void renderTinyHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y, Vec3d screenPos) {
         float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
         Color c1 = Palette.getColor(0f);   // Нижний левый
@@ -87,7 +91,8 @@ public class TargetHudRenderer extends ConfigurableModule {
         // Партиклы
         for (final Particle2D p : particles) {
             if (p.opacity > 4) {
-                p.render2D(context.getMatrices());
+                float depthFactor = CONFIG.targetHudFollow ? (float) screenPos.z : 1.0f;
+                p.render2D(context.getMatrices(), smoothedScreenX, smoothedScreenY, depthFactor);
             }
         }
 
@@ -95,7 +100,7 @@ public class TargetHudRenderer extends ConfigurableModule {
             for (int i = 0; i <= 6; i++) {
                 final Particle2D p = new Particle2D();
                 final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
-                p.init(x, y, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c);
+                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);;
                 particles.add(p);
             }
             sentParticles = true;
@@ -156,7 +161,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
 
-    public static void renderMiniHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y) {
+    public static void renderMiniHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y, Vec3d screenPos) {
         float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
         Color c1 = Palette.getColor(0f);
@@ -198,7 +203,8 @@ public class TargetHudRenderer extends ConfigurableModule {
 
         for (final Particle2D p : particles) {
             if (p.opacity > 4) {
-                p.render2D(context.getMatrices());
+                float depthFactor = CONFIG.targetHudFollow ? MathHelper.clamp(1.0f - (float) screenPos.z, 0.1f, 1.0f) : 1.0f;
+                p.render2D(context.getMatrices(), smoothedScreenX, smoothedScreenY, depthFactor);
             }
         }
 
@@ -206,7 +212,7 @@ public class TargetHudRenderer extends ConfigurableModule {
             for (int i = 0; i <= 6; i++) {
                 final Particle2D p = new Particle2D();
                 final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
-                p.init(x, y, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c);
+                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);;
                 particles.add(p);
             }
             sentParticles = true;
@@ -231,8 +237,8 @@ public class TargetHudRenderer extends ConfigurableModule {
         Render2D.drawGradientRound(context.getMatrices(), x + 38, y + 25, 52, 7, 2f, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
         Render2D.renderRoundedGradientRect(context.getMatrices(), hpLeft, hpRight, hpRight, hpLeft, x + 38, y + 25, (int) MathUtility.clamp((52 * (health / target.getMaxHealth())), 8, 52), 7, 2f);
 
-        FontRenderers.sf_bold_mini.drawCenteredString(context.getMatrices(), String.valueOf(Math.round(10.0 * health) / 10.0), x + 65, y + 27f, Render2D.applyOpacity(Colors.WHITE, animationFactor));
-        FontRenderers.sf_bold_mini.drawString(context.getMatrices(), displayName, x + 38, y + 5, Render2D.applyOpacity(Colors.WHITE, animationFactor));
+        FontRenderers.sf_bold_mini.drawCenteredString(context.getMatrices(), String.valueOf(Math.round(10.0 * health) / 10.0), x + 65, y + 27f, Render2D.applyOpacity(Palette.getTextColor(), animationFactor));
+        FontRenderers.sf_bold_mini.drawString(context.getMatrices(), displayName, x + 38, y + 5, Render2D.applyOpacity(Palette.getTextColor(), animationFactor));
 
         RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
         List<ItemStack> armor = target.getInventory().armor;
@@ -253,7 +259,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
 
-    public static void renderNormalHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y) {
+    public static void renderNormalHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y, Vec3d screenPos) {
         float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
         Color c1 = Palette.getColor(0f);
@@ -296,7 +302,8 @@ public class TargetHudRenderer extends ConfigurableModule {
         // Партиклы
         for (final Particle2D p : particles) {
             if (p.opacity > 4) {
-                p.render2D(context.getMatrices());
+                float depthFactor = CONFIG.targetHudFollow ? MathHelper.clamp(1.0f - (float) screenPos.z, 0.1f, 1.0f) : 1.0f;
+                p.render2D(context.getMatrices(), smoothedScreenX, smoothedScreenY, depthFactor);
             }
         }
 
@@ -304,7 +311,7 @@ public class TargetHudRenderer extends ConfigurableModule {
             for (int i = 0; i <= 6; i++) {
                 final Particle2D p = new Particle2D();
                 final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
-                p.init(x, y, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c);
+                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);;
                 particles.add(p);
             }
             sentParticles = true;
@@ -329,8 +336,8 @@ public class TargetHudRenderer extends ConfigurableModule {
         Render2D.drawGradientRound(context.getMatrices(), x + 48, y + 32, 85, 11, 4f, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
         Render2D.renderRoundedGradientRect(context.getMatrices(), hpLeft, hpRight, hpRight, hpLeft, x + 48, y + 32, (int) MathUtility.clamp((85 * (health / target.getMaxHealth())), 8, 85), 11, 4f);
 
-        FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), String.valueOf(Math.round(10.0 * health) / 10.0), x + 92f, y + 35f, Render2D.applyOpacity(Colors.WHITE, animationFactor));
-        FontRenderers.sf_bold.drawString(context.getMatrices(), displayName, x + 48, y + 7, Render2D.applyOpacity(Colors.WHITE, animationFactor));
+        FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), String.valueOf(Math.round(10.0 * health) / 10.0), x + 92f, y + 35f, Render2D.applyOpacity(Palette.getTextColor(), animationFactor));
+        FontRenderers.sf_bold.drawString(context.getMatrices(), displayName, x + 48, y + 7, Render2D.applyOpacity(Palette.getTextColor(), animationFactor));
 
         RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
         List<ItemStack> armor = target.getInventory().armor;

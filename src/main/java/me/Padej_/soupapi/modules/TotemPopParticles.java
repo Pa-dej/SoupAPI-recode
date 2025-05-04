@@ -34,6 +34,7 @@ public class TotemPopParticles extends ConfigurableModule {
     public static void onTick() {
         emitters.removeIf(Emitter::tick);
         particles.removeIf(Particle::update);
+        updateAvailableTextures();
     }
 
     public static void onTotemPop(Entity entity) {

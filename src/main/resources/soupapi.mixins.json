@@ -13,6 +13,7 @@
   ],
   "client": [
     "MCTierBadge",
+    "access.GameRendererAccessor",
     "access.HeadFeatureRendererAccessor",
     "access.LivingEntityRendererAccessor",
     "access.NativeImageAccessor",

@@ -13,7 +13,6 @@ import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -121,7 +120,7 @@ public class PotionsHud extends ConfigurableModule {
             float textWidth = FontRenderers.sf_bold.getStringWidth(title);
             FontRenderers.sf_bold.drawString(matrices, title,
                     x - 3f + currentWidth / 2f - textWidth / 2f,
-                    headerY + 3f, 0xFFFFFFFF
+                    headerY + 3f, Palette.getTextColor()
             );
 
             // Фон под эффекты
@@ -132,7 +131,7 @@ public class PotionsHud extends ConfigurableModule {
             matrices.push();
             matrices.translate(x, headerY + 1.5f, 0);
             matrices.scale(0.5f, 0.5f, 0.5f);
-            context.drawTexture(RenderLayer::getGuiTextured, TexturesManager.GUI_POTION, 0, 0, 0, 0, 16, 16, 1024, 1024, 1024, 1024);
+            context.drawTexture(RenderLayer::getGuiTextured, TexturesManager.GUI_POTION, 0, 0, 0, 0, 16, 16, 1024, 1024, 1024, 1024, Palette.getTextColor());
             matrices.pop();
         }
 
@@ -192,7 +191,6 @@ public class PotionsHud extends ConfigurableModule {
         }
 
         public void render(DrawContext context, float x, float y, float alpha) {
-            int textColor = new Color(255, 255, 255, (int) alpha).getRGB();
             float scale = 0.8f;
 
             MatrixStack matrices = context.getMatrices();
@@ -203,8 +201,8 @@ public class PotionsHud extends ConfigurableModule {
             context.drawSpriteStretched(RenderLayer::getGuiTextured, mc.getStatusEffectSpriteManager().getSprite(instance.getEffectType()), 0, 0, 18, 18);
             matrices.pop();
 
-            FontRenderers.sf_bold_mini.drawString(matrices, displayText, x + 20, y + 2, textColor);
-            FontRenderers.sf_bold_mini.drawString(matrices, "§7" + getDuration(instance), x + 20, y + 9, textColor);
+            FontRenderers.sf_bold_mini.drawString(matrices, displayText, x + 20, y + 2, Palette.getTextColor());
+            FontRenderers.sf_bold_mini.drawString(matrices, "§7" + getDuration(instance), x + 20, y + 9, Palette.getTextColor());
 
             if (!instance.isInfinite()) {
                 StatusEffect effect = instance.getEffectType().value();
@@ -235,9 +233,3 @@ public class PotionsHud extends ConfigurableModule {
         }
     }
 }
-
-
-
-
-
-

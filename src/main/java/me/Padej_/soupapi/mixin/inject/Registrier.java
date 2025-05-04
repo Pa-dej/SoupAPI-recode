@@ -1,31 +1,12 @@
 package me.Padej_.soupapi.mixin.inject;
 
 import me.Padej_.soupapi.font.FontRenderers;
-import me.Padej_.soupapi.main.SoupAPI_Main;
-import me.Padej_.soupapi.main.client.SoupAPI_Client;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.util.Icons;
-import net.minecraft.client.util.MacWindowUtil;
-import net.minecraft.client.util.Window;
-import net.minecraft.resource.ResourcePack;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWImage;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 @Mixin(MinecraftClient.class)
 public class Registrier {

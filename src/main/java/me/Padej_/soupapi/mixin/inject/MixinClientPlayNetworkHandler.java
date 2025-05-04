@@ -1,22 +1,27 @@
 package me.Padej_.soupapi.mixin.inject;
 
-import me.Padej_.soupapi.modules.HitParticle;
+import me.Padej_.soupapi.modules.HitboxDetector;
 import me.Padej_.soupapi.modules.TotemPopParticles;
-import me.Padej_.soupapi.utils.MathUtility;
-import me.Padej_.soupapi.utils.Palette;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientAdvancementManager;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ServerInfo;
+import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,16 +29,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.awt.*;
+import java.util.Optional;
 
 import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
+import static me.Padej_.soupapi.config.ConfigurableModule.mc;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler {
 
-    @Shadow private ClientWorld world;
-
-    @Shadow public abstract ClientAdvancementManager getAdvancementHandler();
+    @Shadow
+    private ClientWorld world;
 
     @Shadow
     private static ItemStack getActiveDeathProtector(PlayerEntity player) {
@@ -112,5 +117,54 @@ public abstract class MixinClientPlayNetworkHandler {
             }
         }
     }
+
+    @Inject(method = "onEntityDamage", at = @At("HEAD"))
+    private void soupapi$onEntityDamage(EntityDamageS2CPacket packet, CallbackInfo ci) {
+        ClientWorld world = mc.world;
+        if (world == null || mc.player == null || !CONFIG.hitboxDetectorEnabled) return;
+
+        Entity victim = world.getEntityById(packet.entityId());
+        Entity attacker = world.getEntityById(packet.sourceCauseId());
+
+        if (victim == null || attacker == null) return;
+        if (!(victim.equals(mc.player)) || !(attacker instanceof LivingEntity attackerLiving)) return;
+        if (!(attacker instanceof PlayerEntity player)) return;
+        if (player.isCreative() || player.isSpectator()) return;
+
+        Vec3d eyePos = attackerLiving.getEyePos();
+        float yaw = attackerLiving.getYaw();
+        float pitch = attackerLiving.getPitch();
+
+        double xz = Math.cos(-Math.toRadians(pitch));
+        Vec3d lookVec = new Vec3d(
+                -Math.sin(Math.toRadians(yaw)) * xz,
+                Math.sin(-Math.toRadians(pitch)),
+                Math.cos(Math.toRadians(yaw)) * xz
+        );
+
+        Box hitbox = victim.getBoundingBox();
+        Vec3d endVec = eyePos.add(lookVec.multiply(3.0));
+
+        boolean hitDetected = false;
+        double requiredScale = CONFIG.hitboxDetectorExpand;
+
+        for (double scale = 1.0; scale <= 2.0; scale += 0.05) {
+            double dx = (hitbox.getLengthX() * (scale - 1)) / 2;
+            double dy = (hitbox.getLengthY() * (scale - 1)) / 2;
+            double dz = (hitbox.getLengthZ() * (scale - 1)) / 2;
+            Box scaledBox = hitbox.expand(dx, dy, dz);
+
+            if (scaledBox.raycast(eyePos, endVec).isPresent()) {
+                requiredScale = scale;
+                hitDetected = (scale <= 1.0);
+                break;
+            }
+        }
+
+        if (!hitDetected) {
+            HitboxDetector.logSuspect(player, requiredScale);
+        }
+    }
+
 }
 

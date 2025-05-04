@@ -1,10 +1,13 @@
 package me.Padej_.soupapi.utils;
 
 import me.Padej_.soupapi.main.SoupAPI_Main;
+import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.render.RenderWithAnimatedColor;
 
 import java.awt.*;
 import java.util.Random;
+
+import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 
 public class Palette {
     private static final Random random = new Random();
@@ -97,11 +100,12 @@ public class Palette {
         return getColor(position);
     }
 
+    public static int getTextColor() {
+        return CONFIG.textColor + 0xFF000000;
+    }
+
     public enum ColorsStyle {
-        SOLO,
-        DUO,
-        TRIO,
-        QUARTET
+        SOLO, DUO, TRIO, QUARTET
     }
 }
 

@@ -15,6 +15,10 @@ public class SoupAPI_Config implements ConfigData {
     /**
      * MAIN
      **/
+    @ConfigEntry.Category("main")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public TargetHud.Config configPos_BUTTON = TargetHud.Config.CONFIG_POS;
+
     @ConfigEntry.Gui.PrefixText // Friends
     @ConfigEntry.Category("main")
     public String[] friends = {};
@@ -31,9 +35,6 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.PrefixText // Config Screen
     @ConfigEntry.Category("main")
     public boolean blurShadowEnabled = true;
-    @ConfigEntry.Category("main")
-    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public TargetHud.Config configPos_BUTTON = TargetHud.Config.CONFIG_POS;
 
     @ConfigEntry.Gui.PrefixText // Watermark
     @ConfigEntry.Category("main")
@@ -59,6 +60,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("main")
     @ConfigEntry.ColorPicker
     public int c4 = 0x4361ee;
+    @ConfigEntry.Category("main")
+    @ConfigEntry.ColorPicker
+    public int textColor = 0xffffff;
 
     /**
      * TRAILS
@@ -197,12 +201,14 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 2, max = 15)
     public int ambientParticlesIgnoreSpawnRadius = 10;
 
-    @ConfigEntry.Gui.PrefixText //
+    @ConfigEntry.Gui.PrefixText // Time Changer
     @ConfigEntry.Category("world")
     public boolean timeChangerEnabled = false;
     @ConfigEntry.Category("world")
     @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
     public int timeChangerTime = 50;
+
+    @ConfigEntry.Gui.PrefixText // Weather Changer
     @ConfigEntry.Category("world")
     public boolean weatherChangerEnabled = false;
     @ConfigEntry.Category("world")
@@ -288,7 +294,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 1, max = 30)
     public int targetHudRenderTime = 5;
 
-    @ConfigEntry.Gui.PrefixText // particles
+    @ConfigEntry.Gui.PrefixText // Particles
+    @ConfigEntry.Category("target_hud")
+    public boolean targetHudParticles = true;
     @ConfigEntry.Category("target_hud")
     public boolean targetHudIncludeFirefly = false;
     @ConfigEntry.Category("target_hud")
@@ -304,6 +312,8 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("target_hud")
     @ConfigEntry.BoundedDiscrete(min = 50, max = 120)
     public int targetHudParticleScale = 100;
+
+    @ConfigEntry.Gui.PrefixText // Position
     @ConfigEntry.Category("target_hud")
     public int targetHudOffsetX = 0;
     @ConfigEntry.Category("target_hud")
@@ -475,6 +485,13 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
     public int totemOverwriteScale = 30;
 
+    @ConfigEntry.Gui.PrefixText // totem pop shader
+    @ConfigEntry.Category("totem")
+    public boolean totemPopShaderEnabled = false;
+    @ConfigEntry.Category("totem")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
+    public int totemShaderAlpha = 80;
+
     @ConfigEntry.Gui.PrefixText // totem pop particles
     @ConfigEntry.Category("totem")
     public boolean totemPopParticlesEnabled = false;
@@ -548,4 +565,18 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hit_particles")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
     public int hitParticlesScale = 3;
+
+    /**
+     * HITBOX DETECTOR
+     **/
+    @ConfigEntry.Category("hitbox_detector")
+    public boolean hitboxDetectorEnabled = false;
+    @ConfigEntry.Category("hitbox_detector")
+    @ConfigEntry.BoundedDiscrete(min = 100, max = 200)
+    public int hitboxDetectorExpand = 110;
+    @ConfigEntry.Gui.PrefixText // Position
+    @ConfigEntry.Category("hitbox_detector")
+    public int hitboxDetectorOffsetX = 875;
+    @ConfigEntry.Category("hitbox_detector")
+    public int hitboxDetectorOffsetY = 45;
 }

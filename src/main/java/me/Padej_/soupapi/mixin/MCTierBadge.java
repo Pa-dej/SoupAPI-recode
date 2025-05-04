@@ -1,6 +1,7 @@
 package me.Padej_.soupapi.mixin;
 
 import me.Padej_.soupapi.utils.CursorUtils;
+import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.Rectangle;
 import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.gui.DrawContext;
@@ -116,7 +117,7 @@ public class MCTierBadge extends Screen {
             vy = 0;
         }
 
-        context.drawTexture(RenderLayer::getGuiTextured, TexturesManager.MC_TIERS_LOGO, (int) x, (int) y, 0, 0, (int) scale, (int) scale, 1268, 1153, 1268, 1153);
+        context.drawTexture(RenderLayer::getGuiTextured, TexturesManager.MC_TIERS_LOGO, (int) x, (int) y, 0, 0, (int) scale, (int) scale, 1268, 1153, 1268, 1153, Palette.getTextColor());
 
         // Смена курсора
         if (isInside(mouseX, mouseY)) {

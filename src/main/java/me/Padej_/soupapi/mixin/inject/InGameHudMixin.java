@@ -3,6 +3,7 @@ package me.Padej_.soupapi.mixin.inject;
 import me.Padej_.soupapi.font.FontRenderers;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.BetterHudStyles;
+import me.Padej_.soupapi.modules.HitboxDetector;
 import me.Padej_.soupapi.modules.PotionsHud;
 import me.Padej_.soupapi.modules.TargetHud;
 import me.Padej_.soupapi.render.Render2D;
@@ -153,7 +154,7 @@ public abstract class InGameHudMixin {
         String hungerText = String.valueOf(Math.round(10.0 * displayedHunger) / 10.0);
         float textX = x + barWidth / 2f;
         float textY = top + 2.5f;
-        FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), hungerText, textX, textY, Colors.WHITE);
+        FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), hungerText, textX, textY, Palette.getTextColor());
 
         Render2D.renderTexture(context.getMatrices(), TexturesManager.GUI_HAM, x + barWidth - 7.5f, top + 2.5f, 5, 5, 0, 0, 512, 512, 512, 512);
     }
@@ -200,7 +201,7 @@ public abstract class InGameHudMixin {
         String airText = String.valueOf(Math.round(10.0 * currentAir / 20.0) / 10.0);
         float textX = x + barWidth / 2f;
         float textY = y + 2.5f;
-        FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), airText, textX, textY, Colors.WHITE);
+        FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), airText, textX, textY, Palette.getTextColor());
 
         Render2D.renderTexture(context.getMatrices(), TexturesManager.GUI_BUBBLE, x + barWidth - 7.5f, y + 2.5f, 5, 5, 0, 0, 512, 512, 512, 512);
     }
@@ -242,7 +243,7 @@ public abstract class InGameHudMixin {
         String healthText = String.valueOf(Math.round(10.0 * displayedHealth) / 10.0);
         float textX = x + barWidth / 2f;
         float textY = y + 2.5f;
-        FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), healthText, textX, textY, Colors.WHITE);
+        FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), healthText, textX, textY, Palette.getTextColor());
 
         Render2D.renderTexture(context.getMatrices(), TexturesManager.GUI_HEART, x + 2.5, y + 2.5, 5, 5, 0, 0, 512, 512, 512, 512);
     }
@@ -294,7 +295,7 @@ public abstract class InGameHudMixin {
         String armorText = String.valueOf(Math.round(10.0 * displayedArmor) / 10.0);
         float textX = x + barWidth / 2f;
         float textY = y + 2.5f;
-        FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), armorText, textX, textY, Colors.WHITE);
+        FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), armorText, textX, textY, Palette.getTextColor());
 
         Render2D.renderTexture(context.getMatrices(), TexturesManager.GUI_SHIELD, x + 2.5f, y + 2.5f, 5, 5, 0, 0, 512, 512, 512, 512);
     }
@@ -351,7 +352,6 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "renderHotbar", at = @At("HEAD"), cancellable = true)
     private void renderHotbar(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        WatermarkRenderer.render(context);
         if (!CONFIG.hudBetterHotbarEnabled) return;
         boolean isLBStyle = CONFIG.hudBetterHotbarStyle.equals(BetterHudStyles.HotbarStyle.SIMPLE);
         ci.cancel();
@@ -506,6 +506,8 @@ public abstract class InGameHudMixin {
     @Inject(method = "render", at = @At("HEAD"))
     private void hookRender(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         TargetHud.render(context, tickCounter);
+        WatermarkRenderer.render(context);
+        HitboxDetector.render(context);
     }
 
     @Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"), cancellable = true)
