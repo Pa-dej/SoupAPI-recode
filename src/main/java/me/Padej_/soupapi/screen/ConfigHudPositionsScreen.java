@@ -46,8 +46,8 @@ public class ConfigHudPositionsScreen extends Screen {
                 0xAAFF5555
         );
         hitboxDetectorFrame = new Frame(
-                CONFIG.waterMarkX,
-                CONFIG.waterMarkY,
+                CONFIG.hitboxDetectorOffsetX,
+                CONFIG.hitboxDetectorOffsetY,
                 70, 30,
                 "Sus Hits",
                 0xAA0055FF

@@ -41,11 +41,16 @@ public class SoupAPI_Client implements ClientModInitializer {
         Translator.onTick();
         HitParticle.onTick();
         TotemPopParticles.onTick();
+        JumpParticles.onTick();
 //        KillEffect.onTick();
 
-        if (InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_LEFT_ALT) && InputUtil.isKeyPressed(client.getWindow().getHandle(), GLFW.GLFW_KEY_BACKSPACE)) {
+        long handle = client.getWindow().getHandle();
+        if (InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_LEFT_ALT) && InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_BACKSPACE)) {
             client.setScreen(AutoConfig.getConfigScreen(SoupAPI_Config.class, null).get());
         }
+//        if (client.options.sprintKey.isPressed()){
+//            client.setScreen(new TestRenderer());
+//        }
     }
 
     private void doRenderAfterEntities(WorldRenderContext context) {
@@ -54,6 +59,7 @@ public class SoupAPI_Client implements ClientModInitializer {
         AmbientParticle.renderParticlesInWorld(context);
         HitParticle.render(context);
         TotemPopParticles.render(context);
+        JumpParticles.render(context);
     }
 
     private void doRenderLast(WorldRenderContext context) {

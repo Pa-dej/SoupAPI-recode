@@ -54,6 +54,14 @@
   "text.autoconfig.soupapi.option.haloSoulScale": "Scale",
   "text.autoconfig.soupapi.option.haloSoulSubdivision": "Subdivision",
 
+  "text.autoconfig.soupapi.category.jump_particles": "Jump Particles",
+  "text.autoconfig.soupapi.option.jumpParticlesEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.jumpParticlesPhysic": "Physic",
+  "text.autoconfig.soupapi.option.jumpParticlesSpeed": "Speed",
+  "text.autoconfig.soupapi.option.jumpParticlesCount": "Count",
+  "text.autoconfig.soupapi.option.jumpParticlesLiveTime": "Live Time",
+  "text.autoconfig.soupapi.option.jumpParticlesScale": "Scale",
+
   "text.autoconfig.soupapi.category.jump_circles": "Jump Circles",
   "text.autoconfig.soupapi.option.jumpCirclesEnabled": "Enabled",
   "text.autoconfig.soupapi.option.jumpCirclesFadeOut": "Fade Out",
@@ -222,6 +230,8 @@
 
   "text.autoconfig.soupapi.category.hit_particles": "Hit Particles",
   "text.autoconfig.soupapi.option.hitParticlesEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.hitParticlesSelf": "Self",
+  "text.autoconfig.soupapi.option.hitParticlesSplashSpawn": "Splash Spawn",
   "text.autoconfig.soupapi.option.hitParticlesTextShowHeal": "Show When Heal",
   "text.autoconfig.soupapi.option.hitParticleIncludeFirefly": "Firefly",
   "text.autoconfig.soupapi.option.hitParticleIncludeDollar": "Dollar",

@@ -81,7 +81,7 @@ public class TexturesManager extends ConfigurableModule {
     public static final Identifier UHC = Identifier.of("soupapi", "textures/gui/mctiers/uhc.png");
     public static final Identifier VANILLA = Identifier.of("soupapi", "textures/gui/mctiers/vanilla.png");
 
-    private static final Identifier[] GLYPH_TEXTURES = new Identifier[] {
+    public static final Identifier[] GLYPH_TEXTURES = new Identifier[] {
             GLYPH_ABS, GLYPH_LINE, GLYPH_ARROW, GLYPH_ARROW_LINE,
             GLYPH_CIRCLE, GLYPH_CROSS, GLYPH_FLOWER, GLYPH_FOREVER,
             GLYPH_QUAD, GLYPH_STAR, GLYPH_TRIANGLE, GLYPH_ZIGZAG,

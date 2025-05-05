@@ -164,6 +164,39 @@ public class SoupAPI_Config implements ConfigData {
     public int jumpCirclesSpinSpeed = 1;
 
     /**
+     * JUMP PARTICLES
+     **/
+    @ConfigEntry.Category("jump_particles")
+    public boolean jumpParticlesEnabled = false;
+    @ConfigEntry.Category("jump_particles")
+    public boolean jumpParticlesIncludeFirefly = false;
+    @ConfigEntry.Category("jump_particles")
+    public boolean jumpParticlesIncludeDollar = false;
+    @ConfigEntry.Category("jump_particles")
+    public boolean jumpParticlesIncludeSnowflake = false;
+    @ConfigEntry.Category("jump_particles")
+    public boolean jumpParticlesIncludeHeart = false;
+    @ConfigEntry.Category("jump_particles")
+    public boolean jumpParticlesIncludeStar = false;
+    @ConfigEntry.Category("jump_particles")
+    public boolean jumpParticlesIncludeGlyphs = false;
+    @ConfigEntry.Category("jump_particles")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public JumpParticles.Physic jumpParticlesPhysic = JumpParticles.Physic.FLY;
+    @ConfigEntry.Category("jump_particles")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
+    public int jumpParticlesCount = 1;
+    @ConfigEntry.Category("jump_particles")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
+    public int jumpParticlesSpeed = 10;
+    @ConfigEntry.Category("jump_particles")
+    @ConfigEntry.BoundedDiscrete(min = 2, max = 10)
+    public int jumpParticlesLiveTime = 5;
+    @ConfigEntry.Category("jump_particles")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
+    public int jumpParticlesScale = 3;
+
+    /**
      * WORLD
      **/
     @ConfigEntry.Gui.PrefixText // ambient particles
@@ -528,6 +561,10 @@ public class SoupAPI_Config implements ConfigData {
      **/
     @ConfigEntry.Category("hit_particles")
     public boolean hitParticlesEnabled = false;
+    @ConfigEntry.Category("hit_particles")
+    public boolean hitParticlesSelf = false;
+    @ConfigEntry.Category("hit_particles")
+    public boolean hitParticlesSplashSpawn = false;
     @ConfigEntry.Category("hit_particles")
     public boolean hitParticlesTextShowHeal = false;
     @ConfigEntry.Category("hit_particles")
