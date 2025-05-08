@@ -562,6 +562,8 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hit_particles")
     public boolean hitParticlesEnabled = false;
     @ConfigEntry.Category("hit_particles")
+    public boolean hitParticlesLikeCrit = false;
+    @ConfigEntry.Category("hit_particles")
     public boolean hitParticlesSelf = false;
     @ConfigEntry.Category("hit_particles")
     public boolean hitParticlesSplashSpawn = false;
@@ -583,6 +585,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hit_particles")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public HitParticle.HitTextMode hitParticlesTextMode = HitParticle.HitTextMode.ALL_ENTITIES;
+    @ConfigEntry.Category("hit_particles")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public HitParticle.Disappear hitParticlesDisappear = HitParticle.Disappear.SCALE;
     @ConfigEntry.Category("hit_particles")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public HitParticle.Physic hitParticlesPhysic = HitParticle.Physic.FLY;

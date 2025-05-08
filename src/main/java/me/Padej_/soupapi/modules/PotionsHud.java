@@ -92,7 +92,7 @@ public class PotionsHud extends ConfigurableModule {
             float currentAlpha = effectAlphas.getOrDefault(effect, 0f);
             float newAlpha = fast(currentAlpha, 255f, 10f);
             effectAlphas.put(effect, newAlpha);
-            targetWidth = Math.max(targetWidth, element.getWidth());
+            targetWidth = Math.max(targetWidth, Math.max(element.getWidth(), 80f));
         }
 
         targetHeight = effects.size() * spacing + 4;
