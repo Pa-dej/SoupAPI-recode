@@ -3,15 +3,15 @@ package me.Padej_.soupapi.modules;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.interfaces.TrailEntity;
-import me.Padej_.soupapi.render.CustomRenderLayers;
 import me.Padej_.soupapi.render.Render2D;
-import me.Padej_.soupapi.render.Render3D;
+import me.Padej_.soupapi.render.TargetHudRenderer;
 import me.Padej_.soupapi.utils.EntityUtils;
-import me.Padej_.soupapi.utils.Palette;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgramKeys;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -32,8 +32,6 @@ public class Trails extends ConfigurableModule {
         int trailLifetime = CONFIG.trailsLenght;
 
         for (PlayerEntity player : mc.world.getPlayers()) {
-            Vec3d velocity = player.getVelocity();
-            if (Math.abs((velocity.getY() + velocity.getY() + velocity.getX())) / 3 <= 0.001f) return;
             if (player.getPos().getZ() != player.prevZ || player.getPos().getX() != player.prevX) {
                 ((TrailEntity) player).soupAPI$getTrails().add(new TrailSegment(
                         new Vec3d(player.prevX, player.prevY, player.prevZ),
@@ -66,49 +64,111 @@ public class Trails extends ConfigurableModule {
         MatrixStack matrixStack = context.matrixStack();
         float tickDelta = context.tickCounter().getTickDelta(true);
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-
-        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
         matrixStack.push();
+        Matrix4f matrix = matrixStack.peek().getPositionMatrix();
 
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.disableDepthTest(); // перед рендером
-        RenderSystem.depthMask(false);  // запрет записи в Z-буфер
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
         RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
         RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
 
-        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR);
+        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 
         for (Entity entity : mc.world.getEntities()) {
             if ((entity instanceof PlayerEntity && !EntityUtils.isFriend(entity) && entity != mc.player) ||
-                    (!CONFIG.trailsForGliders && entity != mc.player && !(entity instanceof PlayerEntity))) continue;
+                    (!CONFIG.trailsForGliders && entity != mc.player && !(entity instanceof PlayerEntity)))
+                continue;
 
-            if (entity == mc.player && mc.options.getPerspective().isFirstPerson() && !CONFIG.trailsFirstPerson) continue;
+            if (entity == mc.player && mc.options.getPerspective().isFirstPerson() && !CONFIG.trailsFirstPerson)
+                continue;
             if (!(entity instanceof LivingEntity) || !mc.player.canSee(entity)) continue;
 
             List<TrailSegment> trails = ((TrailEntity) entity).soupAPI$getTrails();
             if (trails.isEmpty()) continue;
 
-            float width = entity.getHeight() * (CONFIG.trailsHeight / 100f);
-            int alpha = 255;
+            float height = entity.getHeight() * (CONFIG.trailsHeight / 100f);
+            int baseAlpha = 255;
 
-            for (TrailSegment segment : trails) {
-                Vec3d interpolated = segment.interpolate(tickDelta);
-                float progress = (float) segment.animation(tickDelta);
-                float alphaFactor = progress * alpha;
+            for (int i = 0; i < trails.size() - 1; i++) {
+                TrailSegment current = trails.get(i);
+                TrailSegment next = trails.get(i + 1);
 
-                Color color = Palette.getInterpolatedPaletteColor(progress);
-                int bottomAlpha = (int) alphaFactor;
-                int topAlpha = CONFIG.trailsRenderHalf ? 0 : (int) alphaFactor;
+                Vec3d currentPos = current.interpolate(tickDelta);
+                Vec3d nextPos = next.interpolate(tickDelta);
 
-                float x = (float) (interpolated.x);
-                float y = (float) (interpolated.y);
-                float z = (float) (interpolated.z);
+                float currentProgress = (float) current.animation(tickDelta);
+                float nextProgress = (float) next.animation(tickDelta);
+                float currentAlphaFactor = currentProgress * baseAlpha;
+                float nextAlphaFactor = nextProgress * baseAlpha;
 
-                bufferBuilder.vertex(matrix, x, y, z).color(color.getRed(), color.getGreen(), color.getBlue(), bottomAlpha);
-                bufferBuilder.vertex(matrix, x, y + width, z).color(color.getRed(), color.getGreen(), color.getBlue(), topAlpha);
+                float currentProgressColor = current.getProgress(tickDelta);
+                float nextProgressColor = next.getProgress(tickDelta);
+                Color currentColor = getAnimatedColor(currentProgressColor, 1 - currentProgressColor, tickDelta);
+                Color nextColor = getAnimatedColor(nextProgressColor, 1 - nextProgressColor, tickDelta);
+
+                float x1 = (float) currentPos.x;
+                float y1 = (float) currentPos.y;
+                float z1 = (float) currentPos.z;
+
+                float x2 = (float) nextPos.x;
+                float y2 = (float) nextPos.y;
+                float z2 = (float) nextPos.z;
+
+                int currentBottomAlpha;
+                int currentMidAlpha;
+                int currentTopAlpha;
+                int nextBottomAlpha;
+                int nextMidAlpha;
+                int nextTopAlpha;
+
+                if (CONFIG.trailsStyle == Trails.Style.FADED) {
+                    currentBottomAlpha = (int) (computeFadedAlpha(0, height) * (currentAlphaFactor / 255.0f));
+                    currentMidAlpha = (int) (computeFadedAlpha(height / 2.0f, height) * (currentAlphaFactor / 255.0f));
+                    currentTopAlpha = CONFIG.trailsRenderHalf ? 0 : (int) (computeFadedAlpha(height, height) * (currentAlphaFactor / 255.0f));
+                    nextBottomAlpha = (int) (computeFadedAlpha(0, height) * (nextAlphaFactor / 255.0f));
+                    nextMidAlpha = (int) (computeFadedAlpha(height / 2.0f, height) * (nextAlphaFactor / 255.0f));
+                    nextTopAlpha = CONFIG.trailsRenderHalf ? 0 : (int) (computeFadedAlpha(height, height) * (nextAlphaFactor / 255.0f));
+                } else if (CONFIG.trailsStyle == Trails.Style.FADED_INVERT) {
+                    currentBottomAlpha = (int) (computeFadedAlphaInvert(0, height) * (currentAlphaFactor / 255.0f));
+                    currentMidAlpha = (int) (computeFadedAlphaInvert(height / 2.0f, height) * (currentAlphaFactor / 255.0f));
+                    currentTopAlpha = CONFIG.trailsRenderHalf ? 0 : (int) (computeFadedAlphaInvert(height, height) * (currentAlphaFactor / 255.0f));
+                    nextBottomAlpha = (int) (computeFadedAlphaInvert(0, height) * (nextAlphaFactor / 255.0f));
+                    nextMidAlpha = (int) (computeFadedAlphaInvert(height / 2.0f, height) * (nextAlphaFactor / 255.0f));
+                    nextTopAlpha = CONFIG.trailsRenderHalf ? 0 : (int) (computeFadedAlphaInvert(height, height) * (nextAlphaFactor / 255.0f));
+                } else { // SOLID
+                    currentBottomAlpha = (int) currentAlphaFactor;
+                    currentMidAlpha = (int) currentAlphaFactor;
+                    currentTopAlpha = CONFIG.trailsRenderHalf ? 0 : (int) currentAlphaFactor;
+                    nextBottomAlpha = (int) nextAlphaFactor;
+                    nextMidAlpha = (int) nextAlphaFactor;
+                    nextTopAlpha = CONFIG.trailsRenderHalf ? 0 : (int) nextAlphaFactor;
+                }
+
+                // Нижний QUAD: от низа до середины
+                bufferBuilder.vertex(matrix, x1, y1, z1)
+                        .color(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue(), currentBottomAlpha);
+                bufferBuilder.vertex(matrix, x2, y2, z2)
+                        .color(nextColor.getRed(), nextColor.getGreen(), nextColor.getBlue(), nextBottomAlpha);
+                bufferBuilder.vertex(matrix, x2, y2 + height / 2.0f, z2)
+                        .color(nextColor.getRed(), nextColor.getGreen(), nextColor.getBlue(), nextMidAlpha);
+                bufferBuilder.vertex(matrix, x1, y1 + height / 2.0f, z1)
+                        .color(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue(), currentMidAlpha);
+
+                // Верхний QUAD: от середины до верха (если не trailsRenderHalf)
+                if (!CONFIG.trailsRenderHalf) {
+                    bufferBuilder.vertex(matrix, x1, y1 + height / 2.0f, z1)
+                            .color(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue(), currentMidAlpha);
+                    bufferBuilder.vertex(matrix, x2, y2 + height / 2.0f, z2)
+                            .color(nextColor.getRed(), nextColor.getGreen(), nextColor.getBlue(), nextMidAlpha);
+                    bufferBuilder.vertex(matrix, x2, y2 + height, z2)
+                            .color(nextColor.getRed(), nextColor.getGreen(), nextColor.getBlue(), nextTopAlpha);
+                    bufferBuilder.vertex(matrix, x1, y1 + height, z1)
+                            .color(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue(), currentTopAlpha);
+                }
             }
         }
 
@@ -122,17 +182,17 @@ public class Trails extends ConfigurableModule {
     }
 
     public static class TrailSegment {
-        private final MinecraftClient mc = MinecraftClient.getInstance();
         private final Vec3d from;
         private final Vec3d to;
-        private final int maxTicks;
-        private int ticks, prevTicks;
+        private int ticks;
+        private int prevTicks;
+        private final int maxLifetime;
 
         public TrailSegment(Vec3d from, Vec3d to, int lifetime) {
             this.from = from;
             this.to = to;
             this.ticks = lifetime;
-            this.maxTicks = lifetime;
+            this.maxLifetime = lifetime;
         }
 
         public Vec3d interpolate(float pt) {
@@ -143,12 +203,69 @@ public class Trails extends ConfigurableModule {
         }
 
         public double animation(float pt) {
-            return (this.prevTicks + (this.ticks - this.prevTicks) * pt) / (double) maxTicks;
+            float age = (this.maxLifetime - (this.prevTicks + (this.ticks - this.prevTicks) * pt));
+            return Math.max(0, 1 - age / maxLifetime);
         }
 
         public boolean update() {
             this.prevTicks = this.ticks;
             return this.ticks-- <= 0;
         }
+
+        public float getProgress(float pt) {
+            return (maxLifetime - (this.prevTicks + (this.ticks - this.prevTicks) * pt)) / (float) maxLifetime;
+        }
+    }
+
+    private static int computeFadedAlpha(float yOffset, float height) {
+        float yRelative = yOffset / height; // 0.0 (низ) → 1.0 (верх)
+        if (yRelative <= 0.5f) {
+            // От низа (255) до середины (0)
+            return (int) ((1.0f - yRelative / 0.5f) * 255);
+        } else {
+            // От середины (0) до верха (255)
+            return (int) (((yRelative - 0.5f) / 0.5f) * 255);
+        }
+    }
+
+    private static int computeFadedAlphaInvert(float yOffset, float height) {
+        float yRelative = yOffset / height; // 0.0 (низ) → 1.0 (верх)
+        int alphaFactor = (int) (255 * (CONFIG.trailsAlphaFactor / 100.0f));
+        if (yRelative <= 0.5f) {
+            // От низа (alphaFactor) до середины (255)
+            return (int) (alphaFactor + (yRelative / 0.5f) * (255 - alphaFactor));
+        } else {
+            // От середины (255) до верха (alphaFactor)
+            return (int) (255 - ((yRelative - 0.5f) / 0.5f) * (255 - alphaFactor));
+        }
+    }
+
+    public static Color getAnimatedColor(float x, float y, float time) {
+        float speed = 5.0f; // чем выше — тем быстрее переливается
+
+        Color c1 = TargetHudRenderer.topLeft;
+        Color c2 = TargetHudRenderer.topRight;
+        Color c3 = TargetHudRenderer.bottomRight;
+        Color c4 = TargetHudRenderer.bottomLeft;
+
+        Color top = lerpColor(c1, c2, x);
+        Color bottom = lerpColor(c4, c3, x);
+
+        return lerpColor(top, bottom, y);
+    }
+
+    public static Color lerpColor(Color a, Color b, float t) {
+        int r = (int) (a.getRed() + (b.getRed() - a.getRed()) * t);
+        int g = (int) (a.getGreen() + (b.getGreen() - a.getGreen()) * t);
+        int b_ = (int) (a.getBlue() + (b.getBlue() - a.getBlue()) * t);
+        return new Color(r, g, b_);
+    }
+
+    public enum Style {
+        FADED, SOLID, FADED_INVERT
+    }
+
+    public enum Targets {
+        PLAYERS, PROJECTILES, BOTH
     }
 }

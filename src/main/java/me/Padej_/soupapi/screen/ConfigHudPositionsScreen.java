@@ -18,7 +18,6 @@ public class ConfigHudPositionsScreen extends Screen {
     private final Frame targetHudFrame;
     private final Frame potionsHudFrame;
     private final Frame watermarkFrame;
-    private final Frame hitboxDetectorFrame;
 
     public ConfigHudPositionsScreen() {
         super(Text.of("SoupAPI config screen"));
@@ -45,13 +44,6 @@ public class ConfigHudPositionsScreen extends Screen {
                 "Watermark",
                 0xAAFF5555
         );
-        hitboxDetectorFrame = new Frame(
-                CONFIG.hitboxDetectorOffsetX,
-                CONFIG.hitboxDetectorOffsetY,
-                70, 30,
-                "Sus Hits",
-                0xAA0055FF
-        );
 
     }
 
@@ -59,8 +51,7 @@ public class ConfigHudPositionsScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         boolean hovering = targetHudFrame.isMouseOverDragArea(mouseX, mouseY)
                 || potionsHudFrame.isMouseOverDragArea(mouseX, mouseY)
-                || watermarkFrame.isMouseOverDragArea(mouseX, mouseY)
-                || hitboxDetectorFrame.isMouseOverDragArea(mouseX, mouseY);
+                || watermarkFrame.isMouseOverDragArea(mouseX, mouseY);
 
         if (hovering) {
             CursorUtils.setResizeCursor();
@@ -71,12 +62,10 @@ public class ConfigHudPositionsScreen extends Screen {
         targetHudFrame.render(context);
         potionsHudFrame.render(context);
         watermarkFrame.render(context);
-        hitboxDetectorFrame.render(context);
 
         renderSnapGuides(context, targetHudFrame);
         renderSnapGuides(context, potionsHudFrame);
         renderSnapGuides(context, watermarkFrame);
-        renderSnapGuides(context, hitboxDetectorFrame);
     }
 
     @Override
@@ -92,10 +81,6 @@ public class ConfigHudPositionsScreen extends Screen {
             }
             if (watermarkFrame.isMouseOverDragArea(mouseX, mouseY)) {
                 watermarkFrame.startDragging(mouseX, mouseY);
-                return true;
-            }
-            if (hitboxDetectorFrame.isMouseOverDragArea(mouseX, mouseY)) {
-                hitboxDetectorFrame.startDragging(mouseX, mouseY);
                 return true;
             }
         }
@@ -128,13 +113,6 @@ public class ConfigHudPositionsScreen extends Screen {
                 CONFIG.waterMarkY = snapped.y;
                 return true;
             }
-            if (hitboxDetectorFrame.isDragging()) {
-                Point snapped = applySnappingOffsets(hitboxDetectorFrame, mouseX, mouseY);
-                hitboxDetectorFrame.setPosition(snapped.x, snapped.y);
-                CONFIG.hitboxDetectorOffsetX = snapped.x;
-                CONFIG.hitboxDetectorOffsetY = snapped.y;
-                return true;
-            }
         }
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
@@ -145,7 +123,6 @@ public class ConfigHudPositionsScreen extends Screen {
             targetHudFrame.stopDragging();
             potionsHudFrame.stopDragging();
             watermarkFrame.stopDragging();
-            hitboxDetectorFrame.stopDragging();
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
@@ -160,8 +137,6 @@ public class ConfigHudPositionsScreen extends Screen {
         CONFIG.hudBetterPotionsHudY = potionsHudFrame.getOffsetY(0);
         CONFIG.waterMarkX = watermarkFrame.getOffsetX(0);
         CONFIG.waterMarkY = watermarkFrame.getOffsetY(0);
-        CONFIG.hitboxDetectorOffsetX = hitboxDetectorFrame.getOffsetX(0);
-        CONFIG.hitboxDetectorOffsetY = hitboxDetectorFrame.getOffsetY(0);
         ConfigurableModule.saveConfig();
         CursorUtils.setDefaultCursor();
         super.close();
@@ -192,7 +167,7 @@ public class ConfigHudPositionsScreen extends Screen {
         }
 
         // Привязка к другим рамкам (по центрам)
-        for (Frame other : List.of(targetHudFrame, potionsHudFrame, watermarkFrame, hitboxDetectorFrame)) {
+        for (Frame other : List.of(targetHudFrame, potionsHudFrame, watermarkFrame)) {
             if (other == movingFrame) continue;
 
             int otherCenterX = other.getX() + other.width / 2;
@@ -248,7 +223,7 @@ public class ConfigHudPositionsScreen extends Screen {
         }
 
         // Привязка к другим рамкам
-        for (Frame other : List.of(targetHudFrame, potionsHudFrame, watermarkFrame, hitboxDetectorFrame)) {
+        for (Frame other : List.of(targetHudFrame, potionsHudFrame, watermarkFrame)) {
             if (other == frame) continue;
 
             int otherCenterX = other.getX() + other.width / 2;

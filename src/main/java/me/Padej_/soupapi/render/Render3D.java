@@ -213,7 +213,6 @@ public class Render3D extends ConfigurableModule {
 
         if (targetEntity == null) return;
 
-        // Нормализуем tickDelta как будто всегда 60 FPS
         float frameTime = 1.0f / 60.0f;
         float normalizedTickDelta = tickDelta / frameTime;
 
@@ -236,6 +235,8 @@ public class Render3D extends ConfigurableModule {
         Matrix4f baseMatrix = matrices.peek().getPositionMatrix();
 
         RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(false);
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
         RenderSystem.setShaderTexture(0, TexturesManager.FIREFLY);
         RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);

@@ -2,6 +2,7 @@ package me.Padej_.soupapi.modules;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
+import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.utils.MathUtility;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
@@ -9,9 +10,12 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -29,7 +33,6 @@ public class JumpParticles extends ConfigurableModule {
         if (mc.player == null || !CONFIG.jumpParticlesEnabled) return;
         updateAvailableTextures();
 
-        // Проверка прыжка
         boolean isJumping = !mc.player.isOnGround();
         if (isJumping && !wasJumping && mc.options.jumpKey.isPressed()) {
             spawnParticles(mc.player);
@@ -57,7 +60,6 @@ public class JumpParticles extends ConfigurableModule {
         if (CONFIG.jumpParticlesIncludeSnowflake) AVAILABLE_TEXTURES.add(TexturesManager.SNOWFLAKE);
         if (CONFIG.jumpParticlesIncludeHeart) AVAILABLE_TEXTURES.add(TexturesManager.HEART);
         if (CONFIG.jumpParticlesIncludeStar) AVAILABLE_TEXTURES.add(TexturesManager.STAR);
-
         if (CONFIG.jumpParticlesIncludeGlyphs) {
             Collections.addAll(AVAILABLE_TEXTURES, TexturesManager.GLYPH_TEXTURES);
         }
@@ -66,7 +68,6 @@ public class JumpParticles extends ConfigurableModule {
             AVAILABLE_TEXTURES.add(TexturesManager.FIREFLY);
         }
     }
-
 
     private static void spawnParticles(PlayerEntity player) {
         Color c = Palette.getRandomColor();
@@ -83,6 +84,10 @@ public class JumpParticles extends ConfigurableModule {
     }
 
     public static class Particle extends TotemPopParticles.Particle {
+        private final long lifeTimeMs;
+        private float alpha = 1.0f;
+        private float scale = CONFIG.jumpParticlesScale;
+
         public Particle(float x, float y, float z, Color color, float rotationAngle, float rotationSpeed) {
             super(x, y, z, color, rotationAngle, rotationSpeed);
             int speed = CONFIG.jumpParticlesSpeed;
@@ -90,6 +95,8 @@ public class JumpParticles extends ConfigurableModule {
             this.motionY = 0;
             this.motionZ = MathUtility.random(-(float) speed / 50f, (float) speed / 50f);
             this.time = System.currentTimeMillis();
+            this.lifeTimeMs = CONFIG.jumpParticlesLiveTime * 1000L;
+
             if (!AVAILABLE_TEXTURES.isEmpty()) {
                 this.glyphTexture = AVAILABLE_TEXTURES.get(new Random().nextInt(AVAILABLE_TEXTURES.size()));
             }
@@ -104,14 +111,12 @@ public class JumpParticles extends ConfigurableModule {
             y += motionY;
             z += motionZ;
 
-            boolean bounce = CONFIG.jumpParticlesPhysic.equals(Physic.BOUNCE);
+            boolean bounce = CONFIG.jumpParticlesPhysic == Physic.BOUNCE;
 
-            // Отскок от пола
             if (posBlock(x, y - CONFIG.jumpParticlesScale / 10f, z)) {
                 if (bounce) {
-                    // Добавим лёгкий разброс по Y и горизонтальным направлениям
-                    motionY = 0.18f + MathUtility.random(0.0f, 0.05f); // немного разный прыжок
-                    motionX += MathUtility.random(-0.005f, 0.005f);    // небольшой "дрожащий" сдвиг
+                    motionY = 0.18f + MathUtility.random(0.0f, 0.05f);
+                    motionX += MathUtility.random(-0.005f, 0.005f);
                     motionZ += MathUtility.random(-0.005f, 0.005f);
                 } else {
                     motionY = -motionY * 0.8f;
@@ -121,7 +126,6 @@ public class JumpParticles extends ConfigurableModule {
                 motionZ *= 0.98f;
             }
 
-            // Столкновения по горизонтали
             else if (posBlock(x - sp, y, z - sp) || posBlock(x + sp, y, z + sp) ||
                     posBlock(x + sp, y, z - sp) || posBlock(x - sp, y, z + sp) ||
                     posBlock(x + sp, y, z)     || posBlock(x - sp, y, z)     ||
@@ -130,18 +134,53 @@ public class JumpParticles extends ConfigurableModule {
                 motionZ = -motionZ * 0.9f;
             }
 
-            // Гравитация только при BOUNCE
-            if (bounce) {
-                motionY -= 0.035f;
-            }
-
-            // Уменьшаем только вертикальную скорость, горизонтальная почти не трогается
+            if (bounce) motionY -= 0.035f;
             motionY *= 0.99f;
 
-            return System.currentTimeMillis() - time > CONFIG.jumpParticlesLiveTime * 1000L;
+            long elapsed = System.currentTimeMillis() - time;
+            float lifeFraction = Math.min(1.0f, (float) elapsed / lifeTimeMs);
+
+            if (lifeFraction >= 0.8f) {
+                float fade = 1.0f - (lifeFraction - 0.8f) / 0.2f;
+                if (CONFIG.jumpParticlesDisappear == Disappear.ALPHA) {
+                    alpha = fade;
+                } else if (CONFIG.jumpParticlesDisappear == Disappear.SCALE) {
+                    scale = CONFIG.jumpParticlesScale * fade;
+                }
+            }
+
+            return elapsed > lifeTimeMs;
+        }
+
+        @Override
+        public void render(MatrixStack matrixStack, float tickDelta) {
+            if (!CONFIG.jumpParticlesEnabled) return;
+
+            float baseScale = 0.07f;
+            float renderScale = baseScale * scale;
+
+            double posX = MathHelper.lerp(tickDelta, px, x) - mc.getEntityRenderDispatcher().camera.getPos().getX();
+            double posY = MathHelper.lerp(tickDelta, py, y) - mc.getEntityRenderDispatcher().camera.getPos().getY();
+            double posZ = MathHelper.lerp(tickDelta, pz, z) - mc.getEntityRenderDispatcher().camera.getPos().getZ();
+
+            matrixStack.push();
+            matrixStack.translate(posX, posY, posZ);
+            matrixStack.scale(renderScale, renderScale, renderScale);
+            matrixStack.translate(0.5f, 0.5f, 0.5f);
+            matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-mc.gameRenderer.getCamera().getYaw()));
+            matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(mc.gameRenderer.getCamera().getPitch()));
+            matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rotationAngle += (1f / mc.getCurrentFps()) * rotationSpeed));
+            matrixStack.translate(-0.5f, -0.5f, -0.5f);
+
+            if (glyphTexture != null) {
+                Render2D.drawGlyphs(matrixStack, glyphTexture, new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (alpha * 255)), 1f);
+            }
+
+            matrixStack.pop();
         }
 
         private boolean posBlock(double x, double y, double z) {
+            if (mc.player == null || mc.world == null) return false;
             Block b = mc.world.getBlockState(BlockPos.ofFloored(x, y, z)).getBlock();
             return (!(b instanceof AirBlock) && b != Blocks.WATER && b != Blocks.LAVA);
         }
@@ -155,3 +194,4 @@ public class JumpParticles extends ConfigurableModule {
         ALPHA, SCALE
     }
 }
+

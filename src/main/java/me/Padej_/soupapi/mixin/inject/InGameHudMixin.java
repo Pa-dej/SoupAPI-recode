@@ -3,7 +3,6 @@ package me.Padej_.soupapi.mixin.inject;
 import me.Padej_.soupapi.font.FontRenderers;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.BetterHudStyles;
-import me.Padej_.soupapi.modules.HitboxDetector;
 import me.Padej_.soupapi.modules.PotionsHud;
 import me.Padej_.soupapi.modules.TargetHud;
 import me.Padej_.soupapi.render.Render2D;
@@ -18,7 +17,6 @@ import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Colors;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.profiler.Profilers;
 import org.jetbrains.annotations.Nullable;
@@ -507,7 +505,6 @@ public abstract class InGameHudMixin {
     private void hookRender(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         TargetHud.render(context, tickCounter);
         WatermarkRenderer.render(context);
-        HitboxDetector.render(context);
     }
 
     @Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"), cancellable = true)

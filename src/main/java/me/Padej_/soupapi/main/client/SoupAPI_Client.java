@@ -16,6 +16,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
 
+import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
+
 public class SoupAPI_Client implements ClientModInitializer {
 
     @Override
@@ -39,9 +41,11 @@ public class SoupAPI_Client implements ClientModInitializer {
         AmbientParticle.onTick();
         RPC.onTick();
         Translator.onTick();
+
         HitParticle.onTick();
         TotemPopParticles.onTick();
         JumpParticles.onTick();
+
 //        KillEffect.onTick();
 
         long handle = client.getWindow().getHandle();
@@ -57,9 +61,10 @@ public class SoupAPI_Client implements ClientModInitializer {
         TargetRender.renderTargetLegacy(context);
         JumpCircles.renderCircles(context);
         AmbientParticle.renderParticlesInWorld(context);
-        HitParticle.render(context);
-        TotemPopParticles.render(context);
-        JumpParticles.render(context);
+
+        if (CONFIG.particlesAfterEntities) {
+            renderParticles(context);
+        }
     }
 
     private void doRenderLast(WorldRenderContext context) {
@@ -67,6 +72,10 @@ public class SoupAPI_Client implements ClientModInitializer {
         HitBubbles.render(context);
         Halo.render(context);
         Trails.renderTrail(context);
+
+        if (!CONFIG.particlesAfterEntities) {
+            renderParticles(context);
+        }
     }
 
     private void registerOnHit() {
@@ -77,6 +86,12 @@ public class SoupAPI_Client implements ClientModInitializer {
     private void registerClientSideParticles() {
         ParticleFactoryRegistry factoryRegistry = ParticleFactoryRegistry.getInstance();
         factoryRegistry.register(SoupAPI_Main.STAR, CustomPhysicParticleFactory::new);
+    }
+
+    private void renderParticles(WorldRenderContext context) {
+        HitParticle.render(context);
+        TotemPopParticles.render(context);
+        JumpParticles.render(context);
     }
 
 }

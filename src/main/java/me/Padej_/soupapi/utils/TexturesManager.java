@@ -1,8 +1,6 @@
 package me.Padej_.soupapi.utils;
 
 import me.Padej_.soupapi.config.ConfigurableModule;
-import me.Padej_.soupapi.main.SoupAPI_Main;
-import me.Padej_.soupapi.modules.TargetRender;
 import net.minecraft.util.Identifier;
 
 import java.util.Random;

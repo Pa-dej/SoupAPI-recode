@@ -25,6 +25,10 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("main")
     public boolean translatorBruhEnabled = false;
 
+    @ConfigEntry.Gui.PrefixText // Particles
+    @ConfigEntry.Category("main")
+    public boolean particlesAfterEntities = true;
+
     @ConfigEntry.Gui.PrefixText // MC Tiers
     @ConfigEntry.Category("main")
     public boolean mctiersEnabled = false;
@@ -75,12 +79,21 @@ public class SoupAPI_Config implements ConfigData {
     public boolean trailsRenderHalf = false;
     @ConfigEntry.Category("trails")
     public boolean trailsForGliders = false;
+    //    @ConfigEntry.Category("trails")
+//    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+//    public Trails.Targets trailsTarget = Trails.Targets.PLAYERS;
+    @ConfigEntry.Category("trails")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public Trails.Style trailsStyle = Trails.Style.FADED;
     @ConfigEntry.Category("trails")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 30)
     public int trailsLenght = 5;
     @ConfigEntry.Category("trails")
     @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
     public int trailsHeight = 100;
+    @ConfigEntry.Category("trails")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
+    public int trailsAlphaFactor = 100;
 
     /**
      * CHINA HAT
@@ -184,6 +197,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public JumpParticles.Physic jumpParticlesPhysic = JumpParticles.Physic.FLY;
     @ConfigEntry.Category("jump_particles")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public JumpParticles.Disappear jumpParticlesDisappear = JumpParticles.Disappear.ALPHA;
+    @ConfigEntry.Category("jump_particles")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
     public int jumpParticlesCount = 1;
     @ConfigEntry.Category("jump_particles")
@@ -253,6 +269,8 @@ public class SoupAPI_Config implements ConfigData {
      **/
     @ConfigEntry.Category("target_render")
     public boolean targetRenderEnabled = false;
+    @ConfigEntry.Category("target_render")
+    public boolean targetOnlyPlayers = true;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetRender.TargetRenderStyle targetRenderStyle = TargetRender.TargetRenderStyle.LEGACY;
@@ -544,6 +562,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TotemPopParticles.Physic totemPopParticlesPhysic = TotemPopParticles.Physic.FLY;
     @ConfigEntry.Category("totem")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public TotemPopParticles.Disappear totemPopParticlesDisappear = TotemPopParticles.Disappear.ALPHA;
+    @ConfigEntry.Category("totem")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
     public int totemPopParticlesCount = 2;
     @ConfigEntry.Category("totem")
@@ -562,9 +583,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hit_particles")
     public boolean hitParticlesEnabled = false;
     @ConfigEntry.Category("hit_particles")
-    public boolean hitParticlesLikeCrit = false;
-    @ConfigEntry.Category("hit_particles")
     public boolean hitParticlesSelf = false;
+    @ConfigEntry.Category("hit_particles")
+    public boolean hitParticlesLikeCrit = false;
     @ConfigEntry.Category("hit_particles")
     public boolean hitParticlesSplashSpawn = false;
     @ConfigEntry.Category("hit_particles")
@@ -587,7 +608,7 @@ public class SoupAPI_Config implements ConfigData {
     public HitParticle.HitTextMode hitParticlesTextMode = HitParticle.HitTextMode.ALL_ENTITIES;
     @ConfigEntry.Category("hit_particles")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public HitParticle.Disappear hitParticlesDisappear = HitParticle.Disappear.SCALE;
+    public HitParticle.Disappear hitParticlesDisappear = HitParticle.Disappear.ALPHA;
     @ConfigEntry.Category("hit_particles")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public HitParticle.Physic hitParticlesPhysic = HitParticle.Physic.FLY;
@@ -609,16 +630,23 @@ public class SoupAPI_Config implements ConfigData {
     public int hitParticlesScale = 3;
 
     /**
-     * HITBOX DETECTOR
+     * CAPES
      **/
-    @ConfigEntry.Category("hitbox_detector")
-    public boolean hitboxDetectorEnabled = false;
-    @ConfigEntry.Category("hitbox_detector")
-    @ConfigEntry.BoundedDiscrete(min = 100, max = 200)
-    public int hitboxDetectorExpand = 110;
-    @ConfigEntry.Gui.PrefixText // Position
-    @ConfigEntry.Category("hitbox_detector")
-    public int hitboxDetectorOffsetX = 875;
-    @ConfigEntry.Category("hitbox_detector")
-    public int hitboxDetectorOffsetY = 45;
+    @ConfigEntry.Category("capes")
+    public boolean capesEnabled = false;
+    @ConfigEntry.Category("capes")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public Capes.Config selectCape_BUTTON = Capes.Config.SELECT_CAPE;
+    @ConfigEntry.Category("capes")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public Capes.CapeTextures capesTexture = Capes.CapeTextures.CUSTOM_JAVA;
+
+    @ConfigEntry.Gui.PrefixText // Custom cape
+    @ConfigEntry.Category("capes")
+    public boolean customCapesEnabled = false;
+    @ConfigEntry.Category("capes")
+    public String customCapesLink = "https://static.wikia.nocookie.net/minecraft_gamepedia/images/8/86/MINECON_2019_Cape_%28texture%29.png/revision/latest?cb=20220316113812";
+    @ConfigEntry.Category("capes")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public Capes.Config updateCape_BUTTON = Capes.Config.UPDATE_CAPE;
 }

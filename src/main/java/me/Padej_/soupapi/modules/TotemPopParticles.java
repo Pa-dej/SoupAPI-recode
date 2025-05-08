@@ -143,30 +143,44 @@ public class TotemPopParticles extends ConfigurableModule {
 
         public void render(MatrixStack matrixStack, float tickDelta) {
             if (!CONFIG.totemPopParticlesEnabled) return;
-            float scale = 0.07f;
-            float size = CONFIG.totemPopParticlesScale;
 
+            float age = (System.currentTimeMillis() - time) / (float) (CONFIG.totemPopParticlesRenderTime * 1000L);
+            age = MathHelper.clamp(age, 0f, 1f);
+
+            float alpha = 1f;
+            float scale = CONFIG.totemPopParticlesScale;
+
+            if (CONFIG.totemPopParticlesDisappear == TotemPopParticles.Disappear.ALPHA) {
+                alpha = 1f - age;
+            } else if (CONFIG.totemPopParticlesDisappear == TotemPopParticles.Disappear.SCALE) {
+                scale *= (1f - age);
+            }
+
+            if (alpha <= 0f || scale <= 0f) return;
+
+            float renderScale = 0.07f;
             double posX = MathHelper.lerp(tickDelta, px, x) - mc.getEntityRenderDispatcher().camera.getPos().getX();
             double posY = MathHelper.lerp(tickDelta, py, y) - mc.getEntityRenderDispatcher().camera.getPos().getY();
             double posZ = MathHelper.lerp(tickDelta, pz, z) - mc.getEntityRenderDispatcher().camera.getPos().getZ();
 
             matrixStack.push();
             matrixStack.translate(posX, posY, posZ);
-            matrixStack.scale(scale, scale, scale);
-            matrixStack.translate(size / 2f, size / 2f, size / 2f);
+            matrixStack.scale(renderScale, renderScale, renderScale);
+            matrixStack.translate(scale / 2f, scale / 2f, scale / 2f);
             matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-mc.gameRenderer.getCamera().getYaw()));
             matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(mc.gameRenderer.getCamera().getPitch()));
             matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rotationAngle += (1f / MinecraftClient.getInstance().getCurrentFps()) * rotationSpeed));
-            matrixStack.translate(-size / 2f, -size / 2f, -size / 2f);
+            matrixStack.translate(-scale / 2f, -scale / 2f, -scale / 2f);
 
             if (glyphTexture != null) {
-                Render2D.drawGlyphs(matrixStack, glyphTexture, color, size);
+                Render2D.drawGlyphs(matrixStack, glyphTexture, new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (alpha * 255)), scale);
             }
 
             matrixStack.pop();
         }
 
         private boolean posBlock(double x, double y, double z) {
+            if (mc.player == null || mc.world == null) return false;
             Block b = mc.world.getBlockState(BlockPos.ofFloored(x, y, z)).getBlock();
             return (!(b instanceof AirBlock) && b != Blocks.WATER && b != Blocks.LAVA);
         }
@@ -175,7 +189,7 @@ public class TotemPopParticles extends ConfigurableModule {
     private static class Emitter {
         final Entity entity;
         final long startTime;
-        final long duration = 30L * 50L; // 30 тиков * 50мс = 1.5 секунды
+        final long duration = 30L * 50L;
 
         public Emitter(Entity entity) {
             this.entity = entity;
@@ -204,5 +218,11 @@ public class TotemPopParticles extends ConfigurableModule {
     public enum Physic {
         BOUNCE, FLY
     }
+
+    public enum Disappear {
+        ALPHA, SCALE
+    }
 }
+
+
 
