@@ -13,7 +13,7 @@ public class ModuleSupressor extends ConfigurableModule {
         return
                 // servers
                 ip.contains("minefun") ||
-                ip.contains("mineblaze") ||
+                ip.contains(".minehub.") ||
 
                 // MC Tiers
                 isVanilla() ||
@@ -25,7 +25,13 @@ public class ModuleSupressor extends ConfigurableModule {
     }
 
     public static boolean disableHPBar() {
+        if (Objects.requireNonNull(mc.getNetworkHandler()).getServerInfo() == null) return false;
+        String ip = mc.getNetworkHandler().getServerInfo().address.toLowerCase();
         return
+                // servers
+                ip.contains(".minehub.") ||
+
+                // MC Tiers
                 isVanilla() ||
                 isUHC() ||
                 isSMP() ||

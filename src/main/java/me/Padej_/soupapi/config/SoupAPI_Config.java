@@ -18,12 +18,19 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("main")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetHud.Config configPos_BUTTON = TargetHud.Config.CONFIG_POS;
+    @ConfigEntry.Category("main")
+    public boolean translatorBruhEnabled = false;
 
     @ConfigEntry.Gui.PrefixText // Friends
     @ConfigEntry.Category("main")
     public String[] friends = {};
     @ConfigEntry.Category("main")
-    public boolean translatorBruhEnabled = false;
+    public boolean friendsHighlight = true;
+    @ConfigEntry.Category("main")
+    public boolean friendsHighlightSyncColor = false;
+    @ConfigEntry.Category("main")
+    @ConfigEntry.ColorPicker
+    public int friendCustomColor = 0x00ff00;
 
     @ConfigEntry.Gui.PrefixText // Particles
     @ConfigEntry.Category("main")

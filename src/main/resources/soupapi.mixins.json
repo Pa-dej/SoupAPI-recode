@@ -12,6 +12,8 @@
     "redirect.PlayerEntityMixin"
   ],
   "client": [
+    "EntityRenderDispatcherMixin",
+    "EquipmentRendererMixin",
     "MCTierBadge",
     "access.GameRendererAccessor",
     "access.HeadFeatureRendererAccessor",

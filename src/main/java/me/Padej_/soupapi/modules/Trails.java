@@ -70,7 +70,7 @@ public class Trails extends ConfigurableModule {
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.disableDepthTest();
+        RenderSystem.enableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -177,7 +177,7 @@ public class Trails extends ConfigurableModule {
         RenderSystem.disableBlend();
         RenderSystem.enableCull();
         RenderSystem.depthMask(true);
-        RenderSystem.enableDepthTest();
+
         matrixStack.pop();
     }
 
