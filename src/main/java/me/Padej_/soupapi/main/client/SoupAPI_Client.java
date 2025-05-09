@@ -4,16 +4,22 @@ import me.Padej_.soupapi.config.SoupAPI_Config;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.*;
 import me.Padej_.soupapi.particle.CustomPhysicParticleFactory;
+import me.Padej_.soupapi.render.WatermarkRenderer;
 import me.Padej_.soupapi.utils.EntityUtils;
 import me.Padej_.soupapi.utils.HitSound;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
@@ -25,11 +31,17 @@ public class SoupAPI_Client implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(this::doEndClientTick);
         WorldRenderEvents.AFTER_ENTITIES.register(this::doRenderAfterEntities);
         WorldRenderEvents.LAST.register(this::doRenderLast);
+        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.CHAT, Identifier.of("soupapi", "hud"), this::renderHud));
 
         registerClientSideParticles();
 
         registerOnHit();
         Translator.loadCache();
+    }
+
+    private void renderHud(DrawContext context, RenderTickCounter tickCounter) {
+        TargetHud.render(context, tickCounter);
+        WatermarkRenderer.render(context);
     }
 
     private void doEndClientTick(MinecraftClient client) {

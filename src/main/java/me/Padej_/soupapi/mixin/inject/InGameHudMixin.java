@@ -70,9 +70,6 @@ public abstract class InGameHudMixin {
     @Unique
     private static long lastUpdateTime = System.currentTimeMillis();
 
-    @Unique
-    private float prevYaw, prevPitch, targetYawOffset, targetPitchOffset, interpolatedYawOffset, interpolatedPitchOffset = 0;
-
     @Inject(method = "render", at = @At("TAIL"))
     private void doFrame(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         if (!CONFIG.hudBetterHotbarEnabled) return;
@@ -499,12 +496,6 @@ public abstract class InGameHudMixin {
 
             context.drawStackOverlay(this.client.textRenderer, stack, x, y);
         }
-    }
-
-    @Inject(method = "render", at = @At("HEAD"))
-    private void hookRender(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        TargetHud.render(context, tickCounter);
-        WatermarkRenderer.render(context);
     }
 
     @Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"), cancellable = true)

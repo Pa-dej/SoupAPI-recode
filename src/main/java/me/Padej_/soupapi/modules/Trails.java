@@ -30,12 +30,16 @@ public class Trails extends ConfigurableModule {
         if (!CONFIG.trailsEnabled) return;
 
         int trailLifetime = CONFIG.trailsLenght;
+        float minStep = 0.001f;
 
         for (PlayerEntity player : mc.world.getPlayers()) {
-            if (player.getPos().getZ() != player.prevZ || player.getPos().getX() != player.prevX) {
+            // Добавляем сегмент, если есть любое движение
+            Vec3d prevPos = new Vec3d(player.prevX, player.prevY, player.prevZ);
+            Vec3d currentPos = player.getPos();
+            if (prevPos.distanceTo(currentPos) > minStep) { // Минимальный порог для избежания дребезга
                 ((TrailEntity) player).soupAPI$getTrails().add(new TrailSegment(
-                        new Vec3d(player.prevX, player.prevY, player.prevZ),
-                        player.getPos(),
+                        prevPos,
+                        currentPos,
                         trailLifetime
                 ));
             }
@@ -48,10 +52,12 @@ public class Trails extends ConfigurableModule {
                     continue;
                 }
 
-                if (entity.getPos().getZ() != entity.prevZ || entity.getPos().getX() != entity.prevX) {
+                Vec3d prevPos = new Vec3d(entity.prevX, entity.prevY, entity.prevZ);
+                Vec3d currentPos = entity.getPos();
+                if (prevPos.distanceTo(currentPos) > minStep) {
                     ((TrailEntity) entity).soupAPI$getTrails().add(new TrailSegment(
-                            new Vec3d(entity.prevX, entity.prevY, entity.prevZ),
-                            entity.getPos(),
+                            prevPos,
+                            currentPos,
                             trailLifetime
                     ));
                 }
@@ -107,8 +113,8 @@ public class Trails extends ConfigurableModule {
 
                 float currentProgressColor = current.getProgress(tickDelta);
                 float nextProgressColor = next.getProgress(tickDelta);
-                Color currentColor = getAnimatedColor(currentProgressColor, 1 - currentProgressColor, tickDelta);
-                Color nextColor = getAnimatedColor(nextProgressColor, 1 - nextProgressColor, tickDelta);
+                Color currentColor = getAnimatedColor(currentProgressColor, 1 - currentProgressColor);
+                Color nextColor = getAnimatedColor(nextProgressColor, 1 - nextProgressColor);
 
                 float x1 = (float) currentPos.x;
                 float y1 = (float) currentPos.y;
@@ -240,8 +246,7 @@ public class Trails extends ConfigurableModule {
         }
     }
 
-    public static Color getAnimatedColor(float x, float y, float time) {
-        float speed = 5.0f; // чем выше — тем быстрее переливается
+    public static Color getAnimatedColor(float x, float y) {
 
         Color c1 = TargetHudRenderer.topLeft;
         Color c2 = TargetHudRenderer.topRight;
