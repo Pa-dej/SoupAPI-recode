@@ -26,6 +26,9 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class Render3D extends ConfigurableModule {
+    private static float rollAngle = 0.0f;
+    private static long lastUpdateTime = System.currentTimeMillis();
+    private static Camera camera = mc.gameRenderer.getCamera();
 
     public static void renderChinaHat(MatrixStack matrices, VertexConsumer vertexConsumer) {
         Matrix4f matrix = matrices.peek().getPositionMatrix();
@@ -124,75 +127,64 @@ public class Render3D extends ConfigurableModule {
         }
     }
 
-    public static void renderTargetSelection(MatrixStack matrixStack, Camera camera, float tickDelta, Entity target, float rollAngle) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player != null && target != null) {
-            renderTarget(matrixStack, camera, tickDelta, target, rollAngle);
-        }
-    }
-
-    private static void renderTarget(MatrixStack modelMatrix, Camera camera, float tickDelta, Entity targetEntity, float rollAngle) {
-        VertexConsumerProvider.Immediate vertexConsumerProvider = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-        VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(CustomRenderLayers.QUAD_IN_BLOCKS.apply(TexturesManager.getTargetRenderTexture()));
-        if (targetEntity != null) {
-            Vec3d transformedPos = calculateEntityPositionRelativeToCamera(camera, tickDelta, targetEntity);
-            modelMatrix.push();
-            applyTranslationAndRotation(modelMatrix, transformedPos, camera);
-            modelMatrix.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rollAngle));
-            drawTargetQuad(vertexConsumer, modelMatrix);
-            modelMatrix.pop();
-        }
-    }
-
-    private static void applyTranslationAndRotation(MatrixStack modelMatrix, Vec3d transformedPos, Camera camera) {
-        modelMatrix.translate(transformedPos.x, transformedPos.y, transformedPos.z);
-        modelMatrix.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-camera.getYaw()));
-        modelMatrix.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
-    }
-
-    private static void drawTargetQuad(VertexConsumer vertexConsumer, MatrixStack modelMatrix) {
-        Matrix4f matrix = modelMatrix.peek().getPositionMatrix();
-        float halfSize = (CONFIG.targetRenderLegacyScale / 50f) / 2.0F;
-        float alpha = 1.0F;
-
-        float time = MinecraftClient.getInstance().world.getTime() % 360;
-        int rotation = 360 / 5; // Можно настраивать плавность
-        float rotationOffset = (time % rotation) / (float) rotation;
-
-        // Получаем цвета палитры по углу
-        Color color0 = Palette.getColor(RenderWithAnimatedColor.getWaveInterpolation((float) (Math.PI * 0.25), rotationOffset)); // Левый верх
-        Color color1 = Palette.getColor(RenderWithAnimatedColor.getWaveInterpolation((float) (Math.PI * 0.75), rotationOffset)); // Правый верх
-        Color color2 = Palette.getColor(RenderWithAnimatedColor.getWaveInterpolation((float) (Math.PI * 1.25), rotationOffset)); // Правый низ
-        Color color3 = Palette.getColor(RenderWithAnimatedColor.getWaveInterpolation((float) (Math.PI * 1.75), rotationOffset)); // Левый низ
-
-        // Отрисовка вершин с уникальными цветами
-        vertexConsumer.vertex(matrix, -halfSize, halfSize, 0.0F)
-                .color(color0.getRed() / 255f, color0.getGreen() / 255f, color0.getBlue() / 255f, alpha)
-                .texture(0.0F, 0.0F)
-                .light(15728880);
-
-        vertexConsumer.vertex(matrix, halfSize, halfSize, 0.0F)
-                .color(color1.getRed() / 255f, color1.getGreen() / 255f, color1.getBlue() / 255f, alpha)
-                .texture(1.0F, 0.0F)
-                .light(15728880);
-
-        vertexConsumer.vertex(matrix, halfSize, -halfSize, 0.0F)
-                .color(color2.getRed() / 255f, color2.getGreen() / 255f, color2.getBlue() / 255f, alpha)
-                .texture(1.0F, 1.0F)
-                .light(15728880);
-
-        vertexConsumer.vertex(matrix, -halfSize, -halfSize, 0.0F)
-                .color(color3.getRed() / 255f, color3.getGreen() / 255f, color3.getBlue() / 255f, alpha)
-                .texture(0.0F, 1.0F)
-                .light(15728880);
-    }
-
     private static Vec3d calculateEntityPositionRelativeToCamera(Camera camera, float tickDelta, Entity targetEntity) {
         double interpolatedX = MathHelper.lerp(tickDelta, targetEntity.prevX, targetEntity.getX());
         double interpolatedY = MathHelper.lerp(tickDelta, targetEntity.prevY, targetEntity.getY()) + (double) (targetEntity.getHeight() / 2.0F);
         double interpolatedZ = MathHelper.lerp(tickDelta, targetEntity.prevZ, targetEntity.getZ());
         Vec3d entityPos = new Vec3d(interpolatedX, interpolatedY, interpolatedZ);
         return entityPos.subtract(camera.getPos());
+    }
+
+    public static void drawLegacy(float tickDelta, Entity targetEntity) {
+        if (targetEntity == null) return;
+
+        Vec3d entityPos = calculateEntityPositionRelativeToCamera(camera, tickDelta, targetEntity);
+        float halfSize = (CONFIG.targetRenderLegacyScale / 50f) / 2.0F;
+        float alpha = 1.0F;
+
+        float time = mc.world.getTime() % 360;
+        int rotationAngle = 360 / 5;
+        float rotationOffset = (time % rotationAngle) / (float) rotationAngle;
+
+        Color color0 = Palette.getColor(RenderWithAnimatedColor.getWaveInterpolation((float) (Math.PI * 0.25), rotationOffset));
+        Color color1 = Palette.getColor(RenderWithAnimatedColor.getWaveInterpolation((float) (Math.PI * 0.75), rotationOffset));
+        Color color2 = Palette.getColor(RenderWithAnimatedColor.getWaveInterpolation((float) (Math.PI * 1.25), rotationOffset));
+        Color color3 = Palette.getColor(RenderWithAnimatedColor.getWaveInterpolation((float) (Math.PI * 1.75), rotationOffset));
+
+        long currentTime = System.currentTimeMillis();
+        float deltaTime = (currentTime - lastUpdateTime) / 1000f;
+        lastUpdateTime = currentTime;
+        rollAngle = (rollAngle + 90f * deltaTime) % 360f;
+
+        MatrixStack matrices = new MatrixStack();
+        matrices.push();
+
+        matrices.translate(entityPos.x, entityPos.y, entityPos.z);
+
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-camera.getYaw()));
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
+
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-rollAngle));
+
+        Matrix4f matrix = matrices.peek().getPositionMatrix();
+
+        RenderSystem.enableBlend();
+        RenderSystem.depthMask(true);
+        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
+        RenderSystem.setShaderTexture(0, TexturesManager.getTargetRenderTexture());
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
+        TargetRender.TargetRenderSoulStyle.setupBlendFunc();
+
+        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+
+        buffer.vertex(matrix, -halfSize, halfSize, 0.0F).texture(0.0F, 0.0F).color(color0.getRed(), color0.getGreen(), color0.getBlue(), (int) (alpha * 255));
+        buffer.vertex(matrix, halfSize, halfSize, 0.0F).texture(1.0F, 0.0F).color(color1.getRed(), color1.getGreen(), color1.getBlue(), (int) (alpha * 255));
+        buffer.vertex(matrix, halfSize, -halfSize, 0.0F).texture(1.0F, 1.0F).color(color2.getRed(), color2.getGreen(), color2.getBlue(), (int) (alpha * 255));
+        buffer.vertex(matrix, -halfSize, -halfSize, 0.0F).texture(0.0F, 1.0F).color(color3.getRed(), color3.getGreen(), color3.getBlue(), (int) (alpha * 255));
+
+        BufferRenderer.drawWithGlobalProgram(buffer.end());
+
+        matrices.pop();
     }
 
     public static void renderSoulsEsp(float tickDelta, Entity targetEntity) {
@@ -207,9 +199,6 @@ public class Render3D extends ConfigurableModule {
         float endSize = CONFIG.targetRenderSoulEndSize / 100f;
         float scaleModifier = CONFIG.targetRenderSoulScale / 100f;
         int subdivisions = CONFIG.targetRenderSoulSubdivision;
-
-        MinecraftClient mc = MinecraftClient.getInstance();
-        Camera camera = mc.gameRenderer.getCamera();
 
         if (targetEntity == null) return;
 
@@ -238,7 +227,7 @@ public class Render3D extends ConfigurableModule {
         RenderSystem.enableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
-        RenderSystem.setShaderTexture(0, TexturesManager.FIREFLY);
+        RenderSystem.setShaderTexture(0, TexturesManager.getSoulTexture());
         RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
         TargetRender.TargetRenderSoulStyle.setupBlendFunc();
         BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
@@ -299,15 +288,11 @@ public class Render3D extends ConfigurableModule {
         int subdivisions = CONFIG.haloSoulSubdivision;
         float layerSpacing = 2;
 
-        MinecraftClient mc = MinecraftClient.getInstance();
-        Camera camera = mc.gameRenderer.getCamera();
-
         if (targetEntity == null) return;
         if (targetEntity instanceof PlayerEntity playerEntity && playerEntity.isGliding()) return;
         Vec3d newPos = calculateEntityPositionRelativeToCamera(camera, tickDelta, targetEntity);
         float entityAge = targetEntity.age + tickDelta;
 
-        // Нормализуем tickDelta для плавной анимации
         float frameTime = 1.0f / 60.0f;
         float normalizedTickDelta = tickDelta / frameTime;
 
@@ -320,10 +305,12 @@ public class Render3D extends ConfigurableModule {
         Matrix4f baseMatrix = matrices.peek().getPositionMatrix();
 
         RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(false);
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
         RenderSystem.setShaderTexture(0, TexturesManager.FIREFLY);
         RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
-        Halo.SoulStyle.setupBlendFunc();
+        TargetRender.TargetRenderSoulStyle.setupBlendFunc();
         BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 
         for (int j = 0; j < 2; j++) {
@@ -369,18 +356,16 @@ public class Render3D extends ConfigurableModule {
         }
 
         BufferRenderer.drawWithGlobalProgram(buffer.end());
+        RenderSystem.enableDepthTest();
         RenderSystem.disableBlend();
 
-        RenderSystem.enableCull();
-        RenderSystem.enableDepthTest();
         matrices.pop();
     }
 
     public static void drawSpiralsEsp(MatrixStack stack, @NotNull Entity target) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+
         float tickDelta = mc.getRenderTickCounter().getTickDelta(true);
 
-        // Локальные настройки
         float radius = 0.75f;
         float heightStep = 0.004f;
         float heightOffset = 0.1f;
@@ -417,9 +402,8 @@ public class Render3D extends ConfigurableModule {
         stack.pop();
     }
 
-    // Метод для генерации векторов спиралей с угловыми сдвигами
     private static void generateSpiralVectors(ArrayList<Vec3d>[] spirals, float radius, double initialHeight, float heightStep) {
-        for (int i = 0; i <= 360; ++i) { // <= 360, чтобы последний угол = 360 (т.е. 0°)
+        for (int i = 0; i <= 360; ++i) {
             double height = initialHeight - i * heightStep;
             for (int spiralIndex = 0; spiralIndex < 3; spiralIndex++) {
                 double angle = Math.toRadians(i + spiralIndex * 120);
@@ -431,8 +415,7 @@ public class Render3D extends ConfigurableModule {
     }
 
     // Метод для рендеринга одной спирали
-    private static void renderSpiral(Matrix4f matrix, ArrayList<Vec3d> vecs, float progressOffset,
-                                     float heightOffset, float animationSpeed, float alphaDivider) {
+    private static void renderSpiral(Matrix4f matrix, ArrayList<Vec3d> vecs, float progressOffset, float heightOffset, float animationSpeed, float alphaDivider) {
         RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
         BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR);
 
@@ -497,7 +480,7 @@ public class Render3D extends ConfigurableModule {
     }
 
     public static void drawScanEsp(MatrixStack stack, @NotNull Entity target) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+
         float tickDelta = mc.getRenderTickCounter().getTickDelta(true);
         float animationSpeed = CONFIG.targetRenderTopkaSpeed / 100f; // 10 - 70
         float minHeightOffset = 0.01f;
@@ -525,7 +508,7 @@ public class Render3D extends ConfigurableModule {
         heightOffset = Math.max(heightOffset, minHeightOffset);
 
         // Генерация точек для замкнутого кольца
-        ArrayList<Vec3d> ring = generateRingVectors(radius, heightStep, heightOffset);
+        ArrayList<Vec3d> ring = generateRingVectors(radius, heightStep);
 
         stack.push();
         stack.translate(x, y, z);
@@ -541,7 +524,7 @@ public class Render3D extends ConfigurableModule {
     }
 
     // Метод для генерации точек кольца
-    private static ArrayList<Vec3d> generateRingVectors(float radius, double heightStep, float heightOffset) {
+    private static ArrayList<Vec3d> generateRingVectors(float radius, double heightStep) {
         ArrayList<Vec3d> ring = new ArrayList<>();
         int numPoints = 360; // 360 градусов, с замыканием
 

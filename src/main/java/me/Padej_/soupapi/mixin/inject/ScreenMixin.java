@@ -38,20 +38,15 @@ public abstract class ScreenMixin {
     @Shadow
     public int height;
 
-    @Unique
-    private Screen screen;
-
     @Inject(method = "init()V", at = @At("TAIL"))
     private void debug(CallbackInfo ci) {
         if (!isSoupAPI_Screen()) return;
-        screen = MinecraftClient.getInstance().currentScreen;
 
         int buttonWidth = 50;
         this.addDrawableChild(ButtonWidget.builder(Text.of("Apply"),
                         (ButtonWidget button) -> {
                             ((ConfigScreen) this).saveAll(false);
                             ConfigurableModule.saveConfig();
-                            MinecraftClient.getInstance().setScreen(screen);
                         })
                 .dimensions(width - 30 - buttonWidth, height - 26, buttonWidth, 20)
                 .build()

@@ -41,14 +41,31 @@ public class TotemPopParticles extends ConfigurableModule {
         if (mc.player == null || !CONFIG.totemPopParticlesEnabled || !(entity instanceof PlayerEntity)) return;
 
         updateAvailableTextures();
-        emitters.add(new Emitter(entity));
 
-        Color c = Palette.getRandomColor();
+        Color c;
+        if (CONFIG.totemPopDefaultColors) {
+            if (RANDOM.nextInt(4) == 0) {
+                c = new Color(
+                        0.6F + RANDOM.nextFloat() * 0.2F,
+                        0.6F + RANDOM.nextFloat() * 0.3F,
+                        RANDOM.nextFloat() * 0.2F
+                );
+            } else {
+                c = new Color(
+                        0.1F + RANDOM.nextFloat() * 0.2F,
+                        0.4F + RANDOM.nextFloat() * 0.3F,
+                        RANDOM.nextFloat() * 0.2F
+                );
+            }
+        } else {
+            c = Palette.getRandomColor();
+        }
+        emitters.add(new Emitter(entity, c));
+
         for (int i = 0; i < CONFIG.totemPopParticlesCount; i++) {
             particles.add(new Particle((float) entity.getX(),
                     (float) (entity.getY() + entity.getHeight() / 2),
                     (float) entity.getZ(),
-                    c,
                     MathUtility.random(0, 180),
                     MathUtility.random(10f, 60f)
             ));
@@ -88,7 +105,7 @@ public class TotemPopParticles extends ConfigurableModule {
         Color color;
         Identifier glyphTexture;
 
-        public Particle(float x, float y, float z, Color color, float rotationAngle, float rotationSpeed) {
+        public Particle(float x, float y, float z, float rotationAngle, float rotationSpeed) {
             int speed = CONFIG.totemPopParticlesSpeed;
             this.x = x;
             this.y = y;
@@ -100,11 +117,28 @@ public class TotemPopParticles extends ConfigurableModule {
             this.motionY = MathUtility.random(-(float) speed / 50f, (float) speed / 50f);
             this.motionZ = MathUtility.random(-(float) speed / 50f, (float) speed / 50f);
             this.time = System.currentTimeMillis();
-            this.color = color;
             this.rotationAngle = rotationAngle;
             this.rotationSpeed = rotationSpeed;
             if (!AVAILABLE_TEXTURES.isEmpty()) {
                 this.glyphTexture = AVAILABLE_TEXTURES.get(RANDOM.nextInt(AVAILABLE_TEXTURES.size()));
+            }
+
+            if (CONFIG.totemPopDefaultColors) {
+                if (RANDOM.nextInt(4) == 0) {
+                    this.color = new Color(
+                            0.6F + RANDOM.nextFloat() * 0.2F,
+                            0.6F + RANDOM.nextFloat() * 0.3F,
+                            RANDOM.nextFloat() * 0.2F
+                    );
+                } else {
+                    this.color = new Color(
+                            0.1F + RANDOM.nextFloat() * 0.2F,
+                            0.4F + RANDOM.nextFloat() * 0.3F,
+                            RANDOM.nextFloat() * 0.2F
+                    );
+                }
+            } else {
+                this.color = Palette.getRandomColor();
             }
         }
 
@@ -190,23 +224,23 @@ public class TotemPopParticles extends ConfigurableModule {
         final Entity entity;
         final long startTime;
         final long duration = 30L * 50L;
+        final Color color;
 
-        public Emitter(Entity entity) {
+        public Emitter(Entity entity, Color color) {
             this.entity = entity;
+            this.color = color;
             this.startTime = System.currentTimeMillis();
         }
 
         public boolean tick() {
             if (System.currentTimeMillis() - startTime > duration) return true;
 
-            Color c = Palette.getRandomColor();
             int perTick = Math.max(1, CONFIG.totemPopParticlesCount / 30);
             for (int i = 0; i < perTick; i++) {
                 particles.add(new Particle(
                         (float) entity.getX(),
                         (float) (entity.getY() + entity.getHeight() / 2f),
                         (float) entity.getZ(),
-                        c,
                         MathUtility.random(0, 180),
                         MathUtility.random(10f, 60f)
                 ));

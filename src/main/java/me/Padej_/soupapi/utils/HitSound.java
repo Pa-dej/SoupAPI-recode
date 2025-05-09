@@ -19,19 +19,12 @@ public class HitSound extends ConfigurableModule {
                 if (now - lastHitTime < 150) return ActionResult.PASS;
                 lastHitTime = now;
 
-                playHitSound();
+                if (!CONFIG.hitSoundOnlyCrit) {
+                    playSound();
+                }
             }
             return ActionResult.PASS;
         });
-    }
-
-    public static void playHitSound() {
-        if (CONFIG.hitSoundOnlyCrit) {
-            if (!EntityUtils.isClientCritical()) return;
-            playSound();
-        } else {
-            playSound();
-        }
     }
 
     public static void playSound() {

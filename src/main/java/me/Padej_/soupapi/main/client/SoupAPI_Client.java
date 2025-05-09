@@ -58,7 +58,6 @@ public class SoupAPI_Client implements ClientModInitializer {
     }
 
     private void doRenderAfterEntities(WorldRenderContext context) {
-        TargetRender.renderTargetLegacy(context);
         JumpCircles.renderCircles(context);
         AmbientParticle.renderParticlesInWorld(context);
 

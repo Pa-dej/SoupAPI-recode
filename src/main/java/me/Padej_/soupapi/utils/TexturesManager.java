@@ -18,10 +18,10 @@ public class TexturesManager extends ConfigurableModule {
     private static final Identifier CIRCLE_BOLD_UNBLACK = Identifier.of("soupapi", "textures/jump_circles/circle_bold_unblack.png");
     private static final Identifier HEXAGON_UNBLACK = Identifier.of("soupapi", "textures/jump_circles/hexagon_unblack.png");
     private static final Identifier PORTAL_UNBLACK = Identifier.of("soupapi", "textures/jump_circles/portal_unblack.png");
+    private static final Identifier SOUP_UNBLACK = Identifier.of("soupapi", "textures/jump_circles/soup_unblack.png");
 
-    private static final Identifier LEGACY = Identifier.of("soupapi", "textures/target_render/legacy.png");
+    public static final Identifier LEGACY = Identifier.of("soupapi", "textures/target_render/legacy.png");
     private static final Identifier SCIFI = Identifier.of("soupapi", "textures/target_render/scifi.png");
-    private static final Identifier SCIFI_UNBLACK = Identifier.of("soupapi", "textures/target_render/scifi_unblack.png");
     private static final Identifier SIMPLE = Identifier.of("soupapi", "textures/target_render/simple.png");
     private static final Identifier BO = Identifier.of("soupapi", "textures/target_render/bo.png");
     private static final Identifier MARKER = Identifier.of("soupapi", "textures/target_render/marker.png");
@@ -42,6 +42,7 @@ public class TexturesManager extends ConfigurableModule {
     public static final Identifier HEART_UNBLACK = Identifier.of("soupapi", "textures/particle/heart_unblack.png");
     public static final Identifier STAR = Identifier.of("soupapi", "textures/particle/star.png");
     public static final Identifier STAR_UNBLACK = Identifier.of("soupapi", "textures/particle/star_unblack.png");
+
     /**
      * GLYPHS
      **/
@@ -91,16 +92,17 @@ public class TexturesManager extends ConfigurableModule {
             case PORTAL -> PORTAL_UNBLACK;
             case HEXAGON -> HEXAGON_UNBLACK;
             case CIRCLE_BOLD -> CIRCLE_BOLD_UNBLACK;
+            case SOUP -> SOUP_UNBLACK;
         };
     }
 
     public static Identifier getTargetRenderTexture() {
-        return switch (CONFIG.targetRenderLegacyTexture) {
+        return switch (CONFIG.legacyTexture) {
             case LEGACY -> LEGACY;
             case MARKER -> MARKER;
             case BO -> BO;
             case SIMPLE -> SIMPLE;
-            case SCIFI -> SCIFI_UNBLACK;
+            case SCIFI -> SCIFI;
             case JEKA -> JEKA;
             case AMONGUS -> AMOGUS;
             case SKULL -> SKULL;
@@ -135,5 +137,12 @@ public class TexturesManager extends ConfigurableModule {
     public static Identifier getRandomGlyphParticle() {
         int index = random.nextInt(GLYPH_TEXTURES.length);
         return GLYPH_TEXTURES[index];
+    }
+
+    public static Identifier getSoulTexture() {
+        return switch (CONFIG.targetRenderSoulTexture) {
+            case FIREFLY -> FIREFLY;
+            case ALT -> FIREFLY_ALT;
+        };
     }
 }

@@ -10,6 +10,7 @@ import java.util.Objects;
 public class FontRenderers {
     public static FontRenderer modules;
     public static FontRenderer sf_bold;
+    public static FontRenderer sf_bold_17;
     public static FontRenderer sf_bold_mini;
     public static FontRenderer sf_medium;
     public static FontRenderer minecraft;

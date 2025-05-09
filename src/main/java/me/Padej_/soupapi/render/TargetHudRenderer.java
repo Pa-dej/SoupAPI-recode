@@ -79,7 +79,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.colorMask(true, true, true, true);
         Render2D.drawRound(context.getMatrices(), x - 2, y + 2.5f, headScale, headScale, r, Render2D.injectAlpha(Color.BLACK, 20));
         Render2D.setupRender();
-        Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x - 2, y + 2.5, x - 2 + headScale, y + 2.5 + headScale, r, 10);
+        Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x - 2, y + 2.5, x - 2 + headScale, y + 2.5 + headScale, r, 3);
         RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);
         RenderSystem.setShaderColor(1f, 1f - hurtPercent / 2, 1f - hurtPercent / 2, 1f);
         Render2D.renderTexture(context.getMatrices(), texture, x - 2, y + 2.5, headScale, headScale, 8, 8, 8, 8, 64, 64);
@@ -192,7 +192,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.colorMask(true, true, true, true);
         Render2D.drawRound(context.getMatrices(), x + 2.5f, y + 2.5f, 30, 30, 5, Render2D.injectAlpha(Color.BLACK, 20));
         Render2D.setupRender();
-        Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x + 2.5, y + 2.5, x + 2.5 + 30, y + 2.5 + 30, 5, 10);
+        Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x + 2.5, y + 2.5, x + 2.5 + 30, y + 2.5 + 30, 5, 3);
         RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);
         RenderSystem.setShaderColor(1f, 1f - hurtPercent / 2, 1f - hurtPercent / 2, 1f);
         Render2D.renderTexture(context.getMatrices(), texture, x + 2.5, y + 2.5, 30, 30, 8, 8, 8, 8, 64, 64);
@@ -290,7 +290,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.colorMask(true, true, true, true);
         Render2D.drawRound(context.getMatrices(), x + 3.5f, y + 3.5f, 40, 40, 7, Render2D.injectAlpha(Color.BLACK, 20));
         Render2D.setupRender();
-        Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x + 3.5f, y + 3.5f, x + 3.5f + 40, y + 3.5f + 40, 7, 10);
+        Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x + 3.5f, y + 3.5f, x + 3.5f + 40, y + 3.5f + 40, 7, 3);
         RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);
         RenderSystem.setShaderColor(1f, 1f - hurtPercent / 2, 1f - hurtPercent / 2, 1f);
         Render2D.renderTexture(context.getMatrices(), texture, x + 3.5f, y + 3.5f, 40, 40, 8, 8, 8, 8, 64, 64);
@@ -355,6 +355,90 @@ public class TargetHudRenderer extends ConfigurableModule {
             context.getMatrices().pop();
             xItemOffset += 12;
         }
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+    }
+
+    public static void renderAresHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y, Vec3d screenPos) {
+        float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
+
+        Color c1 = Palette.getColor(0f);
+        Color c3 = Palette.getColor(0.66f);
+
+        // Градиентный фон
+        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, 120, 46, 7, Render2D.injectAlpha(new Color(0x181a29), 220));
+
+        // Голова игрока
+        Identifier texture = mc.player.getSkinTextures().texture();
+        String displayName = "Invisible";
+        if (target.isInvisible()) {
+            texture = TexturesManager.ANON_SKIN;
+        } else if (target instanceof PlayerEntity) {
+            texture = ((AbstractClientPlayerEntity) target).getSkinTextures().texture();
+            displayName = target.getName().getString();
+        }
+        float headScale = 20;
+        context.getMatrices().push();
+        context.getMatrices().translate(x + 3.5f + headScale, y + 3.5f + headScale, 0);
+        context.getMatrices().scale(1 - hurtPercent / 15f, 1 - hurtPercent / 15f, 1f);
+        context.getMatrices().translate(-(x + 3.5f + headScale), -(y + 3.5f + headScale), 0);
+        RenderSystem.enableBlend();
+        RenderSystem.colorMask(false, false, false, true);
+        RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 0.0F);
+        RenderSystem.clear(GL40C.GL_COLOR_BUFFER_BIT);
+        RenderSystem.colorMask(true, true, true, true);
+        Render2D.drawRound(context.getMatrices(), x + 3.5f, y + 3.5f, 40, 40, 5, Render2D.injectAlpha(Color.BLACK, 20));
+        Render2D.setupRender();
+        Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x + 3.5f, y + 3.5f, x + 3.5f + headScale * 2, y + 3.5f + headScale * 2, 5, 3);
+        RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);
+        RenderSystem.setShaderColor(1f, 1f - hurtPercent / 2, 1f - hurtPercent / 2, 1f);
+        Render2D.renderTexture(context.getMatrices(), texture, x + 3.5f, y + 3.5f, headScale * 2, headScale * 2, 8, 8, 8, 8, 64, 64);
+        Render2D.renderTexture(context.getMatrices(), texture, x + 3.5f, y + 3.5f, headScale * 2, headScale * 2, 40, 8, 8, 8, 64, 64);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
+        context.getMatrices().pop();
+
+        // Партиклы
+        for (final Particle2D p : particles) {
+            if (p.opacity > 4) {
+                float depthFactor = CONFIG.targetHudFollow ? MathHelper.clamp(1.0f - (float) screenPos.z, 0.1f, 1.0f) : 1.0f;
+                p.render2D(context.getMatrices(), smoothedScreenX, smoothedScreenY, depthFactor);
+            }
+        }
+
+        if (target.hurtTime == 9 && !sentParticles) {
+            for (int i = 0; i <= 6; i++) {
+                final Particle2D p = new Particle2D();
+                final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
+                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);;
+                particles.add(p);
+            }
+            sentParticles = true;
+        }
+
+        if (target.hurtTime == 8) sentParticles = false;
+
+        // Полоска HP
+        float hpProgress = hpColorAnimationProgress % 1.0f;
+        Color hpLeft, hpRight;
+
+        if (hpProgress < 0.5f) {
+            float phaseProgress = hpProgress / 0.5f;
+            hpLeft = interpolateColor(c1, c3, phaseProgress);
+            hpRight = interpolateColor(c3, c1, phaseProgress);
+        } else {
+            float phaseProgress = (hpProgress - 0.5f) / 0.5f;
+            hpLeft = interpolateColor(c3, c1, phaseProgress);
+            hpRight = interpolateColor(c1, c3, phaseProgress);
+        }
+
+        Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 48, y + 32, 68, 9, 4, bottomLeft, bottomRight, topRight, topLeft);
+        Render2D.drawGradientRound(context.getMatrices(), x + 48, y + 32, 68, 9, 2, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
+        Render2D.renderRoundedGradientRect(context.getMatrices(), hpLeft, hpRight, hpRight, hpLeft, x + 48, y + 32, (int) MathUtility.clamp((69 * (health / target.getMaxHealth())), 8, 69), 9, 2);
+
+        FontRenderers.sf_bold_17.drawString(context.getMatrices(), displayName, x + 48, y + 7, Render2D.applyOpacity(Palette.getTextColor(), animationFactor));
+        FontRenderers.sf_bold.drawString(context.getMatrices(), "HP: " + Math.round(10.0 * health) / 10.0, x + 48, y + 20, Render2D.applyOpacity(Palette.getTextColor(), animationFactor));
+
+        RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
 

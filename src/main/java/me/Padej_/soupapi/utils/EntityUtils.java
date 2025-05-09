@@ -1,29 +1,41 @@
 package me.Padej_.soupapi.utils;
 
 import me.Padej_.soupapi.main.SoupAPI_Main;
-import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+
+import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 
 public class EntityUtils {
     private static Entity targetEntity;
     private static LivingEntity lastHitEntity;
-    private static long lastHitTime;
-    private static final long FORGET_DELAY = 1500;
+    public static boolean particleCrit = false;
+    private static int lastDamagedEntityId = -1;
+    private static long lastDamageTime = 0;
+    private static final long CRIT_VALIDITY_MS = 30;
 
-    public static void registerOnHit() {
-        AttackEntityCallback.EVENT.register((playerEntity, world, hand, entity, entityHitResult) -> {
-            if (entity instanceof LivingEntity && !isFriend(entity) && !entity.isSpectator()) {
-                lastHitEntity = (LivingEntity) entity;
-                lastHitTime = System.currentTimeMillis();
-            }
-            return ActionResult.PASS;
-        });
+    public static void registerClientDamage(int entityId) {
+        lastDamagedEntityId = entityId;
+        lastDamageTime = System.currentTimeMillis();
+    }
+
+    public static boolean checkAndClearCritTarget(int animEntityId) {
+        if (lastDamagedEntityId == animEntityId &&
+                System.currentTimeMillis() - lastDamageTime < CRIT_VALIDITY_MS) {
+            lastDamagedEntityId = -1;
+            return true;
+        }
+        return false;
+    }
+
+    public static void onCrit() {
+        particleCrit = true;
+        if (CONFIG.hitSoundOnlyCrit) {
+            HitSound.playSound();
+        }
     }
 
     public static void updateEntities(MinecraftClient client) {
@@ -40,10 +52,6 @@ public class EntityUtils {
             }
         } else {
             targetEntity = null;
-        }
-
-        if (lastHitEntity != null && System.currentTimeMillis() - lastHitTime > FORGET_DELAY) {
-            lastHitEntity = null;
         }
     }
 
@@ -66,24 +74,6 @@ public class EntityUtils {
         return false;
     }
 
-    public static boolean isClient(Entity entity) {
-        return entity.equals(MinecraftClient.getInstance().player);
-    }
-
-    public static boolean isClientCritical() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-
-        return mc.player != null
-                && mc.player.getAttackCooldownProgress(0.5f) > (mc.player.isOnGround() ? 1f : 0.9f)
-                && mc.player.fallDistance > 0
-                && !mc.player.isOnGround()
-                && !mc.player.isClimbing()
-                && !mc.player.isTouchingWater()
-                && !mc.player.hasStatusEffect(StatusEffects.BLINDNESS)
-                && !mc.player.hasVehicle()
-                && !mc.player.isSprinting();
-    }
-
     public static Entity getTargetEntity() {
         return targetEntity;
     }
@@ -92,12 +82,9 @@ public class EntityUtils {
         return lastHitEntity;
     }
 
-    public static long getLastHitTime() {
-        return lastHitTime;
-    }
-
     public static void clearLastHitEntity() {
         lastHitEntity = null;
     }
 }
+
 

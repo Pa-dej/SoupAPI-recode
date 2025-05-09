@@ -82,7 +82,7 @@ public class HitBubbles extends ConfigurableModule {
         RenderSystem.setShaderTexture(0, TexturesManager.getHitBubbleTexture());
 
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angle));
-        float scale = factor * 2f;
+        float scale = factor * 2f * (CONFIG.hitBubblesScale / 100f);
         Render2D.renderGradientTexture(matrices,
                 -scale / 2, -scale / 2, scale, scale,
                 0, 0, 128, 128, 128, 128,
@@ -131,4 +131,3 @@ public class HitBubbles extends ConfigurableModule {
     public record HitBubble(float x, float y, float z, float yaw, float pitch, Timer life) {
     }
 }
-

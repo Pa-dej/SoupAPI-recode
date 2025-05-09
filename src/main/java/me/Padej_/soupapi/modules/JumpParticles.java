@@ -83,26 +83,41 @@ public class JumpParticles extends ConfigurableModule {
         }
     }
 
-    public static class Particle extends TotemPopParticles.Particle {
+    public static class Particle {
+        protected float x, y, z;
+        protected float px, py, pz;
+        protected float motionX, motionY, motionZ;
+        protected float rotationAngle, rotationSpeed;
+        protected Identifier glyphTexture;
+        protected long time;
+
         private final long lifeTimeMs;
         private float alpha = 1.0f;
         private float scale = CONFIG.jumpParticlesScale;
 
         public Particle(float x, float y, float z, Color color, float rotationAngle, float rotationSpeed) {
-            super(x, y, z, color, rotationAngle, rotationSpeed);
-            int speed = CONFIG.jumpParticlesSpeed;
-            this.motionX = MathUtility.random(-(float) speed / 50f, (float) speed / 50f);
-            this.motionY = 0;
-            this.motionZ = MathUtility.random(-(float) speed / 50f, (float) speed / 50f);
+            this.x = px = x;
+            this.y = py = y;
+            this.z = pz = z;
+            this.rotationAngle = rotationAngle;
+            this.rotationSpeed = rotationSpeed;
             this.time = System.currentTimeMillis();
             this.lifeTimeMs = CONFIG.jumpParticlesLiveTime * 1000L;
+
+            int speed = CONFIG.jumpParticlesSpeed;
+            this.motionX = MathUtility.random(-speed / 50f, speed / 50f);
+            this.motionY = 0;
+            this.motionZ = MathUtility.random(-speed / 50f, speed / 50f);
 
             if (!AVAILABLE_TEXTURES.isEmpty()) {
                 this.glyphTexture = AVAILABLE_TEXTURES.get(new Random().nextInt(AVAILABLE_TEXTURES.size()));
             }
+
+            this.color = color;
         }
 
-        @Override
+        private final Color color;
+
         public boolean update() {
             double sp = Math.sqrt(motionX * motionX + motionZ * motionZ);
 
@@ -152,7 +167,6 @@ public class JumpParticles extends ConfigurableModule {
             return elapsed > lifeTimeMs;
         }
 
-        @Override
         public void render(MatrixStack matrixStack, float tickDelta) {
             if (!CONFIG.jumpParticlesEnabled) return;
 

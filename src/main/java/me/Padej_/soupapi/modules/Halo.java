@@ -18,7 +18,7 @@ public class Halo extends ConfigurableModule {
         boolean isFirstPerson = mc.options.getPerspective().isFirstPerson();
 
         for (Entity entity : mc.world.getEntities()) {
-            if (EntityUtils.isFriend(entity) || EntityUtils.isClient(entity)) {
+            if (EntityUtils.isFriend(entity) || entity.equals(mc.player)) {
                 if (entity == mc.player && isFirstPerson) continue;
                 if (!mc.player.canSee(entity) || entity.isInvisible()) return;
 

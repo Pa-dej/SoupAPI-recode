@@ -3,6 +3,7 @@ package me.Padej_.soupapi.modules;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.render.Render2D;
+import me.Padej_.soupapi.utils.EntityUtils;
 import me.Padej_.soupapi.utils.MathUtility;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
@@ -24,8 +25,10 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class HitParticle extends ConfigurableModule {
@@ -34,13 +37,17 @@ public class HitParticle extends ConfigurableModule {
     private static VertexConsumerProvider vertexConsumerProvider;
     private static final List<Identifier> AVAILABLE_TEXTURES = new ArrayList<>();
     private static final Random RANDOM = new Random();
+    public static LivingEntity damagedEntity;
 
     public static void onTick() {
         if (mc.player == null || !CONFIG.hitParticlesEnabled) return;
-        particles.removeIf(Particle::update);
 
+        particles.removeIf(Particle::update);
         updateAvailableTextures();
 
+        if (CONFIG.hitParticlesCritOnly && !EntityUtils.particleCrit) return;
+
+        // Текстовые частицы
         if (!CONFIG.hitParticlesTextMode.equals(HitTextMode.DISABLED)) {
             if (CONFIG.hitParticlesTextMode == HitTextMode.ALL_ENTITIES) {
                 for (Entity entity : mc.world.getEntities()) {
@@ -83,15 +90,15 @@ public class HitParticle extends ConfigurableModule {
         // Частицы при попадании по сущностям
         for (Entity entity : mc.world.getEntities()) {
             if (!(entity instanceof LivingEntity target) || entity == mc.player || !target.isAlive()) continue;
-            if (target.hurtTime == 9 && Objects.equals(((LivingEntity) entity).getAttacker(), mc.player)) {
+            if (target.hurtTime == 9 && entity.equals(damagedEntity)) {
                 for (int i = 0; i < CONFIG.hitParticlesCount; i++) {
                     Color c = Palette.getRandomColor();
+                    float critOffset = CONFIG.hitParticlesLikeCrit ? 0 : target.getHeight() / 2f;
                     float baseX = (float) target.getX();
-                    float baseY = (float) (target.getY());
+                    float baseY = (float) (target.getY() + critOffset);
                     float baseZ = (float) target.getZ();
 
                     if (CONFIG.hitParticlesLikeCrit) {
-                        // Поведение как у критов — "эмиттер"-стиль
                         float offsetX = (RANDOM.nextFloat() - 0.5f) * target.getWidth();
                         float offsetY = RANDOM.nextFloat() * target.getHeight();
                         float offsetZ = (RANDOM.nextFloat() - 0.5f) * target.getWidth();
@@ -107,7 +114,6 @@ public class HitParticle extends ConfigurableModule {
                                 false
                         ));
                     } else {
-                        // Старый способ — строго по центру
                         particles.add(new Particle(
                                 baseX,
                                 baseY,
@@ -123,8 +129,7 @@ public class HitParticle extends ConfigurableModule {
             }
         }
 
-        // Частицы урона от себе, только если selfDamageParticles включён
-        if (mc.player.hurtTime > 0 && CONFIG.hitParticlesSelf) {
+        if (mc.player.hurtTime == 9 && CONFIG.hitParticlesSelf) {
             for (int i = 0; i < CONFIG.hitParticlesCount; i++) {
                 Color c = Palette.getRandomColor();
                 particles.add(new Particle(
@@ -138,7 +143,10 @@ public class HitParticle extends ConfigurableModule {
                         false));
             }
         }
+
+        EntityUtils.particleCrit = false;
     }
+
 
     public static void render(WorldRenderContext context) {
         RenderSystem.disableDepthTest();
@@ -189,8 +197,12 @@ public class HitParticle extends ConfigurableModule {
 
         public Particle(float x, float y, float z, Color color, float rotationAngle, float rotationSpeed, float health, boolean isText) {
             int speed = CONFIG.hitParticlesSpeed;
-            this.x = x; this.y = y; this.z = z;
-            this.px = x; this.py = y; this.pz = z;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.px = x;
+            this.py = y;
+            this.pz = z;
             if (CONFIG.hitParticlesSplashSpawn) {
                 this.motionX = MathUtility.random(-0.1f, 0.1f);
                 this.motionY = CONFIG.hitParticlesPhysic.equals(Physic.BOUNCE) ? MathUtility.random(0.08f, 0.2f) : MathUtility.random(-(float) speed / 50f, (float) speed / 50f);
@@ -213,7 +225,9 @@ public class HitParticle extends ConfigurableModule {
 
         public boolean update() {
             double sp = Math.sqrt(motionX * motionX + motionZ * motionZ);
-            px = x; py = y; pz = z;
+            px = x;
+            py = y;
+            pz = z;
 
             x += motionX;
             y += motionY;
@@ -225,8 +239,8 @@ public class HitParticle extends ConfigurableModule {
                 motionZ /= 1.1f;
             } else if (posBlock(x - sp, y, z - sp) || posBlock(x + sp, y, z + sp) ||
                     posBlock(x + sp, y, z - sp) || posBlock(x - sp, y, z + sp) ||
-                    posBlock(x + sp, y, z)     || posBlock(x - sp, y, z)     ||
-                    posBlock(x, y, z + sp)     || posBlock(x, y, z - sp)) {
+                    posBlock(x + sp, y, z) || posBlock(x - sp, y, z) ||
+                    posBlock(x, y, z + sp) || posBlock(x, y, z - sp)) {
                 motionX = -motionX;
                 motionZ = -motionZ;
             }
@@ -287,7 +301,7 @@ public class HitParticle extends ConfigurableModule {
                         (baseColor >> 16) & 0xFF,
                         (baseColor >> 8) & 0xFF,
                         baseColor & 0xFF,
-                        Math.max(1, (int)(alpha * 255))
+                        Math.max(1, (int) (alpha * 255))
                 ).getRGB();
 
                 MinecraftClient.getInstance().textRenderer.draw(
@@ -304,7 +318,7 @@ public class HitParticle extends ConfigurableModule {
                 );
             } else {
                 if (glyphTexture != null) {
-                    Render2D.drawGlyphs(matrixStack, glyphTexture, new Color(color.getRed(), color.getGreen(), color.getBlue(), (int)(alpha * 255)), size);
+                    Render2D.drawGlyphs(matrixStack, glyphTexture, new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (alpha * 255)), size);
                 }
             }
 

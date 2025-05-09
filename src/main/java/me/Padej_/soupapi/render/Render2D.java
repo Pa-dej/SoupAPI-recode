@@ -5,16 +5,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.utils.GaussianFilter;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.Texture;
-import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgramKeys;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -422,13 +418,29 @@ public class Render2D {
     }
 
     public static void drawGlyphs(MatrixStack matrices, Identifier texture, Color c, float scale) {
-        setupRender();
+        RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(false);
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
         RenderSystem.setShaderTexture(0, texture);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
+
         RenderSystem.setShaderColor(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, c.getAlpha() / 255f);
         Render2D.renderGradientTexture(matrices, 0, 0, scale, scale, 0, 0, 128, 128, 128, 128, c, c, c, c);
-        endRender();
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+
+        RenderSystem.enableDepthTest();
+        RenderSystem.disableBlend();
     }
+
+//    public static void drawGlyphs(MatrixStack matrices, Identifier texture, Color c, float scale) {
+//        setupRender();
+//        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
+//        RenderSystem.setShaderTexture(0, texture);
+//        RenderSystem.setShaderColor(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, c.getAlpha() / 255f);
+//        Render2D.renderGradientTexture(matrices, 0, 0, scale, scale, 0, 0, 128, 128, 128, 128, c, c, c, c);
+//        endRender();
+//    }
 
     public static void endBuilding(BufferBuilder bb) {
         BuiltBuffer builtBuffer = bb.endNullable();

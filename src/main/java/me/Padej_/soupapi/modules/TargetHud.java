@@ -74,6 +74,8 @@ public class TargetHud extends ConfigurableModule {
     }
 
     public static void render(DrawContext context, RenderTickCounter renderTickCounter) {
+        updateColors(TargetHudRenderer.colorAnimationProgress); // чтобы цвета всегда переливались, а не только при включенном таргет худе
+
         if (!CONFIG.targetHudEnabled) return;
         getTarget();
 
@@ -89,7 +91,6 @@ public class TargetHud extends ConfigurableModule {
         TargetHudRenderer.hpColorAnimationProgress = (TargetHudRenderer.hpColorAnimationProgress + normalizedDelta * colorAnimationSpeed / 2) % 1.0f;
         headAnimation.update(normalizedDelta); // Обновляем анимацию головы
         TargetHudRenderer.ticks += 0.1f * normalizedDelta; // Обновляем ticks для частиц
-        updateColors(TargetHudRenderer.colorAnimationProgress);
 
         // Плавная интерполяция масштаба HUD
         if (hudTimer > 0) {
@@ -175,6 +176,8 @@ public class TargetHud extends ConfigurableModule {
                         TargetHudRenderer.renderMiniHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY, screenPos);
                 case TINY ->
                         TargetHudRenderer.renderTinyHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY, screenPos);
+                case ARES ->
+                        TargetHudRenderer.renderAresHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY, screenPos);
                 default ->
                         TargetHudRenderer.renderNormalHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY, screenPos);
             }
@@ -272,7 +275,7 @@ public class TargetHud extends ConfigurableModule {
     }
 
     public enum Style {
-        MINI, TINY, NORMAL
+        MINI, TINY, NORMAL, ARES
     }
 
     public enum Config {

@@ -10,8 +10,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 
 public class TargetRender extends ConfigurableModule {
-    private static float rollAngle = 0.0f;
-    private static long lastUpdateTime = System.currentTimeMillis();
 
     private static Entity lastTargetEntity = null;
     private static long lastTargetUpdateTime = 0;
@@ -51,38 +49,24 @@ public class TargetRender extends ConfigurableModule {
 
         float tickDelta = context.tickCounter().getTickDelta(true);
 
-        switch (CONFIG.targetRenderStyle) {
+        switch (CONFIG.style) {
             case SOUL -> Render3D.renderSoulsEsp(tickDelta, lastTargetEntity);
             case SPIRAL -> Render3D.drawSpiralsEsp(context.matrixStack(), lastTargetEntity);
             case TOPKA -> Render3D.drawScanEsp(context.matrixStack(), lastTargetEntity);
+            case LEGACY -> Render3D.drawLegacy(tickDelta, lastTargetEntity);
         }
     }
 
-    public static void renderTargetLegacy(WorldRenderContext context) {
-        if (CONFIG.targetRenderStyle != TargetRenderStyle.LEGACY) return;
-        if (!updateOrKeepTarget()) return;
-
-        long currentTime = System.currentTimeMillis();
-        float deltaTime = (currentTime - lastUpdateTime) / 1000f;
-        lastUpdateTime = currentTime;
-
-        rollAngle = (rollAngle + 90f * deltaTime) % 360f;
-
-        Render3D.renderTargetSelection(
-                context.matrixStack(),
-                context.camera(),
-                context.tickCounter().getTickDelta(true),
-                lastTargetEntity,
-                rollAngle
-        );
-    }
-
-    public enum TargetRenderStyle {
+    public enum Style {
         LEGACY, SOUL, SPIRAL, TOPKA
     }
 
-    public enum TargetRenderLegacyTexture {
+    public enum LegacyTexture {
         LEGACY, MARKER, BO, SIMPLE, SCIFI, AMONGUS, SKULL, JEKA, VEGAS
+    }
+
+    public enum SoulTexture {
+        FIREFLY, ALT
     }
 
     public enum TargetRenderSoulStyle {

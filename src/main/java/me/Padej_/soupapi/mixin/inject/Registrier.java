@@ -14,6 +14,7 @@ public class Registrier {
     void postWindowInit(RunArgs args, CallbackInfo ci) {
         try {
             FontRenderers.sf_bold = FontRenderers.create(16f, "sf_bold");
+            FontRenderers.sf_bold_17 = FontRenderers.create(17f, "sf_bold");
             FontRenderers.sf_bold_mini = FontRenderers.create(14f, "sf_bold");
             FontRenderers.sf_medium = FontRenderers.create(16f, "sf_medium");
         } catch (Exception e) {

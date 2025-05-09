@@ -264,6 +264,22 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public Weather weatherType = Weather.RAIN;
 
+    @ConfigEntry.Gui.PrefixText // Custom Fog
+    @ConfigEntry.Category("world")
+    public boolean customFogEnabled = false;
+    @ConfigEntry.Category("world")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public CustomFog.CustomFogShape customFogShape = CustomFog.CustomFogShape.SPHERE;
+    @ConfigEntry.Category("world")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
+    public int customFogStart = 5;
+    @ConfigEntry.Category("world")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
+    public int customFogEnd = 20;
+    @ConfigEntry.Category("world")
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
+    public int customFogDensity = 50;
+
     /**
      * TARGET RENDER
      **/
@@ -273,7 +289,7 @@ public class SoupAPI_Config implements ConfigData {
     public boolean targetOnlyPlayers = true;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public TargetRender.TargetRenderStyle targetRenderStyle = TargetRender.TargetRenderStyle.LEGACY;
+    public TargetRender.Style style = TargetRender.Style.LEGACY;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
     public int targetRenderLiveTime = 0;
@@ -281,7 +297,7 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.PrefixText // legacy
     @ConfigEntry.Category("target_render")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public TargetRender.TargetRenderLegacyTexture targetRenderLegacyTexture = TargetRender.TargetRenderLegacyTexture.LEGACY;
+    public TargetRender.LegacyTexture legacyTexture = TargetRender.LegacyTexture.LEGACY;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.BoundedDiscrete(min = -100, max = 100)
     public int targetRenderLegacyRollSpeed = 70;
@@ -293,6 +309,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("target_render")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetRender.TargetRenderSoulStyle targetRenderSoulStyle = TargetRender.TargetRenderSoulStyle.SMOKE;
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public TargetRender.SoulTexture targetRenderSoulTexture = TargetRender.SoulTexture.ALT;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.BoundedDiscrete(min = 4, max = 20)
     public int targetRenderSoulLenght = 5;
@@ -421,6 +440,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hit_bubbles")
     @ConfigEntry.BoundedDiscrete(min = 15, max = 100)
     public int hitBubblesRenderTime = 30;
+    @ConfigEntry.Category("hit_bubbles")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 150)
+    public int hitBubblesScale = 30;
 
     /**
      * HIT SOUND
@@ -547,6 +569,8 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("totem")
     public boolean totemPopParticlesEnabled = false;
     @ConfigEntry.Category("totem")
+    public boolean totemPopDefaultColors = true;
+    @ConfigEntry.Category("totem")
     public boolean totemPopParticlesIncludeFirefly = false;
     @ConfigEntry.Category("totem")
     public boolean totemPopParticlesIncludeDollar = false;
@@ -584,6 +608,8 @@ public class SoupAPI_Config implements ConfigData {
     public boolean hitParticlesEnabled = false;
     @ConfigEntry.Category("hit_particles")
     public boolean hitParticlesSelf = false;
+    @ConfigEntry.Category("hit_particles")
+    public boolean hitParticlesCritOnly = false;
     @ConfigEntry.Category("hit_particles")
     public boolean hitParticlesLikeCrit = false;
     @ConfigEntry.Category("hit_particles")

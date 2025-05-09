@@ -1,6 +1,8 @@
 package me.Padej_.soupapi.mixin.inject;
 
+import me.Padej_.soupapi.modules.HitParticle;
 import me.Padej_.soupapi.modules.TotemPopParticles;
+import me.Padej_.soupapi.utils.EntityUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ServerInfo;
@@ -9,6 +11,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
@@ -110,4 +113,38 @@ public abstract class MixinClientPlayNetworkHandler {
             }
         }
     }
+
+    @Inject(method = "onEntityDamage", at = @At("HEAD"))
+    private void damageHook(EntityDamageS2CPacket packet, CallbackInfo ci) {
+        ClientWorld world = mc.world;
+        if (world == null || mc.player == null) return;
+
+        Entity victim = world.getEntityById(packet.entityId());
+        if (victim == null) return;
+
+        Entity attacker = world.getEntityById(packet.sourceCauseId());
+        if (!(attacker instanceof PlayerEntity player) || !player.equals(mc.player)) return;
+
+        // Мы атаковали -> сохраняем жертву
+        EntityUtils.registerClientDamage(packet.entityId());
+
+        if (victim instanceof LivingEntity livingVictim) {
+            HitParticle.damagedEntity = livingVictim;
+        }
+    }
+
+    @Inject(method = "onEntityAnimation", at = @At("TAIL"))
+    private void critHook(EntityAnimationS2CPacket packet, CallbackInfo ci) {
+        if (packet.getAnimationId() == 4) {
+            ClientWorld world = mc.world;
+            if (world == null || mc.player == null) return;
+
+            int animEntityId = packet.getEntityId();
+
+            if (EntityUtils.checkAndClearCritTarget(animEntityId)) {
+                EntityUtils.onCrit();
+            }
+        }
+    }
+
 }

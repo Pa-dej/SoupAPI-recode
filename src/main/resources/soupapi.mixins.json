@@ -23,6 +23,7 @@
     "inject.FireOverlayMixin",
     "inject.GameRendererMixin",
     "inject.InGameHudMixin",
+    "inject.MixinBackgroundRenderer",
     "inject.MixinClientPlayNetworkHandler",
     "inject.MixinHeldItemRenderer",
     "inject.PlayerEntityRendererMixin",
