@@ -500,7 +500,7 @@ public class SoupAPI_Config implements ConfigData {
      * SWING HAND
      **/
     @ConfigEntry.Category("swing_hand")
-    public boolean swingHandEnabled = true;
+    public boolean swingHandEnabled = false;
     @ConfigEntry.Category("swing_hand")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public SwingHand.Config swingHandConfig_BUTTON = SwingHand.Config.CONFIG_HANDS;

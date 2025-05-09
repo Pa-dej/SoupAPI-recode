@@ -22,7 +22,11 @@ public class TargetRender extends ConfigurableModule {
         long currentTime = System.currentTimeMillis();
         Entity currentTarget = EntityUtils.getTargetEntity();
 
-        if (CONFIG.targetRenderOnlyPlayers && !(currentTarget instanceof PlayerEntity)) return false;
+        // Проверка: если включён флаг — только игроки
+        if (CONFIG.targetRenderOnlyPlayers && !(currentTarget instanceof PlayerEntity)) {
+            currentTarget = null;
+        }
+
         boolean visibleNow = currentTarget != null && client.player.canSee(currentTarget);
 
         if (visibleNow) {
@@ -33,12 +37,19 @@ public class TargetRender extends ConfigurableModule {
         }
 
         if (lastTargetEntity != null) {
-            if (currentTime - lastTargetUpdateTime > (lastTargetEntity.isInvisible() ? 0 : CONFIG.targetRenderLiveTime * 1000L) || lastTargetEntity.isRemoved()) {
+            if (currentTime - lastTargetUpdateTime > (lastTargetEntity.isInvisible() ? 0 : CONFIG.targetRenderLiveTime * 1000L)
+                    || lastTargetEntity.isRemoved()) {
                 lastTargetEntity = null;
                 return false;
             }
 
             if (!client.player.canSee(lastTargetEntity)) {
+                return false;
+            }
+
+            // Повторная проверка: если цель сохранилась, но она не игрок — удалить
+            if (CONFIG.targetRenderOnlyPlayers && !(lastTargetEntity instanceof PlayerEntity)) {
+                lastTargetEntity = null;
                 return false;
             }
         }

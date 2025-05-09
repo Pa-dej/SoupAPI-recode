@@ -1,6 +1,7 @@
 package me.Padej_.soupapi.mixin.inject;
 
 import me.Padej_.soupapi.config.ConfigurableModule;
+import me.Padej_.soupapi.screen.CapeSelectScreen;
 import me.shedaniel.clothconfig2.api.ConfigScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Drawable;
@@ -39,7 +40,7 @@ public abstract class ScreenMixin {
     public int height;
 
     @Inject(method = "init()V", at = @At("TAIL"))
-    private void debug(CallbackInfo ci) {
+    private void initHook(CallbackInfo ci) {
         if (!isSoupAPI_Screen()) return;
 
         int buttonWidth = 50;

@@ -4,7 +4,6 @@ import java.awt.*;
 
 public class ColorUtils {
 
-    // Метод для конвертации RGB в HSL
     public static float[] rgbToHsl(int rgb) {
         float r = ((rgb >> 16) & 0xFF) / 255.0f;
         float g = ((rgb >> 8) & 0xFF) / 255.0f;
@@ -32,9 +31,8 @@ public class ColorUtils {
         return new float[]{h, s, l};
     }
 
-    // Метод для конвертации HSL обратно в RGB с максимальной насыщенностью
-    public static int hslToRgb(float h, float s, float l) {
-        s = 1.0f; // Максимальная насыщенность
+    public static int hslToRgb(float h, float l) {
+        float s = 1.0f;
 
         float q = (l < 0.5f) ? (l * (1 + s)) : ((l + s) - (l * s));
         float p = 2 * l - q;
@@ -43,10 +41,9 @@ public class ColorUtils {
         float g = hueToRgb(p, q, h);
         float b = hueToRgb(p, q, h - (1f / 3f));
 
-        return new Color(r, g, b).getRGB();
+        return new Color(clamp(r), clamp(g), clamp(b)).getRGB();
     }
 
-    // Вспомогательный метод для перевода H в RGB
     private static float hueToRgb(float p, float q, float t) {
         if (t < 0) t += 1.0f;
         if (t > 1) t -= 1.0f;
@@ -58,7 +55,10 @@ public class ColorUtils {
 
     public static int getMaxSaturationColor(int rgb) {
         float[] hsl = rgbToHsl(rgb);
-        return hslToRgb(hsl[0], 1.0f, hsl[2]);
+        return hslToRgb(hsl[0], hsl[2]);
     }
 
+    private static float clamp(float v) {
+        return Math.max(0f, Math.min(1f, v));
+    }
 }

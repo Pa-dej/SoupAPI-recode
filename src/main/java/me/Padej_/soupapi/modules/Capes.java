@@ -130,6 +130,18 @@ public class Capes extends ConfigurableModule {
         CUSTOM_WINTER(Identifier.of("soupapi:textures/capes/custom/winter.png")),
         CUSTOM_YOUTUBE(Identifier.of("soupapi:textures/capes/custom/youtube.png")),
 
+        // Optifine
+        OPTIFINE_STANDARD(Identifier.of("soupapi:textures/capes/optifine/standard.png")),
+        OPTIFINE_BLACK(Identifier.of("soupapi:textures/capes/optifine/black.png")),
+        OPTIFINE_BLUE(Identifier.of("soupapi:textures/capes/optifine/blue.png")),
+        OPTIFINE_CYAN(Identifier.of("soupapi:textures/capes/optifine/cyan.png")),
+        OPTIFINE_GRAY(Identifier.of("soupapi:textures/capes/optifine/gray.png")),
+        OPTIFINE_GREEN(Identifier.of("soupapi:textures/capes/optifine/green.png")),
+        OPTIFINE_PURPLE(Identifier.of("soupapi:textures/capes/optifine/purple.png")),
+        OPTIFINE_RED(Identifier.of("soupapi:textures/capes/optifine/red.png")),
+        OPTIFINE_YELLOW(Identifier.of("soupapi:textures/capes/optifine/yellow.png")),
+        OPTIFINE_WHITE(Identifier.of("soupapi:textures/capes/optifine/white.png")),
+
         // Staff Capes by winvi
         STAFF_TEAM_PADEJ(Identifier.of("soupapi:textures/capes/team/padej_.png")),
         STAFF_TEAM_WINVI(Identifier.of("soupapi:textures/capes/team/winvi.png")),

@@ -2,6 +2,7 @@ package me.Padej_.soupapi.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
+import me.Padej_.soupapi.font.FontRenderer;
 import me.Padej_.soupapi.font.FontRenderers;
 import me.Padej_.soupapi.particle.Particle2D;
 import me.Padej_.soupapi.reduce.ModuleSupressor;
@@ -15,7 +16,6 @@ import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
-import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -100,7 +100,8 @@ public class TargetHudRenderer extends ConfigurableModule {
             for (int i = 0; i <= 6; i++) {
                 final Particle2D p = new Particle2D();
                 final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
-                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);;
+                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);
+                ;
                 particles.add(p);
             }
             sentParticles = true;
@@ -212,7 +213,8 @@ public class TargetHudRenderer extends ConfigurableModule {
             for (int i = 0; i <= 6; i++) {
                 final Particle2D p = new Particle2D();
                 final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
-                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);;
+                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);
+                ;
                 particles.add(p);
             }
             sentParticles = true;
@@ -311,7 +313,8 @@ public class TargetHudRenderer extends ConfigurableModule {
             for (int i = 0; i <= 6; i++) {
                 final Particle2D p = new Particle2D();
                 final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
-                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);;
+                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);
+                ;
                 particles.add(p);
             }
             sentParticles = true;
@@ -364,10 +367,6 @@ public class TargetHudRenderer extends ConfigurableModule {
         Color c1 = Palette.getColor(0f);
         Color c3 = Palette.getColor(0.66f);
 
-        // Градиентный фон
-        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, 120, 46, 7, Render2D.injectAlpha(new Color(0x181a29), 220));
-
-        // Голова игрока
         Identifier texture = mc.player.getSkinTextures().texture();
         String displayName = "Invisible";
         if (target.isInvisible()) {
@@ -376,6 +375,16 @@ public class TargetHudRenderer extends ConfigurableModule {
             texture = ((AbstractClientPlayerEntity) target).getSkinTextures().texture();
             displayName = target.getName().getString();
         }
+
+        int textWidth = (int) FontRenderers.sf_bold_17.getStringWidth(displayName);
+        int minWidth = 120;
+        int padding = 50;
+        int totalWidthBackground = Math.max(minWidth, textWidth + padding);
+        int healthBarWidth = totalWidthBackground - 52;
+
+        // Градиентный фон
+        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, totalWidthBackground, 46, 7, Render2D.injectAlpha(new Color(0x181a29), 220));
+
         float headScale = 20;
         context.getMatrices().push();
         context.getMatrices().translate(x + 3.5f + headScale, y + 3.5f + headScale, 0);
@@ -409,7 +418,7 @@ public class TargetHudRenderer extends ConfigurableModule {
             for (int i = 0; i <= 6; i++) {
                 final Particle2D p = new Particle2D();
                 final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
-                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);;
+                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);
                 particles.add(p);
             }
             sentParticles = true;
@@ -431,9 +440,14 @@ public class TargetHudRenderer extends ConfigurableModule {
             hpRight = interpolateColor(c1, c3, phaseProgress);
         }
 
-        Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 48, y + 32, 68, 9, 4, bottomLeft, bottomRight, topRight, topLeft);
-        Render2D.drawGradientRound(context.getMatrices(), x + 48, y + 32, 68, 9, 2, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
-        Render2D.renderRoundedGradientRect(context.getMatrices(), hpLeft, hpRight, hpRight, hpLeft, x + 48, y + 32, (int) MathUtility.clamp((69 * (health / target.getMaxHealth())), 8, 69), 9, 2);
+        int barX = x + 48;
+        int barY = y + 32;
+        int barHeight = 9;
+        int innerBarWidth = (int) MathUtility.clamp((healthBarWidth * (health / target.getMaxHealth())), 8, healthBarWidth);
+
+        Render2D.drawGradientBlurredShadow1(context.getMatrices(), barX, barY, healthBarWidth, barHeight, 4, bottomLeft, bottomRight, topRight, topLeft);
+        Render2D.drawGradientRound(context.getMatrices(), barX, barY, healthBarWidth - 1, barHeight, 2, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
+        Render2D.renderRoundedGradientRect(context.getMatrices(), hpLeft, hpRight, hpRight, hpLeft, barX, barY, innerBarWidth, barHeight, 2);
 
         FontRenderers.sf_bold_17.drawString(context.getMatrices(), displayName, x + 48, y + 7, Render2D.applyOpacity(Palette.getTextColor(), animationFactor));
         FontRenderers.sf_bold.drawString(context.getMatrices(), "HP: " + Math.round(10.0 * health) / 10.0, x + 48, y + 20, Render2D.applyOpacity(Palette.getTextColor(), animationFactor));
@@ -441,6 +455,8 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
+
+
 
     private static Color interpolateColor(Color start, Color end, float progress) {
         int r = MathHelper.lerp(progress, start.getRed(), end.getRed());

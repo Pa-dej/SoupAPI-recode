@@ -61,9 +61,8 @@
 
   "text.autoconfig.soupapi.category.jump_particles": "Jump Particles",
   "text.autoconfig.soupapi.option.jumpParticlesEnabled": "Enabled",
-  "text.autoconfig.soupapi.option.jumpCirclesEnabled": "Enabled",
-  "text.autoconfig.soupapi.option.jumpParticlesIncludeFirefly": "Enabled",
-  "text.autoconfig.soupapi.option.jumpParticlesIncludeDollar": "Enabled",
+  "text.autoconfig.soupapi.option.jumpParticlesIncludeFirefly": "Firefly",
+  "text.autoconfig.soupapi.option.jumpParticlesIncludeDollar": "Dollar",
   "text.autoconfig.soupapi.option.jumpParticlesIncludeSnowflake": "Snowflake",
   "text.autoconfig.soupapi.option.jumpParticlesIncludeHeart": "Heart",
   "text.autoconfig.soupapi.option.jumpParticlesIncludeStar": "Star",
