@@ -97,7 +97,7 @@ public class TexturesManager extends ConfigurableModule {
     }
 
     public static Identifier getTargetRenderTexture() {
-        return switch (CONFIG.legacyTexture) {
+        return switch (CONFIG.targetRenderLegacyTexture) {
             case LEGACY -> LEGACY;
             case MARKER -> MARKER;
             case BO -> BO;

@@ -32,10 +32,6 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.ColorPicker
     public int friendCustomColor = 0x00ff00;
 
-    @ConfigEntry.Gui.PrefixText // Particles
-    @ConfigEntry.Category("main")
-    public boolean particlesAfterEntities = true;
-
     @ConfigEntry.Gui.PrefixText // MC Tiers
     @ConfigEntry.Category("main")
     public boolean mctiersEnabled = false;
@@ -224,10 +220,6 @@ public class SoupAPI_Config implements ConfigData {
      **/
     @ConfigEntry.Gui.PrefixText // ambient particles
     @ConfigEntry.Category("world")
-    public boolean coloredSkyEnabled = false;
-
-    @ConfigEntry.Gui.PrefixText // ambient particles
-    @ConfigEntry.Category("world")
     public boolean ambientParticlesEnabled = false;
 
     @ConfigEntry.Category("world")
@@ -271,6 +263,10 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public Weather weatherType = Weather.RAIN;
 
+    @ConfigEntry.Gui.PrefixText // Colored Sky
+    @ConfigEntry.Category("world")
+    public boolean coloredSkyEnabled = false;
+
     @ConfigEntry.Gui.PrefixText // Custom Fog
     @ConfigEntry.Category("world")
     public boolean customFogEnabled = false;
@@ -293,10 +289,10 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("target_render")
     public boolean targetRenderEnabled = false;
     @ConfigEntry.Category("target_render")
-    public boolean targetOnlyPlayers = true;
+    public boolean targetRenderOnlyPlayers = true;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public TargetRender.Style style = TargetRender.Style.LEGACY;
+    public TargetRender.Style targetRenderStyle = TargetRender.Style.LEGACY;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.BoundedDiscrete(min = 0, max = 10)
     public int targetRenderLiveTime = 0;
@@ -304,7 +300,7 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.PrefixText // legacy
     @ConfigEntry.Category("target_render")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public TargetRender.LegacyTexture legacyTexture = TargetRender.LegacyTexture.LEGACY;
+    public TargetRender.LegacyTexture targetRenderLegacyTexture = TargetRender.LegacyTexture.LEGACY;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.BoundedDiscrete(min = -100, max = 100)
     public int targetRenderLegacyRollSpeed = 70;

@@ -60,10 +60,6 @@ public class SoupAPI_Client implements ClientModInitializer {
     private void doRenderAfterEntities(WorldRenderContext context) {
         JumpCircles.renderCircles(context);
         AmbientParticle.renderParticlesInWorld(context);
-
-        if (CONFIG.particlesAfterEntities) {
-            renderParticles(context);
-        }
     }
 
     private void doRenderLast(WorldRenderContext context) {
@@ -71,10 +67,7 @@ public class SoupAPI_Client implements ClientModInitializer {
         HitBubbles.render(context);
         Halo.render(context);
         Trails.renderTrail(context);
-
-        if (!CONFIG.particlesAfterEntities) {
-            renderParticles(context);
-        }
+        renderParticles(context);
     }
 
     private void registerOnHit() {

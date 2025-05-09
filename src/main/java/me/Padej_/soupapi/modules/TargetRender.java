@@ -8,6 +8,7 @@ import me.Padej_.soupapi.utils.EntityUtils;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class TargetRender extends ConfigurableModule {
 
@@ -21,6 +22,7 @@ public class TargetRender extends ConfigurableModule {
         long currentTime = System.currentTimeMillis();
         Entity currentTarget = EntityUtils.getTargetEntity();
 
+        if (CONFIG.targetRenderOnlyPlayers && !(currentTarget instanceof PlayerEntity)) return false;
         boolean visibleNow = currentTarget != null && client.player.canSee(currentTarget);
 
         if (visibleNow) {
@@ -49,7 +51,7 @@ public class TargetRender extends ConfigurableModule {
 
         float tickDelta = context.tickCounter().getTickDelta(true);
 
-        switch (CONFIG.style) {
+        switch (CONFIG.targetRenderStyle) {
             case SOUL -> Render3D.renderSoulsEsp(tickDelta, lastTargetEntity);
             case SPIRAL -> Render3D.drawSpiralsEsp(context.matrixStack(), lastTargetEntity);
             case TOPKA -> Render3D.drawScanEsp(context.matrixStack(), lastTargetEntity);
