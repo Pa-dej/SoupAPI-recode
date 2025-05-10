@@ -5,6 +5,8 @@ import net.minecraft.util.math.Vec3d;
 
 import java.awt.*;
 
+import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
+
 public class Trail {
     private static MinecraftClient mc = MinecraftClient.getInstance();
     private final Vec3d from;
@@ -15,14 +17,15 @@ public class Trail {
     public Trail(Vec3d from, Vec3d to, Color color) {
         this.from = from;
         this.to = to;
-        this.ticks = 20;
+        this.ticks = CONFIG.ambientParticlesParticleWithTrailLenght;
         this.color = color;
     }
 
     public Vec3d interpolate(float pt) {
-        double x = from.x + ((to.x - from.x) * pt) - mc.getEntityRenderDispatcher().camera.getPos().getX();
-        double y = from.y + ((to.y - from.y) * pt) - mc.getEntityRenderDispatcher().camera.getPos().getY();
-        double z = from.z + ((to.z - from.z) * pt) - mc.getEntityRenderDispatcher().camera.getPos().getZ();
+        Vec3d cameraPos = mc.getEntityRenderDispatcher().camera.getPos();
+        double x = from.x + ((to.x - from.x) * pt) - cameraPos.getX();
+        double y = from.y + ((to.y - from.y) * pt) - cameraPos.getY();
+        double z = from.z + ((to.z - from.z) * pt) - cameraPos.getZ();
         return new Vec3d(x, y, z);
     }
 

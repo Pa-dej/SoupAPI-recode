@@ -4,6 +4,7 @@ import me.Padej_.soupapi.modules.AmbientParticle;
 import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.render.TargetHudRenderer;
 import me.Padej_.soupapi.utils.MathUtility;
+import me.Padej_.soupapi.utils.Palette;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
@@ -21,12 +22,14 @@ public class DefaultAmbientParticle {
     public static MinecraftClient mc = MinecraftClient.getInstance();
 
     protected Identifier texture;
+    protected final Color color;
     protected float prevPosX, prevPosY, prevPosZ, posX, posY, posZ, motionX, motionY, motionZ;
     protected int age;
     protected final int maxAge;
 
     public DefaultAmbientParticle(float posX, float posY, float posZ, float motionX, float motionY, float motionZ) {
-        this.texture = AVAILABLE_TEXTURES.get(new Random().nextInt(AVAILABLE_TEXTURES.size()));;
+        this.texture = AVAILABLE_TEXTURES.get(new Random().nextInt(AVAILABLE_TEXTURES.size()));
+        this.color = CONFIG.ambientParticlesRandomColor ? Palette.getRandomColor() : TargetHudRenderer.topLeft;
         this.posX = posX;
         this.posY = posY;
         this.posZ = posZ;
@@ -81,9 +84,6 @@ public class DefaultAmbientParticle {
 
         Render2D.drawGlyphs(matrices, texture, withAlpha, CONFIG.ambientParticlesDefaultParticleScale / 100f);
     }
-
-
-
     private static Vec3d interpolatePos(float prevPosX, float prevPosY, float prevPosZ, float posX, float posY, float posZ) {
         float tickDelta = mc.getRenderTickCounter().getTickDelta(true);
         Vec3d cameraPos = mc.getEntityRenderDispatcher().camera.getPos();

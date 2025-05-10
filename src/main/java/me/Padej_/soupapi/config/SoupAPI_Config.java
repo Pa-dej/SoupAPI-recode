@@ -224,8 +224,7 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("world")
     public boolean ambientParticlesEnabled = false;
     @ConfigEntry.Category("world")
-    public boolean ambientParticlesWavyColor = true; // TODO: Сделать переливание переключаемым, между переливанием и использование случайного цвета из палитры.
-
+    public boolean ambientParticlesRandomColor = true;
     @ConfigEntry.Category("world")
     public boolean ambientParticlesIncludeFirefly = false;
     @ConfigEntry.Category("world")
@@ -244,6 +243,9 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("world")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public AmbientParticle.Physics ambientParticlesPhysic = AmbientParticle.Physics.FALL;
+    @ConfigEntry.Category("world")
+    @ConfigEntry.BoundedDiscrete(min = 5, max = 30)
+    public int ambientParticlesParticleWithTrailLenght = 15;
     @ConfigEntry.Category("world")
     @ConfigEntry.BoundedDiscrete(min = 10, max = 200)
     public int ambientParticlesDefaultParticleScale = 100;
@@ -705,6 +707,7 @@ public class SoupAPI_Config implements ConfigData {
     public boolean mouseMoveEnabled = false;
     @ConfigEntry.Category("mouse_move")
     public boolean mouseMoveBlur = false;
+    @ConfigEntry.Gui.PrefixText // Position
     @ConfigEntry.Category("mouse_move")
     public int mouseMoveX = 900;
     @ConfigEntry.Category("mouse_move")
