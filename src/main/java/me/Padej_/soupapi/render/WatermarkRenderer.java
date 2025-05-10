@@ -41,9 +41,9 @@ public class WatermarkRenderer {
         if (CONFIG.mctiersEnabled) width += 18;
         y += 16;
 
-        Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 1, y + 1, width, height, 10, TargetHudRenderer.bottomLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.topRight, TargetHudRenderer.topLeft);
-        Render2D.renderRoundedGradientRect(context.getMatrices(), TargetHudRenderer.topLeft, TargetHudRenderer.topLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.bottomLeft, x + 0.5f, y + 0.5f, width, height, 4);
-        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, width, height, 4, Render2D.injectAlpha(Color.BLACK, 180));
+        Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 1, y + 1, width, height, 5, TargetHudRenderer.bottomLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.topRight, TargetHudRenderer.topLeft);
+//        Render2D.renderRoundedGradientRect(context.getMatrices(), TargetHudRenderer.topLeft, TargetHudRenderer.topLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.bottomLeft, x + 0.5f, y + 0.5f, width, height, 4);
+        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, width, height, 4, Render2D.injectAlpha(new Color(0x181a29), 180));
     }
 
     private static void renderName(DrawContext context, float x, float y) {

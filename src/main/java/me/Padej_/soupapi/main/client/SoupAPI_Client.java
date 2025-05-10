@@ -22,8 +22,6 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
-import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
-
 public class SoupAPI_Client implements ClientModInitializer {
 
     @Override
@@ -31,7 +29,7 @@ public class SoupAPI_Client implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(this::doEndClientTick);
         WorldRenderEvents.AFTER_ENTITIES.register(this::doRenderAfterEntities);
         WorldRenderEvents.LAST.register(this::doRenderLast);
-        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.CHAT, Identifier.of("soupapi", "hud"), this::renderHud));
+        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.HOTBAR_AND_BARS, Identifier.of("soupapi", "hud"), this::renderHud));
 
         registerClientSideParticles();
 
@@ -42,6 +40,7 @@ public class SoupAPI_Client implements ClientModInitializer {
     private void renderHud(DrawContext context, RenderTickCounter tickCounter) {
         TargetHud.render(context, tickCounter);
         WatermarkRenderer.render(context);
+        MouseMove.render(context);
     }
 
     private void doEndClientTick(MinecraftClient client) {
@@ -71,7 +70,7 @@ public class SoupAPI_Client implements ClientModInitializer {
 
     private void doRenderAfterEntities(WorldRenderContext context) {
         JumpCircles.renderCircles(context);
-        AmbientParticle.renderParticlesInWorld(context);
+        AmbientParticle.render();
     }
 
     private void doRenderLast(WorldRenderContext context) {
@@ -85,6 +84,7 @@ public class SoupAPI_Client implements ClientModInitializer {
     private void registerOnHit() {
         HitBubbles.registerOnHit();
         HitSound.registerOnHit();
+        HitParticle.registerOnHit();
     }
 
     private void registerClientSideParticles() {

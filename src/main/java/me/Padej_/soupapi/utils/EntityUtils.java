@@ -4,39 +4,16 @@ import me.Padej_.soupapi.main.SoupAPI_Main;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 
-import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
+import static me.Padej_.soupapi.config.ConfigurableModule.mc;
 
 public class EntityUtils {
     private static Entity targetEntity;
     private static LivingEntity lastHitEntity;
-    public static boolean particleCrit = false;
-    private static int lastDamagedEntityId = -1;
-    private static long lastDamageTime = 0;
-    private static final long CRIT_VALIDITY_MS = 30;
-
-    public static void registerClientDamage(int entityId) {
-        lastDamagedEntityId = entityId;
-        lastDamageTime = System.currentTimeMillis();
-    }
-
-    public static boolean checkAndClearCritTarget(int animEntityId) {
-        if (lastDamagedEntityId == animEntityId &&
-                System.currentTimeMillis() - lastDamageTime < CRIT_VALIDITY_MS) {
-            lastDamagedEntityId = -1;
-            return true;
-        }
-        return false;
-    }
-
-    public static void onCrit() {
-        particleCrit = true;
-        if (CONFIG.hitSoundOnlyCrit) {
-            HitSound.playSound();
-        }
-    }
 
     public static void updateEntities(MinecraftClient client) {
         if (client.player == null) return;
@@ -53,6 +30,21 @@ public class EntityUtils {
         } else {
             targetEntity = null;
         }
+    }
+
+    public static boolean isCrit() {
+        PlayerEntity player = mc.player;
+        if (player == null) return false;
+        boolean bl = player.getAttackCooldownProgress(0.5f) > 0.9f;
+
+        return bl &&
+                player.fallDistance > 0.0F &&
+                !player.isOnGround() &&
+                !player.isClimbing() &&
+                !player.isTouchingWater() &&
+                !player.hasStatusEffect(StatusEffects.BLINDNESS) &&
+                !player.hasVehicle() &&
+                !player.isSprinting();
     }
 
     public static boolean isFriend(Entity entity) {

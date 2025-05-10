@@ -67,7 +67,7 @@ public class JumpCircles extends ConfigurableModule {
 
         public JumpCircle(Vec3d position) {
             this.position = position;
-            this.offsetY = getRandomHeightOffset(0.01, 0.02, 0.0001);
+            this.offsetY = mc.player.getVelocity().getY();
             this.rotationAngle = 0f;
             this.angularVelocity = (float) Math.toRadians(CONFIG.jumpCirclesSpinSpeed);
             this.startTime = System.currentTimeMillis(); // Запоминаем время создания
@@ -81,15 +81,9 @@ public class JumpCircles extends ConfigurableModule {
             return elapsedTime > CONFIG.jumpCirclesLiveTime; // Сравниваем с временем жизни в секундах
         }
 
-        public static double getRandomHeightOffset(double min, double max, double step) {
-            Random random = new Random();
-            int steps = (int) ((max - min) / step);
-            return min + random.nextInt(steps + 1) * step;
-        }
-
         public void render(WorldRenderContext context, double cameraX, double cameraY, double cameraZ) {
             double x = position.x - cameraX;
-            double y = position.y - cameraY - 0.5 - offsetY;
+            double y = position.y - cameraY - offsetY;
             double z = position.z - cameraZ;
 
             updateRotation();
@@ -135,24 +129,23 @@ public class JumpCircles extends ConfigurableModule {
             int glowAlpha = ConfigUtils.intPercentToHexInt(CONFIG.jumpCirclesAlpha);
             float liveTime = CONFIG.jumpCirclesLiveTime;
 
+            RenderSystem.disableCull();
             RenderSystem.enableBlend();
-            RenderSystem.disableDepthTest();
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthMask(false);
             RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
-
-            RenderSystem.setShaderTexture(0, TexturesManager.getJumpCircleUnblack());
-
+            RenderSystem.setShaderTexture(0, TexturesManager.getJumpCircle());
             RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
+
             BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 
-            // Вычисляем долю возраста для масштабирования на основе реального времени
-            float elapsedTime = (System.currentTimeMillis() - startTime) / 1000f; // Прошедшее время в секундах
-            float ageFraction = elapsedTime / (liveTime / 3); // Нормализация по времени жизни
-            ageFraction *= 3; // Базовый коэффициент роста
-            float scaleMultiplier = CONFIG.jumpCirclesScale / 100f; // Масштаб от конфига
+            float elapsedTime = (System.currentTimeMillis() - startTime) / 1000f;
+            float ageFraction = elapsedTime / (liveTime / 3);
+            ageFraction *= 3;
+            float scaleMultiplier = CONFIG.jumpCirclesScale / 100f;
             ageFraction = MathHelper.clamp(ageFraction * scaleMultiplier, 0, scaleMultiplier);
 
-            float totalLifetime = liveTime; // Время жизни в секундах
-            float remainingFraction = MathHelper.clamp((totalLifetime - elapsedTime) / totalLifetime, 0, 1);
+            float remainingFraction = MathHelper.clamp((liveTime - elapsedTime) / liveTime, 0, 1);
 
             if (remainingFraction < 0.3f) {
                 float shrinkFactor = remainingFraction / 0.3f;
@@ -160,17 +153,16 @@ public class JumpCircles extends ConfigurableModule {
             }
 
             float interpolatedRadius = ageFraction;
-            float colorAnim = isFadeOut ? 1f - remainingFraction : 1.0f; // Учитываем флаг isFadeOut
+            float colorAnim = isFadeOut ? 1f - remainingFraction : 1.0f;
             float scale = interpolatedRadius * 2f;
 
-            // Получаем цвета из палитры
             Color color1 = Palette.getInterpolatedPaletteColor(0.0f);
             Color color2 = Palette.getInterpolatedPaletteColor(0.33f);
             Color color3 = Palette.getInterpolatedPaletteColor(0.66f);
             Color color4 = Palette.getInterpolatedPaletteColor(1.0f);
 
             modelMatrix.push();
-            modelMatrix.translate(x, y + 0.1f, z);
+            modelMatrix.translate(x, y, z);
             modelMatrix.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
             modelMatrix.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) Math.toDegrees(rotationAngle)));
             Matrix4f matrix = modelMatrix.peek().getPositionMatrix();
@@ -193,6 +185,7 @@ public class JumpCircles extends ConfigurableModule {
             Render2D.endBuilding(buffer);
             RenderSystem.disableBlend();
             RenderSystem.defaultBlendFunc();
+            RenderSystem.enableCull();
         }
     }
 

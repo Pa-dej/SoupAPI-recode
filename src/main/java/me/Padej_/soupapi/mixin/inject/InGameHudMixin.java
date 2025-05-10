@@ -4,10 +4,9 @@ import me.Padej_.soupapi.font.FontRenderers;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.BetterHudStyles;
 import me.Padej_.soupapi.modules.PotionsHud;
-import me.Padej_.soupapi.modules.TargetHud;
 import me.Padej_.soupapi.render.Render2D;
-import me.Padej_.soupapi.render.WatermarkRenderer;
 import me.Padej_.soupapi.utils.MathUtility;
+import me.Padej_.soupapi.utils.MouseUtils;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.MinecraftClient;
@@ -17,6 +16,7 @@ import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.profiler.Profilers;
 import org.jetbrains.annotations.Nullable;
@@ -26,7 +26,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.awt.*;
 
@@ -34,6 +36,122 @@ import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
+
+    @Unique
+    private static final float healthChangeSpeed = 0.2f;
+    @Unique
+    private static final float colorAnimationSpeed = 0.015f;
+    @Unique
+    private static final float SLOT_ANIMATION_SPEED = 10;
+    @Unique
+    private static float displayedHealth, displayedHunger, displayedArmor = 0f;
+    @Unique
+    private static float hpColorAnimationProgress, colorAnimationProgress = 0f;
+    @Unique
+    private static float hotbarColorAnimationProgress = 0f;
+    @Unique
+    private static long lastUpdateTime = System.currentTimeMillis();
+    @Shadow
+    @Final
+    private MinecraftClient client;
+    @Unique
+    private float selectedSlotProgress = 0f;
+    @Unique
+    private int targetSlot, lastSelectedSlot = 0;
+
+    @Inject(method = "renderArmor", at = @At("HEAD"), cancellable = true)
+    private static void renderArmor(DrawContext context, PlayerEntity player, int i, int j, int k, int x, CallbackInfo ci) {
+        boolean isLBStyle = CONFIG.hudBetterHotbarStyle.equals(BetterHudStyles.HotbarStyle.SIMPLE);
+
+        if (!CONFIG.hudBetterHotbarEnabled) return;
+        ci.cancel();
+
+        Color c1Base = Palette.getColor(0f);
+        Color c2Base = Palette.getColor(0.33f);
+        float hpProgress = (float) (Math.sin(hpColorAnimationProgress * Math.PI * 2) + 1) / 2f;
+        Color c1Hp = isLBStyle ? new Color(0xbebebe) : interpolateColor(c1Base, c2Base, hpProgress);
+        Color c2Hp = isLBStyle ? new Color(0xa8a8a8) : interpolateColor(c2Base, c1Base, hpProgress);
+
+        int barWidth = 81;
+        int barHeight = 10;
+        int yOffset = 55;
+        float cornerRadius = 2f;
+        int y = context.getScaledWindowHeight() - yOffset;
+        y -= 5;
+
+        int armor = player.getArmor();
+        float maxArmor = 20.0f;
+
+        if (armor == 0) return;
+        if (displayedArmor == 0f) displayedArmor = armor;
+        displayedArmor = MathHelper.lerp(0.2f, displayedArmor, armor);
+
+        // Слой 1: Затемнённый фон
+        if (!isLBStyle) {
+            Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, barWidth - 1, barHeight - 4, 10, c1Hp, c2Hp, c2Hp, c1Hp);
+        } else {
+            Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 0, 0, 1, c1Hp, c2Hp, c2Hp, c1Hp);
+        }
+        Render2D.drawGradientRound(context.getMatrices(), x, y, barWidth - 1, barHeight, cornerRadius + 1,
+                isLBStyle ? new Color(0xaabebebe).darker().darker() : c2Hp.darker().darker(),
+                isLBStyle ? new Color(0xaabebebe).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
+                isLBStyle ? new Color(0xaaa8a8a8).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
+                isLBStyle ? new Color(0xaaa8a8a8).darker().darker().darker() : c2Hp.darker().darker().darker().darker());
+
+        int filledWidth = (int) MathUtility.clamp((barWidth * (displayedArmor / maxArmor)), 0, barWidth);
+        if (filledWidth != 0) {
+            Render2D.renderRoundedGradientRect(context.getMatrices(), c1Hp, c2Hp, c2Hp, c1Hp, x, y, filledWidth, barHeight, cornerRadius);
+        }
+
+        String armorText = String.valueOf(Math.round(10.0 * displayedArmor) / 10.0);
+        float textX = x + barWidth / 2f;
+        float textY = y + 2.5f;
+        FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), armorText, textX, textY, Palette.getTextColor());
+
+        Render2D.renderTexture(context.getMatrices(), TexturesManager.GUI_SHIELD, x + 2.5f, y + 2.5f, 5, 5, 0, 0, 512, 512, 512, 512);
+    }
+
+    @Unique
+    private static Color[] getRotatingColors(float progress, Color c1, Color c2, Color c3, Color c4) {
+        progress = progress % 1.0f; // Зацикливаем прогресс
+        Color topLeft, topRight, bottomRight, bottomLeft;
+
+        if (progress < 0.25f) {
+            float phaseProgress = progress / 0.25f;
+            topLeft = interpolateColor(c1, c2, phaseProgress);
+            topRight = interpolateColor(c2, c3, phaseProgress);
+            bottomRight = interpolateColor(c3, c4, phaseProgress);
+            bottomLeft = interpolateColor(c4, c1, phaseProgress);
+        } else if (progress < 0.5f) {
+            float phaseProgress = (progress - 0.25f) / 0.25f;
+            topLeft = interpolateColor(c2, c3, phaseProgress);
+            topRight = interpolateColor(c3, c4, phaseProgress);
+            bottomRight = interpolateColor(c4, c1, phaseProgress);
+            bottomLeft = interpolateColor(c1, c2, phaseProgress);
+        } else if (progress < 0.75f) {
+            float phaseProgress = (progress - 0.5f) / 0.25f;
+            topLeft = interpolateColor(c3, c4, phaseProgress);
+            topRight = interpolateColor(c4, c1, phaseProgress);
+            bottomRight = interpolateColor(c1, c2, phaseProgress);
+            bottomLeft = interpolateColor(c2, c3, phaseProgress);
+        } else {
+            float phaseProgress = (progress - 0.75f) / 0.25f;
+            topLeft = interpolateColor(c4, c1, phaseProgress);
+            topRight = interpolateColor(c1, c2, phaseProgress);
+            bottomRight = interpolateColor(c2, c3, phaseProgress);
+            bottomLeft = interpolateColor(c3, c4, phaseProgress);
+        }
+        return new Color[]{topLeft, topRight, bottomRight, bottomLeft};
+    }
+
+    @Unique
+    private static Color interpolateColor(Color start, Color end, float progress) {
+        int r = MathHelper.lerp(progress, start.getRed(), end.getRed());
+        int g = MathHelper.lerp(progress, start.getGreen(), end.getGreen());
+        int b = MathHelper.lerp(progress, start.getBlue(), end.getBlue());
+        int a = MathHelper.lerp(progress, start.getAlpha(), end.getAlpha());
+        return new Color(r, g, b, a);
+    }
 
     @Shadow
     @Nullable
@@ -43,32 +161,9 @@ public abstract class InGameHudMixin {
     protected abstract void renderHotbarItem(DrawContext context, int x, int y, RenderTickCounter tickCounter, PlayerEntity player, ItemStack stack, int seed);
 
     @Shadow
-    @Final
-    private MinecraftClient client;
-
-    @Shadow
     protected abstract boolean shouldRenderExperience();
 
-    @Unique
-    private static final float healthChangeSpeed = 0.2f;
-    @Unique
-    private static final float colorAnimationSpeed = 0.015f;
-    @Unique
-    private static float displayedHealth, displayedHunger, displayedArmor = 0f;
-    @Unique
-    private static float hpColorAnimationProgress, colorAnimationProgress = 0f;
-
-    @Unique
-    private float selectedSlotProgress = 0f;
-    @Unique
-    private int targetSlot, lastSelectedSlot = 0;
-    @Unique
-    private static final float SLOT_ANIMATION_SPEED = 10;
-    @Unique
-    private static float hotbarColorAnimationProgress = 0f;
-
-    @Unique
-    private static long lastUpdateTime = System.currentTimeMillis();
+    @Shadow @Final private static Identifier CROSSHAIR_TEXTURE;
 
     @Inject(method = "render", at = @At("TAIL"))
     private void doFrame(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
@@ -241,58 +336,6 @@ public abstract class InGameHudMixin {
         FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), healthText, textX, textY, Palette.getTextColor());
 
         Render2D.renderTexture(context.getMatrices(), TexturesManager.GUI_HEART, x + 2.5, y + 2.5, 5, 5, 0, 0, 512, 512, 512, 512);
-    }
-
-    @Inject(method = "renderArmor", at = @At("HEAD"), cancellable = true)
-    private static void renderArmor(DrawContext context, PlayerEntity player, int i, int j, int k, int x, CallbackInfo ci) {
-        boolean isLBStyle = CONFIG.hudBetterHotbarStyle.equals(BetterHudStyles.HotbarStyle.SIMPLE);
-
-        if (!CONFIG.hudBetterHotbarEnabled) return;
-        ci.cancel();
-
-        Color c1Base = Palette.getColor(0f);
-        Color c2Base = Palette.getColor(0.33f);
-        float hpProgress = (float) (Math.sin(hpColorAnimationProgress * Math.PI * 2) + 1) / 2f;
-        Color c1Hp = isLBStyle ? new Color(0xbebebe) : interpolateColor(c1Base, c2Base, hpProgress);
-        Color c2Hp = isLBStyle ? new Color(0xa8a8a8) : interpolateColor(c2Base, c1Base, hpProgress);
-
-        int barWidth = 81;
-        int barHeight = 10;
-        int yOffset = 55;
-        float cornerRadius = 2f;
-        int y = context.getScaledWindowHeight() - yOffset;
-        y -= 5;
-
-        int armor = player.getArmor();
-        float maxArmor = 20.0f;
-
-        if (armor == 0) return;
-        if (displayedArmor == 0f) displayedArmor = armor;
-        displayedArmor = MathHelper.lerp(0.2f, displayedArmor, armor);
-
-        // Слой 1: Затемнённый фон
-        if (!isLBStyle) {
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, barWidth - 1, barHeight - 4, 10, c1Hp, c2Hp, c2Hp, c1Hp);
-        } else {
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 0, 0, 1, c1Hp, c2Hp, c2Hp, c1Hp);
-        }
-        Render2D.drawGradientRound(context.getMatrices(), x, y, barWidth - 1, barHeight, cornerRadius + 1,
-                isLBStyle ? new Color(0xaabebebe).darker().darker() : c2Hp.darker().darker(),
-                isLBStyle ? new Color(0xaabebebe).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
-                isLBStyle ? new Color(0xaaa8a8a8).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
-                isLBStyle ? new Color(0xaaa8a8a8).darker().darker().darker() : c2Hp.darker().darker().darker().darker());
-
-        int filledWidth = (int) MathUtility.clamp((barWidth * (displayedArmor / maxArmor)), 0, barWidth);
-        if (filledWidth != 0) {
-            Render2D.renderRoundedGradientRect(context.getMatrices(), c1Hp, c2Hp, c2Hp, c1Hp, x, y, filledWidth, barHeight, cornerRadius);
-        }
-
-        String armorText = String.valueOf(Math.round(10.0 * displayedArmor) / 10.0);
-        float textX = x + barWidth / 2f;
-        float textY = y + 2.5f;
-        FontRenderers.sf_bold.drawCenteredString(context.getMatrices(), armorText, textX, textY, Palette.getTextColor());
-
-        Render2D.renderTexture(context.getMatrices(), TexturesManager.GUI_SHIELD, x + 2.5f, y + 2.5f, 5, 5, 0, 0, 512, 512, 512, 512);
     }
 
     @Inject(method = "renderExperienceBar", at = @At("HEAD"), cancellable = true)
@@ -503,48 +546,6 @@ public abstract class InGameHudMixin {
         if (!CONFIG.hudBetterPotionsHudEnabled) return;
         PotionsHud.render(context);
         ci.cancel();
-    }
-
-    @Unique
-    private static Color[] getRotatingColors(float progress, Color c1, Color c2, Color c3, Color c4) {
-        progress = progress % 1.0f; // Зацикливаем прогресс
-        Color topLeft, topRight, bottomRight, bottomLeft;
-
-        if (progress < 0.25f) {
-            float phaseProgress = progress / 0.25f;
-            topLeft = interpolateColor(c1, c2, phaseProgress);
-            topRight = interpolateColor(c2, c3, phaseProgress);
-            bottomRight = interpolateColor(c3, c4, phaseProgress);
-            bottomLeft = interpolateColor(c4, c1, phaseProgress);
-        } else if (progress < 0.5f) {
-            float phaseProgress = (progress - 0.25f) / 0.25f;
-            topLeft = interpolateColor(c2, c3, phaseProgress);
-            topRight = interpolateColor(c3, c4, phaseProgress);
-            bottomRight = interpolateColor(c4, c1, phaseProgress);
-            bottomLeft = interpolateColor(c1, c2, phaseProgress);
-        } else if (progress < 0.75f) {
-            float phaseProgress = (progress - 0.5f) / 0.25f;
-            topLeft = interpolateColor(c3, c4, phaseProgress);
-            topRight = interpolateColor(c4, c1, phaseProgress);
-            bottomRight = interpolateColor(c1, c2, phaseProgress);
-            bottomLeft = interpolateColor(c2, c3, phaseProgress);
-        } else {
-            float phaseProgress = (progress - 0.75f) / 0.25f;
-            topLeft = interpolateColor(c4, c1, phaseProgress);
-            topRight = interpolateColor(c1, c2, phaseProgress);
-            bottomRight = interpolateColor(c2, c3, phaseProgress);
-            bottomLeft = interpolateColor(c3, c4, phaseProgress);
-        }
-        return new Color[]{topLeft, topRight, bottomRight, bottomLeft};
-    }
-
-    @Unique
-    private static Color interpolateColor(Color start, Color end, float progress) {
-        int r = MathHelper.lerp(progress, start.getRed(), end.getRed());
-        int g = MathHelper.lerp(progress, start.getGreen(), end.getGreen());
-        int b = MathHelper.lerp(progress, start.getBlue(), end.getBlue());
-        int a = MathHelper.lerp(progress, start.getAlpha(), end.getAlpha());
-        return new Color(r, g, b, a);
     }
 
 }

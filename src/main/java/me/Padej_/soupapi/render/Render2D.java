@@ -423,6 +423,7 @@ public class Render2D {
         RenderSystem.depthMask(false);
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
         RenderSystem.setShaderTexture(0, texture);
+
         RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
 
         RenderSystem.setShaderColor(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, c.getAlpha() / 255f);
@@ -432,15 +433,6 @@ public class Render2D {
         RenderSystem.enableDepthTest();
         RenderSystem.disableBlend();
     }
-
-//    public static void drawGlyphs(MatrixStack matrices, Identifier texture, Color c, float scale) {
-//        setupRender();
-//        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
-//        RenderSystem.setShaderTexture(0, texture);
-//        RenderSystem.setShaderColor(c.getRed() / 255f, c.getGreen() / 255f, c.getBlue() / 255f, c.getAlpha() / 255f);
-//        Render2D.renderGradientTexture(matrices, 0, 0, scale, scale, 0, 0, 128, 128, 128, 128, c, c, c, c);
-//        endRender();
-//    }
 
     public static void endBuilding(BufferBuilder bb) {
         BuiltBuffer builtBuffer = bb.endNullable();

@@ -2,6 +2,7 @@ package me.Padej_.soupapi.mixin;
 
 import net.minecraft.text.TextVisitFactory;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
@@ -12,7 +13,7 @@ import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 
 @Mixin(TextVisitFactory.class)
 public class TranslateToBruh {
-    // Маппинг русских букв на английские
+    @Unique
     private static final Map<Character, String> TRANSLIT_MAP = new HashMap<>();
 
     static {
@@ -55,10 +56,9 @@ public class TranslateToBruh {
         if (!CONFIG.translatorBruhEnabled) return text;
         boolean hasRussian = text.chars().anyMatch(ch -> TRANSLIT_MAP.containsKey((char) ch));
         if (!hasRussian) {
-            return text; // Возвращаем оригинальный текст, если русских букв нет
+            return text;
         }
 
-        // Переводим текст
         StringBuilder translated = new StringBuilder();
         for (char ch : text.toCharArray()) {
             translated.append(TRANSLIT_MAP.getOrDefault(ch, String.valueOf(ch)));

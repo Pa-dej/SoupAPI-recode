@@ -8,6 +8,7 @@ import me.Padej_.soupapi.utils.MathUtility;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -19,6 +20,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -39,13 +41,68 @@ public class HitParticle extends ConfigurableModule {
     private static final Random RANDOM = new Random();
     public static LivingEntity damagedEntity;
 
+    public static void registerOnHit() {
+        AttackEntityCallback.EVENT.register((playerEntity, world, hand, entity, hitResult) -> {
+            if (!CONFIG.hitParticlesEnabled || playerEntity != mc.player) {
+                return ActionResult.PASS;
+            }
+            if (!(entity instanceof LivingEntity target) || !target.isAlive()) {
+                return ActionResult.PASS;
+            }
+            if (CONFIG.hitParticlesCritOnly && !EntityUtils.isCrit()) {
+                return ActionResult.PASS;
+            }
+
+            damagedEntity = target; // Отмечаем пораженную сущность
+
+            // Создаем частицы при попадании
+            for (int i = 0; i < CONFIG.hitParticlesCount; i++) {
+                Color c = Palette.getRandomColor();
+                float critOffset = CONFIG.hitParticlesLikeCrit ? 0 : target.getHeight() / 2f;
+                float baseX = (float) target.getX();
+                float baseY = (float) (target.getY() + critOffset);
+                float baseZ = (float) target.getZ();
+
+                if (CONFIG.hitParticlesLikeCrit) {
+                    float offsetX = (RANDOM.nextFloat() - 0.5f) * target.getWidth();
+                    float offsetY = RANDOM.nextFloat() * target.getHeight();
+                    float offsetZ = (RANDOM.nextFloat() - 0.5f) * target.getWidth();
+
+                    particles.add(new Particle(
+                            baseX + offsetX,
+                            baseY + offsetY,
+                            baseZ + offsetZ,
+                            c,
+                            MathUtility.random(0, 360),
+                            MathUtility.random(10f, 60f),
+                            0,
+                            false
+                    ));
+                } else {
+                    particles.add(new Particle(
+                            baseX,
+                            baseY,
+                            baseZ,
+                            c,
+                            MathUtility.random(0, 180),
+                            MathUtility.random(10f, 60f),
+                            0,
+                            false
+                    ));
+                }
+            }
+
+            return ActionResult.PASS;
+        });
+    }
+
     public static void onTick() {
         if (mc.player == null || !CONFIG.hitParticlesEnabled) return;
 
         particles.removeIf(Particle::update);
         updateAvailableTextures();
 
-        if (CONFIG.hitParticlesCritOnly && !EntityUtils.particleCrit) return;
+        if (CONFIG.hitParticlesCritOnly && !EntityUtils.isCrit()) return;
 
         // Текстовые частицы
         if (!CONFIG.hitParticlesTextMode.equals(HitTextMode.DISABLED)) {
@@ -60,12 +117,12 @@ public class HitParticle extends ConfigurableModule {
                         float delta = health - lastHealth;
                         if (!CONFIG.hitParticlesTextShowHeal && delta > 0) continue;
 
-                        Color c = Palette.getRandomColor();
+                        Color color = Palette.getRandomColor();
                         particles.add(new Particle(
                                 (float) lent.getX(),
                                 MathUtility.random((float) (lent.getY() + lent.getHeight()), (float) lent.getY()),
                                 (float) lent.getZ(),
-                                c,
+                                color,
                                 MathUtility.random(0, 180),
                                 MathUtility.random(10f, 60f),
                                 delta,
@@ -73,13 +130,13 @@ public class HitParticle extends ConfigurableModule {
                     }
                 }
             } else if (CONFIG.hitParticlesTextMode == HitTextMode.ONLY_SELF_DAMAGE && mc.player.hurtTime > 0 && CONFIG.hitParticlesSelf) {
-                Color c = Palette.getRandomColor();
+                Color color = Palette.getRandomColor();
                 float delta = -1.0f;
                 particles.add(new Particle(
                         (float) mc.player.getX(),
                         MathUtility.random((float) (mc.player.getY() + mc.player.getHeight()), (float) mc.player.getY()),
                         (float) mc.player.getZ(),
-                        c,
+                        color,
                         MathUtility.random(0, 180),
                         MathUtility.random(10f, 60f),
                         delta,
@@ -87,48 +144,7 @@ public class HitParticle extends ConfigurableModule {
             }
         }
 
-        // Частицы при попадании по сущностям
-        for (Entity entity : mc.world.getEntities()) {
-            if (!(entity instanceof LivingEntity target) || entity == mc.player || !target.isAlive()) continue;
-            if (target.hurtTime == 9 && entity.equals(damagedEntity)) {
-                for (int i = 0; i < CONFIG.hitParticlesCount; i++) {
-                    Color c = Palette.getRandomColor();
-                    float critOffset = CONFIG.hitParticlesLikeCrit ? 0 : target.getHeight() / 2f;
-                    float baseX = (float) target.getX();
-                    float baseY = (float) (target.getY() + critOffset);
-                    float baseZ = (float) target.getZ();
-
-                    if (CONFIG.hitParticlesLikeCrit) {
-                        float offsetX = (RANDOM.nextFloat() - 0.5f) * target.getWidth();
-                        float offsetY = RANDOM.nextFloat() * target.getHeight();
-                        float offsetZ = (RANDOM.nextFloat() - 0.5f) * target.getWidth();
-
-                        particles.add(new Particle(
-                                baseX + offsetX,
-                                baseY + offsetY,
-                                baseZ + offsetZ,
-                                c,
-                                MathUtility.random(0, 360),
-                                MathUtility.random(10f, 60f),
-                                0,
-                                false
-                        ));
-                    } else {
-                        particles.add(new Particle(
-                                baseX,
-                                baseY,
-                                baseZ,
-                                c,
-                                MathUtility.random(0, 180),
-                                MathUtility.random(10f, 60f),
-                                0,
-                                false
-                        ));
-                    }
-                }
-            }
-        }
-
+        // Частицы для игрока при получении урона
         if (mc.player.hurtTime == 9 && CONFIG.hitParticlesSelf) {
             for (int i = 0; i < CONFIG.hitParticlesCount; i++) {
                 Color c = Palette.getRandomColor();
@@ -143,10 +159,7 @@ public class HitParticle extends ConfigurableModule {
                         false));
             }
         }
-
-        EntityUtils.particleCrit = false;
     }
-
 
     public static void render(WorldRenderContext context) {
         RenderSystem.disableDepthTest();

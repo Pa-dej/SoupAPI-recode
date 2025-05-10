@@ -20,4 +20,9 @@ public abstract class BiomeEffectsMixin {
     private int getFogColor(int original) {
         return CONFIG.coloredSkyEnabled ? Palette.getColor(0).getRGB() : original;
     }
+
+    @ModifyReturnValue(method = "getWaterColor", at = @At("RETURN"))
+    private int getWaterColor(int original) {
+        return CONFIG.coloredSkyEnabled ? Palette.getColor(0).getRGB() : original;
+    }
 }

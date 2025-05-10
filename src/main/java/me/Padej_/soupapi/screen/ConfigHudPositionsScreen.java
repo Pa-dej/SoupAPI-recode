@@ -18,6 +18,7 @@ public class ConfigHudPositionsScreen extends Screen {
     private final Frame targetHudFrame;
     private final Frame potionsHudFrame;
     private final Frame watermarkFrame;
+    private final Frame mouseMoveFrame;
 
     public ConfigHudPositionsScreen() {
         super(Text.of("SoupAPI config screen"));
@@ -44,6 +45,13 @@ public class ConfigHudPositionsScreen extends Screen {
                 "Watermark",
                 0xAAFF5555
         );
+        mouseMoveFrame = new Frame(
+                CONFIG.mouseMoveX,
+                CONFIG.mouseMoveY,
+                40, 40,
+                "Mouse Move",
+                0xAA0055FF
+        );
 
     }
 
@@ -51,7 +59,8 @@ public class ConfigHudPositionsScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         boolean hovering = targetHudFrame.isMouseOverDragArea(mouseX, mouseY)
                 || potionsHudFrame.isMouseOverDragArea(mouseX, mouseY)
-                || watermarkFrame.isMouseOverDragArea(mouseX, mouseY);
+                || watermarkFrame.isMouseOverDragArea(mouseX, mouseY)
+                || mouseMoveFrame.isMouseOverDragArea(mouseX, mouseY);
 
         if (hovering) {
             CursorUtils.setResizeCursor();
@@ -62,10 +71,12 @@ public class ConfigHudPositionsScreen extends Screen {
         targetHudFrame.render(context);
         potionsHudFrame.render(context);
         watermarkFrame.render(context);
+        mouseMoveFrame.render(context);
 
         renderSnapGuides(context, targetHudFrame);
         renderSnapGuides(context, potionsHudFrame);
         renderSnapGuides(context, watermarkFrame);
+        renderSnapGuides(context, mouseMoveFrame);
     }
 
     @Override
@@ -81,6 +92,10 @@ public class ConfigHudPositionsScreen extends Screen {
             }
             if (watermarkFrame.isMouseOverDragArea(mouseX, mouseY)) {
                 watermarkFrame.startDragging(mouseX, mouseY);
+                return true;
+            }
+            if (mouseMoveFrame.isMouseOverDragArea(mouseX, mouseY)) {
+                mouseMoveFrame.startDragging(mouseX, mouseY);
                 return true;
             }
         }
@@ -113,6 +128,13 @@ public class ConfigHudPositionsScreen extends Screen {
                 CONFIG.waterMarkY = snapped.y;
                 return true;
             }
+            if (mouseMoveFrame.isDragging()) {
+                Point snapped = applySnappingOffsets(mouseMoveFrame, mouseX, mouseY);
+                mouseMoveFrame.setPosition(snapped.x, snapped.y);
+                CONFIG.mouseMoveX = snapped.x;
+                CONFIG.mouseMoveY = snapped.y;
+                return true;
+            }
         }
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
     }
@@ -123,6 +145,7 @@ public class ConfigHudPositionsScreen extends Screen {
             targetHudFrame.stopDragging();
             potionsHudFrame.stopDragging();
             watermarkFrame.stopDragging();
+            mouseMoveFrame.stopDragging();
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
@@ -137,6 +160,8 @@ public class ConfigHudPositionsScreen extends Screen {
         CONFIG.hudBetterPotionsHudY = potionsHudFrame.getOffsetY(0);
         CONFIG.waterMarkX = watermarkFrame.getOffsetX(0);
         CONFIG.waterMarkY = watermarkFrame.getOffsetY(0);
+        CONFIG.mouseMoveX = mouseMoveFrame.getOffsetX(0);
+        CONFIG.mouseMoveY = mouseMoveFrame.getOffsetY(0);
         ConfigurableModule.saveConfig();
         CursorUtils.setDefaultCursor();
         super.close();

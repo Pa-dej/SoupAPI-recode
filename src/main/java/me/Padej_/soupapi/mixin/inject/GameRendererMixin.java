@@ -5,20 +5,18 @@ import me.Padej_.soupapi.mixin.access.GameRendererAccessor;
 import me.Padej_.soupapi.modules.AspectRatio;
 import me.Padej_.soupapi.modules.TargetHud;
 import me.Padej_.soupapi.render.TargetHudRenderer;
-import me.Padej_.soupapi.utils.Palette;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 import org.joml.Matrix4f;
 import org.objectweb.asm.Opcodes;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -31,7 +29,9 @@ import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
+    @Unique
     private Color floatingTotemColor = null;
+    @Unique
     private int lastTotemTimeLeft = -1;
 
     @Shadow
@@ -42,10 +42,6 @@ public abstract class GameRendererMixin {
     private float zoomY;
     @Shadow
     private float viewDistance;
-
-    @Shadow
-    @Final
-    private OverlayTexture overlayTexture;
 
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/GameRenderer;renderHand:Z", opcode = Opcodes.GETFIELD, ordinal = 0), method = "renderWorld")
     public void render3dHook(RenderTickCounter tickCounter, CallbackInfo ci) {

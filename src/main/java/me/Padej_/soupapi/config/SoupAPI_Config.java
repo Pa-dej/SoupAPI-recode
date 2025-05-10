@@ -27,6 +27,8 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("main")
     public boolean friendsHighlight = true;
     @ConfigEntry.Category("main")
+    public boolean friendsHighlightOnlyArmor = true;
+    @ConfigEntry.Category("main")
     public boolean friendsHighlightSyncColor = false;
     @ConfigEntry.Category("main")
     @ConfigEntry.ColorPicker
@@ -221,6 +223,8 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.PrefixText // ambient particles
     @ConfigEntry.Category("world")
     public boolean ambientParticlesEnabled = false;
+    @ConfigEntry.Category("world")
+    public boolean ambientParticlesWavyColor = true; // TODO: Сделать переливание переключаемым, между переливанием и использование случайного цвета из палитры.
 
     @ConfigEntry.Category("world")
     public boolean ambientParticlesIncludeFirefly = false;
@@ -234,20 +238,24 @@ public class SoupAPI_Config implements ConfigData {
     public boolean ambientParticlesIncludeStar = false;
     @ConfigEntry.Category("world")
     public boolean ambientParticlesIncludeGlyphs = false;
-
-    @ConfigEntry.Gui.PrefixText
     @ConfigEntry.Category("world")
-    @ConfigEntry.BoundedDiscrete(min = 50, max = 200)
-    public int ambientParticlesLiveTime = 100;
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public AmbientParticle.Style ambientParticlesStyle = AmbientParticle.Style.BOTH;
     @ConfigEntry.Category("world")
-    @ConfigEntry.BoundedDiscrete(min = 5, max = 150)
-    public int ambientParticlesMaxCount = 65;
+    @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
+    public AmbientParticle.Physics ambientParticlesPhysic = AmbientParticle.Physics.FALL;
     @ConfigEntry.Category("world")
-    @ConfigEntry.BoundedDiscrete(min = 4, max = 30)
-    public int ambientParticlesSpawnRadius = 20;
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 200)
+    public int ambientParticlesDefaultParticleScale = 100;
     @ConfigEntry.Category("world")
-    @ConfigEntry.BoundedDiscrete(min = 2, max = 15)
-    public int ambientParticlesIgnoreSpawnRadius = 10;
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 200)
+    public int ambientParticlesParticleWithTrailScale = 100;
+    @ConfigEntry.Category("world")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 400)
+    public int ambientParticlesDefaultParticleCount = 100;
+    @ConfigEntry.Category("world")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 150)
+    public int ambientParticlesParticleWithTrailCount = 30;
 
     @ConfigEntry.Gui.PrefixText // Time Changer
     @ConfigEntry.Category("world")
@@ -302,11 +310,14 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public TargetRender.LegacyTexture targetRenderLegacyTexture = TargetRender.LegacyTexture.LEGACY;
     @ConfigEntry.Category("target_render")
-    @ConfigEntry.BoundedDiscrete(min = -100, max = 100)
+    @ConfigEntry.BoundedDiscrete(min = -150, max = 150)
     public int targetRenderLegacyRollSpeed = 70;
     @ConfigEntry.Category("target_render")
     @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
     public int targetRenderLegacyScale = 60;
+    @ConfigEntry.Category("target_render")
+    @ConfigEntry.BoundedDiscrete(min = 50, max = 100)
+    public int targetRenderLegacyAlpha = 80;
 
     @ConfigEntry.Gui.PrefixText // soul
     @ConfigEntry.Category("target_render")
@@ -548,8 +559,16 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("no_render")
     public boolean noFireOverlayEnabled = false;
     @ConfigEntry.Category("no_render")
+    public boolean noFireOverlayCustomColorEnabled = false;
+    @ConfigEntry.Category("no_render")
     @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
     public int noFireOverlayY = 35;
+    @ConfigEntry.Category("no_render")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
+    public int noFireOverlayAlpha = 90;
+    @ConfigEntry.Category("no_render")
+    @ConfigEntry.ColorPicker
+    public int noFireOverlayCustomColor = 0xff0000;
 
     /**
      * TOTEM
@@ -678,4 +697,16 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("capes")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public Capes.Config updateCape_BUTTON = Capes.Config.UPDATE_CAPE;
+
+    /**
+     * MOUSE MOVE
+     **/
+    @ConfigEntry.Category("mouse_move")
+    public boolean mouseMoveEnabled = false;
+    @ConfigEntry.Category("mouse_move")
+    public boolean mouseMoveBlur = false;
+    @ConfigEntry.Category("mouse_move")
+    public int mouseMoveX = 900;
+    @ConfigEntry.Category("mouse_move")
+    public int mouseMoveY = 450;
 }

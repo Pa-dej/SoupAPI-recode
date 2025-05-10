@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 
-@Mixin(value = AbstractClientPlayerEntity.class, priority = 2000)
+@Mixin(value = AbstractClientPlayerEntity.class, priority = 20000)
 public abstract class CapeTextureChanger extends PlayerEntity {
 
     @Shadow

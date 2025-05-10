@@ -12,6 +12,7 @@ public class TexturesManager extends ConfigurableModule {
     private static final Identifier CIRCLE_BOLD = Identifier.of("soupapi", "textures/jump_circles/circle_bold.png");
     private static final Identifier HEXAGON = Identifier.of("soupapi", "textures/jump_circles/hexagon.png");
     public static final Identifier PORTAL = Identifier.of("soupapi", "textures/jump_circles/portal.png");
+    public static final Identifier SOUP = Identifier.of("soupapi", "textures/jump_circles/soup.png");
     public static final Identifier PORTAL_2 = Identifier.of("soupapi", "textures/jump_circles/portal_2.png");
 
     private static final Identifier CIRCLE_UNBLACK = Identifier.of("soupapi", "textures/jump_circles/circle_unblack.png");
@@ -86,13 +87,13 @@ public class TexturesManager extends ConfigurableModule {
             GLYPH_QUAD, GLYPH_STAR, GLYPH_TRIANGLE, GLYPH_ZIGZAG,
     };
 
-    public static Identifier getJumpCircleUnblack() {
+    public static Identifier getJumpCircle() {
         return switch (CONFIG.jumpCirclesStyle) {
-            case CIRCLE -> CIRCLE_UNBLACK;
-            case PORTAL -> PORTAL_UNBLACK;
-            case HEXAGON -> HEXAGON_UNBLACK;
-            case CIRCLE_BOLD -> CIRCLE_BOLD_UNBLACK;
-            case SOUP -> SOUP_UNBLACK;
+            case CIRCLE -> CIRCLE;
+            case PORTAL -> PORTAL;
+            case HEXAGON -> HEXAGON;
+            case CIRCLE_BOLD -> CIRCLE_BOLD;
+            case SOUP -> SOUP;
         };
     }
 

@@ -11,11 +11,11 @@ import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class JumpParticles extends ConfigurableModule {
 
         boolean isJumping = !mc.player.isOnGround();
         if (isJumping && !wasJumping && mc.options.jumpKey.isPressed()) {
-            spawnParticles(mc.player);
+            spawnParticles();
         }
         wasJumping = isJumping;
 
@@ -69,14 +69,14 @@ public class JumpParticles extends ConfigurableModule {
         }
     }
 
-    private static void spawnParticles(PlayerEntity player) {
-        Color c = Palette.getRandomColor();
+    private static void spawnParticles() {
+        if (mc.player == null) return;
+        Vec3d pos = mc.player.getPos();
         for (int i = 0; i < CONFIG.jumpParticlesCount; i++) {
+            Color color = Palette.getRandomColor();
             particles.add(new Particle(
-                    (float) player.getX(),
-                    (float) (player.getY()),
-                    (float) player.getZ(),
-                    c,
+                    (float) pos.getX(), (float) pos.getY(), (float) pos.getZ(),
+                    color,
                     MathUtility.random(0, 180),
                     MathUtility.random(10f, 60f)
             ));
@@ -121,7 +121,9 @@ public class JumpParticles extends ConfigurableModule {
         public boolean update() {
             double sp = Math.sqrt(motionX * motionX + motionZ * motionZ);
 
-            px = x; py = y; pz = z;
+            px = x;
+            py = y;
+            pz = z;
             x += motionX;
             y += motionY;
             z += motionZ;
@@ -139,12 +141,10 @@ public class JumpParticles extends ConfigurableModule {
 
                 motionX *= 0.98f;
                 motionZ *= 0.98f;
-            }
-
-            else if (posBlock(x - sp, y, z - sp) || posBlock(x + sp, y, z + sp) ||
+            } else if (posBlock(x - sp, y, z - sp) || posBlock(x + sp, y, z + sp) ||
                     posBlock(x + sp, y, z - sp) || posBlock(x - sp, y, z + sp) ||
-                    posBlock(x + sp, y, z)     || posBlock(x - sp, y, z)     ||
-                    posBlock(x, y, z + sp)     || posBlock(x, y, z - sp)) {
+                    posBlock(x + sp, y, z) || posBlock(x - sp, y, z) ||
+                    posBlock(x, y, z + sp) || posBlock(x, y, z - sp)) {
                 motionX = -motionX * 0.9f;
                 motionZ = -motionZ * 0.9f;
             }

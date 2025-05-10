@@ -1,4 +1,4 @@
-package me.Padej_.soupapi.mixin;
+package me.Padej_.soupapi.mixin.modifyReturnValue;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import me.Padej_.soupapi.render.TargetHudRenderer;
@@ -26,7 +26,8 @@ public class EquipmentRendererMixin {
         Entity entity = CaptureArmoredEntity.get();
         if ((entity instanceof PlayerEntity player && player == MinecraftClient.getInstance().player || EntityUtils.isFriend(entity)) && CONFIG.friendsHighlight) {
             int customColor = CONFIG.friendCustomColor;
-            int syncColor = ColorUtils.getMaxSaturationColor(TargetHudRenderer.bottomRight.getRGB());
+//            int syncColor = ColorUtils.getMaxSaturationColor(TargetHudRenderer.bottomRight.getRGB());
+            int syncColor = TargetHudRenderer.bottomRight.getRGB();
             return CONFIG.friendsHighlightSyncColor ? syncColor : customColor;
         }
         return original;

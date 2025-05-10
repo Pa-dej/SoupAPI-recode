@@ -224,24 +224,20 @@ public class Trails extends ConfigurableModule {
     }
 
     private static int computeFadedAlpha(float yOffset, float height) {
-        float yRelative = yOffset / height; // 0.0 (низ) → 1.0 (верх)
+        float yRelative = yOffset / height;
         if (yRelative <= 0.5f) {
-            // От низа (255) до середины (0)
             return (int) ((1.0f - yRelative / 0.5f) * 255);
         } else {
-            // От середины (0) до верха (255)
             return (int) (((yRelative - 0.5f) / 0.5f) * 255);
         }
     }
 
     private static int computeFadedAlphaInvert(float yOffset, float height) {
-        float yRelative = yOffset / height; // 0.0 (низ) → 1.0 (верх)
+        float yRelative = yOffset / height;
         int alphaFactor = (int) (255 * (CONFIG.trailsAlphaFactor / 100.0f));
         if (yRelative <= 0.5f) {
-            // От низа (alphaFactor) до середины (255)
             return (int) (alphaFactor + (yRelative / 0.5f) * (255 - alphaFactor));
         } else {
-            // От середины (255) до верха (alphaFactor)
             return (int) (255 - ((yRelative - 0.5f) / 0.5f) * (255 - alphaFactor));
         }
     }

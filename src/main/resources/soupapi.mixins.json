@@ -5,24 +5,23 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "FallDistanceFix",
+    "LivingEntityTEST_Mixin",
     "TranslateToBruh",
-    "TranslateToEnAll",
     "inject.RegisterEntityTrails",
     "modifyReturnValue.BiomeEffectsMixin",
     "redirect.PlayerEntityMixin"
   ],
   "client": [
-    "EntityRenderDispatcherMixin",
-    "EquipmentRendererMixin",
     "MCTierBadge",
+    "MouseMixin",
     "access.GameRendererAccessor",
     "access.HeadFeatureRendererAccessor",
     "access.LivingEntityRendererAccessor",
+    "access.MouseAccessor",
     "access.NativeImageAccessor",
     "inject.ButtonWidgetMixin",
     "inject.ClientWorldPropertiesMixin",
     "inject.ClientWorldWeather",
-    "inject.FireOverlayMixin",
     "inject.GameRendererMixin",
     "inject.InGameHudMixin",
     "inject.MixinBackgroundRenderer",
@@ -31,8 +30,12 @@
     "inject.PlayerEntityRendererMixin",
     "inject.Registrier",
     "inject.ScreenMixin",
+    "modifyArg.ModelPartMixin",
     "modifyReturnValue.CapeTextureChanger",
-    "redirect.ScoreboardStyleMixin"
+    "modifyReturnValue.EquipmentRendererMixin",
+    "redirect.FireOverlayMixin",
+    "redirect.ScoreboardStyleMixin",
+    "wrapOperation.EntityRenderDispatcherMixin"
   ],
   "injectors": {
     "defaultRequire": 1

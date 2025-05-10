@@ -28,6 +28,15 @@ public class Palette {
         return SoupAPI_Main.configHolder.get().c4;
     }
 
+    public static int getColorsCount() {
+        return switch (getStyle()) {
+            case SOLO -> 1;
+            case DUO -> 2;
+            case TRIO -> 3;
+            case QUARTET -> 4;
+        };
+    }
+
     public static Color getInterpolatedPaletteColor(float progress) {
         Palette.ColorsStyle style = SoupAPI_Main.configHolder.get().paletteStyle;
         int c1 = SoupAPI_Main.configHolder.getConfig().c1;

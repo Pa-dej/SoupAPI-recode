@@ -21,6 +21,10 @@ public class HitSound extends ConfigurableModule {
 
                 if (!CONFIG.hitSoundOnlyCrit) {
                     playSound();
+                } else {
+                    if (EntityUtils.isCrit()) {
+                        playSound();
+                    }
                 }
             }
             return ActionResult.PASS;

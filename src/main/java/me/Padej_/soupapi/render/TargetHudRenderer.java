@@ -57,8 +57,8 @@ public class TargetHudRenderer extends ConfigurableModule {
         int r = 3;
         int xOffset = 24;
         int yOffset = 3;
-        Render2D.renderRoundedGradientRect(context.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x + xOffset, y + yOffset, w + 5, h + 5, r);
-        Render2D.drawRound(context.getMatrices(), x + 0.5f + xOffset, y + 0.5f + yOffset, w + 4, h + 5, r, Render2D.injectAlpha(Color.BLACK, 180));
+//        Render2D.renderRoundedGradientRect(context.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x + xOffset, y + yOffset, w + 5, h + 5, r);
+        Render2D.drawRound(context.getMatrices(), x + 0.5f + xOffset, y + 0.5f + yOffset, w + 4, h + 5, r, Render2D.injectAlpha(new Color(0x181a29), 180));
 
         // Голова игрока
         Identifier texture = mc.player.getSkinTextures().texture();
@@ -171,7 +171,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         // Градиентный фон
         Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 91, 31, 20, bottomLeft, bottomRight, topRight, topLeft);
         Render2D.renderRoundedGradientRect(context.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x, y, 95, 35, 7);
-        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, 94, 34, 7, Render2D.injectAlpha(Color.BLACK, 180));
+        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, 94, 34, 7, Render2D.injectAlpha(new Color(0x181a29), 180));
 
         // Голова игрока
         Identifier texture = mc.player.getSkinTextures().texture();
@@ -270,7 +270,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         // Градиентный фон
         Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 133, 43, 20, bottomLeft, bottomRight, topRight, topLeft);
         Render2D.renderRoundedGradientRect(context.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x, y, 137, 47.5f, 9);
-        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, 136, 46, 9, Render2D.injectAlpha(Color.BLACK, 220));
+        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, 136, 46, 9, Render2D.injectAlpha(new Color(0x181a29), 220));
 
         // Голова игрока
         Identifier texture = mc.player.getSkinTextures().texture();
@@ -395,7 +395,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 0.0F);
         RenderSystem.clear(GL40C.GL_COLOR_BUFFER_BIT);
         RenderSystem.colorMask(true, true, true, true);
-        Render2D.drawRound(context.getMatrices(), x + 3.5f, y + 3.5f, 40, 40, 5, Render2D.injectAlpha(Color.BLACK, 20));
+        Render2D.drawRound(context.getMatrices(), x + 3.5f, y + 3.5f, 40, 40, 5, Render2D.injectAlpha(new Color(0x181a29), 20));
         Render2D.setupRender();
         Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x + 3.5f, y + 3.5f, x + 3.5f + headScale * 2, y + 3.5f + headScale * 2, 5, 3);
         RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);

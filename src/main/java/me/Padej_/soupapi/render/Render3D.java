@@ -24,6 +24,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Render3D extends ConfigurableModule {
     private static float rollAngle = 0.0f;
@@ -69,7 +70,7 @@ public class Render3D extends ConfigurableModule {
 
             // Вычисляем альфа-значение в зависимости от расстояния от центра
             if (isHalf) {
-                float distanceFromCenter = (float) Math.sqrt(xCoords[i] * xCoords[i] + zCoords[i] * zCoords[i]);
+                float distanceFromCenter = Math.sqrt(xCoords[i] * xCoords[i] + zCoords[i] * zCoords[i]);
                 float alphaFactor = 1.0f - (distanceFromCenter / baseRadius); // От 1 в центре до 0 на краю
                 alphas[i] = Math.max(alphaFactor, 0) * alpha; // Умножаем на базовую альфу
             } else {
@@ -136,11 +137,11 @@ public class Render3D extends ConfigurableModule {
     }
 
     public static void drawLegacy(float tickDelta, Entity targetEntity) {
-        if (targetEntity == null) return;
+        if (targetEntity == null || mc.world == null) return;
 
         Vec3d entityPos = calculateEntityPositionRelativeToCamera(camera, tickDelta, targetEntity);
         float halfSize = (CONFIG.targetRenderLegacyScale / 50f) / 2.0F;
-        float alpha = 1.0F;
+        float alpha = CONFIG.targetRenderLegacyAlpha / 100f;
 
         float time = mc.world.getTime() % 360;
         int rotationAngle = 360 / 5;
@@ -154,7 +155,7 @@ public class Render3D extends ConfigurableModule {
         long currentTime = System.currentTimeMillis();
         float deltaTime = (currentTime - lastUpdateTime) / 1000f;
         lastUpdateTime = currentTime;
-        rollAngle = (rollAngle + 90f * deltaTime) % 360f;
+        rollAngle = (rollAngle + 90f * deltaTime * (CONFIG.targetRenderLegacyRollSpeed / 100f)) % 360f;
 
         MatrixStack matrices = new MatrixStack();
         matrices.push();
@@ -164,13 +165,13 @@ public class Render3D extends ConfigurableModule {
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-camera.getYaw()));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
 
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-rollAngle));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rollAngle));
 
         Matrix4f matrix = matrices.peek().getPositionMatrix();
 
         RenderSystem.enableBlend();
         RenderSystem.depthMask(true);
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
+        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         RenderSystem.setShaderTexture(0, TexturesManager.getTargetRenderTexture());
         RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
         TargetRender.TargetRenderSoulStyle.setupBlendFunc();
@@ -383,7 +384,7 @@ public class Render3D extends ConfigurableModule {
         generateSpiralVectors(spirals, radius, height, heightStep);
 
         stack.push();
-        stack.translate(x, y, z);
+        stack.translate(x, y - height / 2, z);
         setupRender();
         RenderSystem.disableCull();
         RenderSystem.enableDepthTest();
@@ -479,16 +480,15 @@ public class Render3D extends ConfigurableModule {
         Render2D.endBuilding(bufferBuilder);
     }
 
-    public static void drawScanEsp(MatrixStack stack, @NotNull Entity target) {
+    public static void drawScanEsp(MatrixStack stack, Entity target) {
 
         float tickDelta = mc.getRenderTickCounter().getTickDelta(true);
-        float animationSpeed = CONFIG.targetRenderTopkaSpeed / 100f; // 10 - 70
+        float animationSpeed = CONFIG.targetRenderTopkaSpeed / 100f;
         float minHeightOffset = 0.01f;
         float maxHeightOffset = 0.5f;
 
-        float radius = CONFIG.targetRenderTopkaRadius / 100f; // 50 - 80
+        float radius = CONFIG.targetRenderTopkaRadius / 100f;
 
-        // Интерполяция позиции цели относительно камеры
         double x = MathHelper.lerp(tickDelta, target.prevX, target.getX()) - mc.getEntityRenderDispatcher().camera.getPos().getX();
         double y = MathHelper.lerp(tickDelta, target.prevY, target.getY()) - mc.getEntityRenderDispatcher().camera.getPos().getY();
         double z = MathHelper.lerp(tickDelta, target.prevZ, target.getZ()) - mc.getEntityRenderDispatcher().camera.getPos().getZ();
@@ -501,13 +501,11 @@ public class Render3D extends ConfigurableModule {
 
         float direction = t < 0.5f ? 1.0f : -1.0f;
         boolean movingUp = direction > 0;
-        float speed = 1.0f - Math.abs(2.0f * triangleWave - 1.0f); // 1 в центре, 0 в крайних точках
+        float speed = 1.0f - Math.abs(2.0f * triangleWave - 1.0f);
 
-        // Масштабируем высоту кольца в зависимости от скорости
         float heightOffset = minHeightOffset + (maxHeightOffset - minHeightOffset) * speed;
         heightOffset = Math.max(heightOffset, minHeightOffset);
 
-        // Генерация точек для замкнутого кольца
         ArrayList<Vec3d> ring = generateRingVectors(radius, heightStep);
 
         stack.push();
@@ -515,7 +513,6 @@ public class Render3D extends ConfigurableModule {
 
         Matrix4f matrix = stack.peek().getPositionMatrix();
 
-        // Рендеринг кольца с учётом направления
         renderRing(matrix, ring, heightOffset, movingUp);
 
         stack.translate(-x, -y, -z);
@@ -523,13 +520,12 @@ public class Render3D extends ConfigurableModule {
         stack.pop();
     }
 
-    // Метод для генерации точек кольца
     private static ArrayList<Vec3d> generateRingVectors(float radius, double heightStep) {
         ArrayList<Vec3d> ring = new ArrayList<>();
-        int numPoints = 360; // 360 градусов, с замыканием
+        int numPoints = 360;
 
         for (int i = 0; i <= numPoints; ++i) {
-            double angle = Math.toRadians(i); // Угол для кольца
+            double angle = Math.toRadians(i);
             double u = Math.cos(angle);
             double v = Math.sin(angle);
             ring.add(new Vec3d((float) (u * radius), (float) heightStep, (float) (v * radius)));
@@ -539,80 +535,69 @@ public class Render3D extends ConfigurableModule {
     }
 
     private static void renderRing(Matrix4f matrix, ArrayList<Vec3d> ring, float heightOffset, boolean movingUp) {
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
-        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR);
-
-        int size = ring.size();
-
-        // Получаем начальный и конечный цвета
-        Color startColor = Palette.getColor(0.0f);
-        Color endColor = Palette.getColor(1.0f);
-
-        // Вычисляем смешанный цвет (среднее между начальным и конечным)
-        int mixedRed = (startColor.getRed() + endColor.getRed()) / 2;
-        int mixedGreen = (startColor.getGreen() + endColor.getGreen()) / 2;
-        int mixedBlue = (startColor.getBlue() + endColor.getBlue()) / 2;
-        Color mixedColor = Render2D.injectAlpha(new Color(mixedRed, mixedGreen, mixedBlue), 255);
-
-        // Определяем зону сглаживания (например, 10% от длины кольца с каждой стороны)
-        float smoothingRange = 0.1f; // 10% от длины кольца
-        float smoothingEnd = 1.0f - smoothingRange;
-
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        RenderSystem.depthFunc(GL11.GL_LEQUAL);
+        RenderSystem.depthMask(false);
+        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_COLOR);
+        BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR);
+
+        int size = ring.size();
+        int colorCount = Palette.getColorsCount();
+
+        // Угловое расстояние между цветами (в градусах)
+        float angleStep = 360f / colorCount;
+
+        // Список углов и соответствующих цветов
+        List<Float> angleStops = new ArrayList<>();
+        for (int i = 0; i < colorCount; i++) {
+            angleStops.add(i * angleStep);
+        }
+
+        // Отрисовка кольца
         for (int i = 0; i <= size; i++) {
             int currentIndex = i % size;
+            float angleDeg = (360f * currentIndex) / size;
 
-            // Прогресс для текущей точки
-            float progress = (i / (float) size);
-
-            // Определяем базовый цвет с учётом сглаживания
-            Color currentColor;
-            if (i == 0 || i == size) {
-                currentColor = mixedColor;
-            } else if (progress <= smoothingRange) {
-                float t = progress / smoothingRange;
-                Color targetColor = Render2D.injectAlpha(Palette.getColor(smoothingRange), 255);
-                int r = (int) (mixedColor.getRed() + t * (targetColor.getRed() - mixedColor.getRed()));
-                int g = (int) (mixedColor.getGreen() + t * (targetColor.getGreen() - mixedColor.getGreen()));
-                int b = (int) (mixedColor.getBlue() + t * (targetColor.getBlue() - mixedColor.getBlue()));
-                currentColor = Render2D.injectAlpha(new Color(r, g, b), 255);
-            } else if (progress >= smoothingEnd) {
-                float t = (progress - smoothingEnd) / (1.0f - smoothingEnd);
-                Color targetColor = Render2D.injectAlpha(Palette.getColor(smoothingEnd), 255);
-                int r = (int) (targetColor.getRed() + t * (mixedColor.getRed() - targetColor.getRed()));
-                int g = (int) (targetColor.getGreen() + t * (targetColor.getGreen() - mixedColor.getGreen()));
-                int b = (int) (targetColor.getBlue() + t * (targetColor.getBlue() - targetColor.getBlue()));
-                currentColor = Render2D.injectAlpha(new Color(r, g, b), 255);
-            } else {
-                currentColor = Render2D.injectAlpha(Palette.getColor(progress), 255);
+            // Поиск двух соседних цветовых узлов
+            int leftIndex = 0;
+            int rightIndex;
+            for (int j = 0; j < angleStops.size(); j++) {
+                float stopAngle = angleStops.get(j);
+                if (angleDeg >= stopAngle) {
+                    leftIndex = j;
+                } else {
+                    break;
+                }
             }
+            // Если мы дошли до конца - замыкаем на 0
+            rightIndex = (leftIndex + 1) % colorCount;
+
+            float leftAngle = angleStops.get(leftIndex);
+            float rightAngle = angleStops.get(rightIndex);
+
+            float segmentSpan = (rightAngle > leftAngle) ? (rightAngle - leftAngle) : (360f - leftAngle + rightAngle);
+            float t = (angleDeg - leftAngle + 360f) % 360f / segmentSpan;
+
+            Color leftColor = Palette.getColor(leftIndex / (float) (colorCount - 1));
+            Color rightColor = Palette.getColor(rightIndex / (float) (colorCount - 1));
+
+            int r = (int) (leftColor.getRed() + t * (rightColor.getRed() - leftColor.getRed()));
+            int g = (int) (leftColor.getGreen() + t * (rightColor.getGreen() - leftColor.getGreen()));
+            int b = (int) (leftColor.getBlue() + t * (rightColor.getBlue() - leftColor.getBlue()));
+            int a = 255;
+
+            Color currentColor = new Color(r, g, b, a);
 
             Vec3d current = ring.get(currentIndex);
 
-            // Определяем альфа-канал с нелинейной интерполяцией
-            int baseAlpha = currentColor.getAlpha(); // Базовая прозрачность цвета
-            float t; // Параметр интерполяции (0 на нижней границе, 1 на верхней)
-            int lowerAlpha;
-            int upperAlpha;
+            float sinT = (float) Math.sin(1.0f * Math.PI / 2);
+            int lowerAlpha = movingUp ? (int) (a * (1.0f - sinT)) : a;
+            int upperAlpha = movingUp ? a : (int) (a * (1.0f - sinT));
 
-            if (movingUp) {
-                t = 1.0f; // Верхняя точка полностью непрозрачна
-                upperAlpha = baseAlpha;
-                t = (float) Math.sin(t * Math.PI / 2); // Нелинейная интерполяция (sinusoidal easing)
-                lowerAlpha = (int) (baseAlpha * (1.0f - t)); // Нижняя точка затухает нелинейно
-            } else {
-                t = 1.0f; // Нижняя точка полностью непрозрачна
-                lowerAlpha = baseAlpha;
-                t = (float) Math.sin(t * Math.PI / 2); // Нелинейная интерполяция
-                upperAlpha = (int) (baseAlpha * (1.0f - t)); // Верхняя точка затухает нелинейно
-            }
-
-            // Добавляем вершины: нижняя и верхняя для текущей точки
             bufferBuilder.vertex(matrix, (float) current.x, (float) current.y, (float) current.z)
                     .color(currentColor.getRed(), currentColor.getGreen(), currentColor.getBlue(), lowerAlpha);
             bufferBuilder.vertex(matrix, (float) current.x, (float) current.y + heightOffset, (float) current.z)
@@ -620,9 +605,10 @@ public class Render3D extends ConfigurableModule {
         }
 
         Render2D.endBuilding(bufferBuilder);
-        Render3D.endRender();
+
+        RenderSystem.disableBlend();
         RenderSystem.enableCull();
-        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(true);
     }
 
     public static void setupRender() {

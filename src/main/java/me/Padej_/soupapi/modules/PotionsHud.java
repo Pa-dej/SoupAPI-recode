@@ -112,9 +112,8 @@ public class PotionsHud extends ConfigurableModule {
 
             // Заголовок
             MatrixStack matrices = context.getMatrices();
-            Render2D.drawGradientBlurredShadow1(matrices, x - 2.5f, headerY, currentWidth, headerHeight, 7, TargetHudRenderer.bottomLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.topRight, TargetHudRenderer.topLeft);
-            Render2D.renderRoundedGradientRect(matrices, TargetHudRenderer.topLeft, TargetHudRenderer.topRight, TargetHudRenderer.bottomRight, TargetHudRenderer.bottomLeft, x - 3f, headerY, currentWidth, headerHeight, radius);
-            Render2D.drawRound(matrices, x - 3f, headerY, currentWidth, headerHeight, radius, Render2D.injectAlpha(Color.BLACK, 180));
+            Render2D.drawGradientBlurredShadow1(matrices, x - 2.5f, headerY, currentWidth, headerHeight, 5, TargetHudRenderer.bottomLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.topRight, TargetHudRenderer.topLeft);
+            Render2D.drawRound(matrices, x - 3f, headerY, currentWidth, headerHeight, radius, Render2D.injectAlpha(new Color(0x181a29), 220));
 
             String title = "Potions";
             float textWidth = FontRenderers.sf_bold.getStringWidth(title);
@@ -124,9 +123,8 @@ public class PotionsHud extends ConfigurableModule {
             );
 
             // Фон под эффекты
-            Render2D.drawGradientBlurredShadow1(matrices, x - 2.5f, y + 1, currentWidth, currentHeight, 10, TargetHudRenderer.bottomLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.topRight, TargetHudRenderer.topLeft);
-            Render2D.renderRoundedGradientRect(matrices, TargetHudRenderer.topLeft, TargetHudRenderer.topRight, TargetHudRenderer.bottomRight, TargetHudRenderer.bottomLeft, x - 3f, y + 0.5f, currentWidth, currentHeight, radius);
-            Render2D.drawRound(matrices, x - 3f, y + 0.5f, currentWidth, currentHeight, radius, Render2D.injectAlpha(Color.BLACK, 180));
+            Render2D.drawGradientBlurredShadow1(matrices, x - 2.5f, y + 1, currentWidth, currentHeight, 5, TargetHudRenderer.bottomLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.topRight, TargetHudRenderer.topLeft);
+            Render2D.drawRound(matrices, x - 3f, y + 0.5f, currentWidth, currentHeight, radius, Render2D.injectAlpha(new Color(0x181a29), 220));
 
             matrices.push();
             matrices.translate(x, headerY + 1.5f, 0);

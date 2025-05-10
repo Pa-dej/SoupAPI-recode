@@ -114,37 +114,4 @@ public abstract class MixinClientPlayNetworkHandler {
         }
     }
 
-    @Inject(method = "onEntityDamage", at = @At("HEAD"))
-    private void damageHook(EntityDamageS2CPacket packet, CallbackInfo ci) {
-        ClientWorld world = mc.world;
-        if (world == null || mc.player == null) return;
-
-        Entity victim = world.getEntityById(packet.entityId());
-        if (victim == null) return;
-
-        Entity attacker = world.getEntityById(packet.sourceCauseId());
-        if (!(attacker instanceof PlayerEntity player) || !player.equals(mc.player)) return;
-
-        // Мы атаковали -> сохраняем жертву
-        EntityUtils.registerClientDamage(packet.entityId());
-
-        if (victim instanceof LivingEntity livingVictim) {
-            HitParticle.damagedEntity = livingVictim;
-        }
-    }
-
-    @Inject(method = "onEntityAnimation", at = @At("TAIL"))
-    private void critHook(EntityAnimationS2CPacket packet, CallbackInfo ci) {
-        if (packet.getAnimationId() == 4) {
-            ClientWorld world = mc.world;
-            if (world == null || mc.player == null) return;
-
-            int animEntityId = packet.getEntityId();
-
-            if (EntityUtils.checkAndClearCritTarget(animEntityId)) {
-                EntityUtils.onCrit();
-            }
-        }
-    }
-
 }
