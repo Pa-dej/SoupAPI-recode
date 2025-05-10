@@ -108,7 +108,7 @@
   "text.autoconfig.soupapi.option.timeChangerTime": "Time",
   "text.autoconfig.soupapi.option.weatherChangerEnabled.@PrefixText": "Weather Changer",
   "text.autoconfig.soupapi.option.weatherChangerEnabled": "Enabled",
-  "text.autoconfig.soupapi.option.weatherChangerType": "Weather",
+  "text.autoconfig.soupapi.option.weatherType": "Weather",
   "text.autoconfig.soupapi.option.coloredSkyEnabled.@PrefixText": "Colored Sky",
   "text.autoconfig.soupapi.option.coloredSkyEnabled": "Enabled",
   "text.autoconfig.soupapi.option.customFogEnabled.@PrefixText": "Fog",
