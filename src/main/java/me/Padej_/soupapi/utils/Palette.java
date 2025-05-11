@@ -38,6 +38,9 @@ public class Palette {
     }
 
     public static Color getInterpolatedPaletteColor(float progress) {
+        progress = progress % 1f;
+        if (progress < 0f) progress += 1f;
+
         Palette.ColorsStyle style = SoupAPI_Main.configHolder.get().paletteStyle;
         int c1 = SoupAPI_Main.configHolder.getConfig().c1;
         int c2 = SoupAPI_Main.configHolder.getConfig().c2;

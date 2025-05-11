@@ -205,9 +205,6 @@ public class Render3D extends ConfigurableModule {
 
         if (targetEntity == null) return;
 
-        float frameTime = 1.0f / 60.0f;
-        float normalizedTickDelta = tickDelta / frameTime;
-
         Vec3d newPos = calculateEntityPositionRelativeToCamera(camera, tickDelta, targetEntity);
         float entityAge = targetEntity.age + tickDelta;
 
@@ -226,14 +223,21 @@ public class Render3D extends ConfigurableModule {
 
         Matrix4f baseMatrix = matrices.peek().getPositionMatrix();
 
+        Color shaderColor = TargetHudRenderer.bottomLeft;
+        RenderSystem.setShaderColor(
+                shaderColor.getRed() / 255f,
+                shaderColor.getGreen() / 255f,
+                shaderColor.getBlue() / 255f,
+                1.0f
+        );
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
         RenderSystem.setShaderTexture(0, TexturesManager.getSoulTexture());
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX);
         TargetRender.TargetRenderSoulStyle.setupBlendFunc();
-        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 
         for (int j = 0; j < 3; j++) {
             for (int i = 0; i < espLength; i++) {
@@ -260,21 +264,20 @@ public class Render3D extends ConfigurableModule {
 
                     Matrix4f matrix = particleMatrix.peek().getPositionMatrix();
 
-                    float animProgress = ((entityAge * 0.03f + stepIndex * 0.07f + j * 0.15f) * normalizedTickDelta) % 1f;
-                    Color color = Palette.getInterpolatedPaletteColor(animProgress);
-                    int argb = 0xFF000000 | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
+                    int argb = 0xFF_FFFFFF;
 
                     float scale = Math.max((endSize + offset * (startSize - endSize)) * scaleModifier, 0.15f * scaleModifier);
 
-                    buffer.vertex(matrix, -scale, scale, 0).texture(0f, 1f).color(argb);
-                    buffer.vertex(matrix, scale, scale, 0).texture(1f, 1f).color(argb);
-                    buffer.vertex(matrix, scale, -scale, 0).texture(1f, 0f).color(argb);
-                    buffer.vertex(matrix, -scale, -scale, 0).texture(0f, 0f).color(argb);
+                    buffer.vertex(matrix, -scale, scale, 0).texture(0f, 1f);
+                    buffer.vertex(matrix, scale, scale, 0).texture(1f, 1f);
+                    buffer.vertex(matrix, scale, -scale, 0).texture(1f, 0f);
+                    buffer.vertex(matrix, -scale, -scale, 0).texture(0f, 0f);
                 }
             }
         }
 
         BufferRenderer.drawWithGlobalProgram(buffer.end());
+        RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableDepthTest();
         RenderSystem.disableBlend();
 
@@ -296,9 +299,6 @@ public class Render3D extends ConfigurableModule {
         Vec3d newPos = calculateEntityPositionRelativeToCamera(camera, tickDelta, targetEntity);
         float entityAge = targetEntity.age + tickDelta;
 
-        float frameTime = 1.0f / 60.0f;
-        float normalizedTickDelta = tickDelta / frameTime;
-
         MatrixStack matrices = new MatrixStack();
         matrices.push();
         RenderSystem.disableCull();
@@ -307,14 +307,21 @@ public class Render3D extends ConfigurableModule {
 
         Matrix4f baseMatrix = matrices.peek().getPositionMatrix();
 
+        Color shaderColor = TargetHudRenderer.bottomRight;
+        RenderSystem.setShaderColor(
+                shaderColor.getRed() / 255f,
+                shaderColor.getGreen() / 255f,
+                shaderColor.getBlue() / 255f,
+                1.0f
+        );
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
         RenderSystem.setShaderTexture(0, TexturesManager.FIREFLY);
-        RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
+        RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX);
         TargetRender.TargetRenderSoulStyle.setupBlendFunc();
-        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+        BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 
         for (int j = 0; j < 2; j++) {
             for (int i = 0; i < espLength; i++) {
@@ -342,11 +349,7 @@ public class Render3D extends ConfigurableModule {
                     particleMatrix.multiply(billboardRot);
 
                     Matrix4f matrix = particleMatrix.peek().getPositionMatrix();
-
-                    // Нормализуем прогресс анимации для плавности
-                    float animProgress = ((entityAge * 0.03f + stepIndex * 0.07f + j * 0.15f) * normalizedTickDelta) % 1f;
-                    Color color = Palette.getInterpolatedPaletteColor(animProgress);
-                    int argb = 0xFF000000 | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
+                    int argb = 0xFFFFFFFF;
 
                     float scale = Math.max((endSize + offset * (startSize - endSize)) * scaleModifier, 0.15f * scaleModifier);
 
@@ -361,6 +364,7 @@ public class Render3D extends ConfigurableModule {
         BufferRenderer.drawWithGlobalProgram(buffer.end());
         RenderSystem.enableDepthTest();
         RenderSystem.disableBlend();
+        RenderSystem.setShaderColor(1, 1, 1, 1);
 
         matrices.pop();
     }
