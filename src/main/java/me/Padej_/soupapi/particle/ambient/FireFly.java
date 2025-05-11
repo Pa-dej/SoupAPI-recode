@@ -4,6 +4,7 @@ import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.render.TargetHudRenderer;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
@@ -55,10 +56,10 @@ public class FireFly extends DefaultAmbientParticle {
     }
 
     @Override
-    public void render() {
-        float tickDelta = mc.getRenderTickCounter().getTickDelta(true);
+    public void render(WorldRenderContext context) {
+        float tickDelta = context.tickCounter().getTickDelta(true);
         if (!trails.isEmpty()) {
-            Camera camera = mc.gameRenderer.getCamera();
+            Camera camera = context.camera();
             for (Trail ctx : trails) {
                 Vec3d pos = ctx.interpolate(1f);
                 MatrixStack matrices = new MatrixStack();

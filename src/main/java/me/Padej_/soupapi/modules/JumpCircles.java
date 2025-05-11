@@ -134,6 +134,7 @@ public class JumpCircles extends ConfigurableModule {
             RenderSystem.enableDepthTest();
             RenderSystem.depthMask(false);
             RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE);
+
             RenderSystem.setShaderTexture(0, TexturesManager.getJumpCircle());
             RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX_COLOR);
 
@@ -183,8 +184,8 @@ public class JumpCircles extends ConfigurableModule {
             modelMatrix.pop();
 
             Render2D.endBuilding(buffer);
-            RenderSystem.disableBlend();
             RenderSystem.defaultBlendFunc();
+            RenderSystem.disableBlend();
             RenderSystem.enableCull();
         }
     }

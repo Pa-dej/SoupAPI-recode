@@ -43,13 +43,11 @@ public class JumpParticles extends ConfigurableModule {
     }
 
     public static void render(WorldRenderContext context) {
-        RenderSystem.disableDepthTest();
         if (mc.player != null && mc.world != null) {
             for (Particle particle : particles) {
                 particle.render(context.matrixStack(), context.tickCounter().getTickDelta(true));
             }
         }
-        RenderSystem.enableDepthTest();
     }
 
     private static void updateAvailableTextures() {
@@ -180,11 +178,9 @@ public class JumpParticles extends ConfigurableModule {
             matrixStack.push();
             matrixStack.translate(posX, posY, posZ);
             matrixStack.scale(renderScale, renderScale, renderScale);
-            matrixStack.translate(0.5f, 0.5f, 0.5f);
             matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-mc.gameRenderer.getCamera().getYaw()));
             matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(mc.gameRenderer.getCamera().getPitch()));
             matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rotationAngle += (1f / mc.getCurrentFps()) * rotationSpeed));
-            matrixStack.translate(-0.5f, -0.5f, -0.5f);
 
             if (glyphTexture != null) {
                 Render2D.drawGlyphs(matrixStack, glyphTexture, new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (alpha * 255)), 1f);
@@ -195,8 +191,7 @@ public class JumpParticles extends ConfigurableModule {
 
         private boolean posBlock(double x, double y, double z) {
             if (mc.player == null || mc.world == null) return false;
-            Block b = mc.world.getBlockState(BlockPos.ofFloored(x, y, z)).getBlock();
-            return (!(b instanceof AirBlock) && b != Blocks.WATER && b != Blocks.LAVA);
+            return (!(mc.world.getBlockState(BlockPos.ofFloored(x, y, z)).getBlock() instanceof AirBlock));
         }
     }
 

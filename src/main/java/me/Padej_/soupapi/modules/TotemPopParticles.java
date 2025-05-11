@@ -73,13 +73,11 @@ public class TotemPopParticles extends ConfigurableModule {
     }
 
     public static void render(WorldRenderContext context) {
-        RenderSystem.disableDepthTest();
         if (mc.player != null && mc.world != null) {
             for (Particle particle : particles) {
                 particle.render(context.matrixStack(), context.tickCounter().getTickDelta(true));
             }
         }
-        RenderSystem.enableDepthTest();
     }
 
     private static void updateAvailableTextures() {
@@ -215,8 +213,7 @@ public class TotemPopParticles extends ConfigurableModule {
 
         private boolean posBlock(double x, double y, double z) {
             if (mc.player == null || mc.world == null) return false;
-            Block b = mc.world.getBlockState(BlockPos.ofFloored(x, y, z)).getBlock();
-            return (!(b instanceof AirBlock) && b != Blocks.WATER && b != Blocks.LAVA);
+            return (!(mc.world.getBlockState(BlockPos.ofFloored(x, y, z)).getBlock() instanceof AirBlock));
         }
     }
 

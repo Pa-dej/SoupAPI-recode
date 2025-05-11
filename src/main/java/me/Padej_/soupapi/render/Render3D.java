@@ -164,7 +164,6 @@ public class Render3D extends ConfigurableModule {
 
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-camera.getYaw()));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
-
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rollAngle));
 
         Matrix4f matrix = matrices.peek().getPositionMatrix();
@@ -184,6 +183,9 @@ public class Render3D extends ConfigurableModule {
         buffer.vertex(matrix, -halfSize, -halfSize, 0.0F).texture(0.0F, 1.0F).color(color3.getRed(), color3.getGreen(), color3.getBlue(), (int) (alpha * 255));
 
         BufferRenderer.drawWithGlobalProgram(buffer.end());
+        RenderSystem.disableBlend();
+        RenderSystem.depthMask(false);
+        RenderSystem.defaultBlendFunc();
 
         matrices.pop();
     }

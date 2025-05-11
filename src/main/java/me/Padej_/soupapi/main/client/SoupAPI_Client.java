@@ -1,5 +1,6 @@
 package me.Padej_.soupapi.main.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.SoupAPI_Config;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.*;
@@ -17,6 +18,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.Identifier;
@@ -49,19 +51,23 @@ public class SoupAPI_Client implements ClientModInitializer {
         Trails.onTick();
         JumpCircles.onTick();
         TargetHud.onTick();
-        AmbientParticle.onTick();
         RPC.onTick();
         Translator.onTick();
 
         HitParticle.onTick();
         TotemPopParticles.onTick();
         JumpParticles.onTick();
+        AmbientParticle.onTick();
 
 //        KillEffect.onTick();
 
         long handle = client.getWindow().getHandle();
+        Screen parent = null;
         if (InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_LEFT_ALT) && InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_BACKSPACE)) {
-            client.setScreen(AutoConfig.getConfigScreen(SoupAPI_Config.class, null).get());
+            if (client.currentScreen != null) {
+                parent = client.currentScreen;
+            }
+            client.setScreen(AutoConfig.getConfigScreen(SoupAPI_Config.class, parent).get());
         }
 //        if (client.options.sprintKey.isPressed()){
 //            client.setScreen(new TestRenderer());
@@ -69,8 +75,7 @@ public class SoupAPI_Client implements ClientModInitializer {
     }
 
     private void doRenderAfterEntities(WorldRenderContext context) {
-        JumpCircles.renderCircles(context);
-        AmbientParticle.render();
+
     }
 
     private void doRenderLast(WorldRenderContext context) {
@@ -78,6 +83,8 @@ public class SoupAPI_Client implements ClientModInitializer {
         HitBubbles.render(context);
         Halo.render(context);
         Trails.renderTrail(context);
+        JumpCircles.renderCircles(context);
+
         renderParticles(context);
     }
 
@@ -93,9 +100,10 @@ public class SoupAPI_Client implements ClientModInitializer {
     }
 
     private void renderParticles(WorldRenderContext context) {
+        JumpParticles.render(context);
         HitParticle.render(context);
         TotemPopParticles.render(context);
-        JumpParticles.render(context);
+        AmbientParticle.render(context);
     }
 
 }

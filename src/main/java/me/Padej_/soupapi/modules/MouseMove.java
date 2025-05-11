@@ -23,9 +23,9 @@ public class MouseMove extends ConfigurableModule {
         int centerY = CONFIG.mouseMoveY + 20;
 
         if (CONFIG.mouseMoveBlur) {
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), centerX - 20, centerY - 20, 40, 40, 5, color1, color2, color3, color4);
+            Render2D.drawGradientBlurredShadow1(context.getMatrices(), centerX - 20, centerY - 20, 40, 40, 7, color1, color2, color3, color4);
         }
-        Render2D.drawRound(context.getMatrices(), centerX - 20, centerY - 20, 40, 40, 5, Render2D.injectAlpha(new Color(0x181a29), 180));
+        Render2D.drawRound(context.getMatrices(), centerX - 20, centerY - 20, 40, 40, 4, Render2D.injectAlpha(new Color(0x181a29), 220));
 
         MatrixStack matrices = context.getMatrices();
         matrices.push();

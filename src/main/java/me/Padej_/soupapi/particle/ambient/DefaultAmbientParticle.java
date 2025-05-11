@@ -5,6 +5,7 @@ import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.render.TargetHudRenderer;
 import me.Padej_.soupapi.utils.MathUtility;
 import me.Padej_.soupapi.utils.Palette;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
@@ -69,10 +70,10 @@ public class DefaultAmbientParticle {
         return false;
     }
 
-    public void render() {
-        Camera camera = mc.gameRenderer.getCamera();
+    public void render(WorldRenderContext context) {
+        Camera camera = context.camera();
         Color color = TargetHudRenderer.topLeft;
-        Vec3d pos = interpolatePos(prevPosX, prevPosY, prevPosZ, posX, posY, posZ);
+        Vec3d pos = interpolatePos(context, prevPosX, prevPosY, prevPosZ, posX, posY, posZ);
 
         MatrixStack matrices = new MatrixStack();
         matrices.translate(pos.x, pos.y, pos.z);
@@ -84,9 +85,10 @@ public class DefaultAmbientParticle {
 
         Render2D.drawGlyphs(matrices, texture, withAlpha, CONFIG.ambientParticlesDefaultParticleScale / 100f);
     }
-    private static Vec3d interpolatePos(float prevPosX, float prevPosY, float prevPosZ, float posX, float posY, float posZ) {
-        float tickDelta = mc.getRenderTickCounter().getTickDelta(true);
-        Vec3d cameraPos = mc.getEntityRenderDispatcher().camera.getPos();
+
+    private static Vec3d interpolatePos(WorldRenderContext context, float prevPosX, float prevPosY, float prevPosZ, float posX, float posY, float posZ) {
+        float tickDelta = context.tickCounter().getTickDelta(true);
+        Vec3d cameraPos = context.camera().getPos();
         double x = prevPosX + ((posX - prevPosX) * tickDelta) - cameraPos.getX();
         double y = prevPosY + ((posY - prevPosY) * tickDelta) - cameraPos.getY();
         double z = prevPosZ + ((posZ - prevPosZ) * tickDelta) - cameraPos.getZ();

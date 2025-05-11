@@ -5,6 +5,7 @@ import me.Padej_.soupapi.particle.ambient.DefaultAmbientParticle;
 import me.Padej_.soupapi.particle.ambient.FireFly;
 import me.Padej_.soupapi.utils.MathUtility;
 import me.Padej_.soupapi.utils.TexturesManager;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -44,16 +45,16 @@ public class AmbientParticle extends ConfigurableModule {
         }
     }
 
-    public static void render() {
+    public static void render(WorldRenderContext context) {
         if (!CONFIG.ambientParticlesEnabled) return;
         AmbientParticle.Style particleStyle = CONFIG.ambientParticlesStyle;
 
         if (particleStyle.equals(Style.DEFAULT) || particleStyle.equals(Style.BOTH)) {
-            particles.forEach(DefaultAmbientParticle::render);
+            particles.forEach(particle -> particle.render(context));
         }
 
         if (particleStyle.equals(Style.WITH_TRAIL) || particleStyle.equals(Style.BOTH)) {
-            fireFlies.forEach(DefaultAmbientParticle::render);
+            fireFlies.forEach(firefly -> firefly.render(context));
         }
     }
 

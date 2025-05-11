@@ -124,8 +124,8 @@ public class TargetHudRenderer extends ConfigurableModule {
         }
 
         // Отрисовка полоски HP
-        Render2D.drawGradientRound(context.getMatrices(), x + 25, y + 14.5f, 59, 2, 1, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
-        Render2D.renderRoundedGradientRect(context.getMatrices(), hpLeft, hpRight, hpRight, hpLeft, x + 25, y + 14.5f, (int) MathUtility.clamp((60 * (health / target.getMaxHealth())), 2, 59), 2, 1);
+        Render2D.drawGradientRound(context.getMatrices(), x + 25, y + 14f, 59, 2, 1, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
+        Render2D.renderRoundedGradientRect(context.getMatrices(), hpLeft, hpRight, hpRight, hpLeft, x + 25, y + 14f, (int) MathUtility.clamp((60 * (health / target.getMaxHealth())), 2, 59), 2, 1);
 
         RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
         java.util.List<ItemStack> armor = target.getInventory().armor;
