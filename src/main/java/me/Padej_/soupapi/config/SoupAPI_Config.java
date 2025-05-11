@@ -281,6 +281,8 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("world")
     public boolean customFogEnabled = false;
     @ConfigEntry.Category("world")
+    public boolean customFogThick = false;
+    @ConfigEntry.Category("world")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public CustomFog.CustomFogShape customFogShape = CustomFog.CustomFogShape.SPHERE;
     @ConfigEntry.Category("world")

@@ -28,9 +28,10 @@ public class ModelPartMixin {
     private void modifyRenderArgs(Args args) {
         if (CONFIG.friendsHighlightOnlyArmor == true) return;
         Entity entity = CaptureArmoredEntity.get();
+        if (entity == null) return;
         if ((entity instanceof PlayerEntity player && player == MinecraftClient.getInstance().player || EntityUtils.isFriend(entity)) && CONFIG.friendsHighlight) {
-            int customColor = CONFIG.friendCustomColor;
-            int syncColor = ColorUtils.getMaxSaturationColor(TargetHudRenderer.bottomRight.getRGB());
+            int customColor = CONFIG.friendCustomColor + 0xFF_000000;
+            int syncColor = ColorUtils.getMaxSaturationColor(TargetHudRenderer.bottomRight.getRGB()) + 0xFF_000000;
             args.set(4, CONFIG.friendsHighlightSyncColor ? syncColor : customColor);
         }
     }

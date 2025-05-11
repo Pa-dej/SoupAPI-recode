@@ -111,6 +111,7 @@
   "text.autoconfig.soupapi.option.weatherType": "Weather",
   "text.autoconfig.soupapi.option.coloredSkyEnabled.@PrefixText": "Colored Sky",
   "text.autoconfig.soupapi.option.coloredSkyEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.customFogThick": "Thick",
   "text.autoconfig.soupapi.option.customFogEnabled.@PrefixText": "Fog",
   "text.autoconfig.soupapi.option.customFogEnabled": "Enabled",
   "text.autoconfig.soupapi.option.customFogShape": "Shape",

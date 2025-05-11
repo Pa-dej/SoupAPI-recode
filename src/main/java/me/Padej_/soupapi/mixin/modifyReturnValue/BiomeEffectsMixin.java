@@ -20,18 +20,10 @@ public abstract class BiomeEffectsMixin {
 
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null || mc.world == null) return original;
-        float time = mc.world.getTimeOfDay(); // от 0.0 до 1.0
-        float brightness = 1.0f - Math.abs(time - 0.5f) * 2.0f;
-        brightness = Math.max(0f, Math.min(1f, brightness)); // clamp [0, 1]
 
         Color base = Palette.getColor(0);
-        Color darkened = new Color(
-                (int)(base.getRed() * brightness),
-                (int)(base.getGreen() * brightness),
-                (int)(base.getBlue() * brightness)
-        );
 
-        return darkened.getRGB();
+        return base.getRGB();
     }
 
 
