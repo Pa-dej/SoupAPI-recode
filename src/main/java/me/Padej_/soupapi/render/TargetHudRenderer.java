@@ -48,17 +48,17 @@ public class TargetHudRenderer extends ConfigurableModule {
     public static void renderTinyHUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y, Vec3d screenPos) {
         float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
-        Color c1 = Palette.getColor(0f);   // Нижний левый
-        Color c3 = Palette.getColor(0.66f); // Верхний правый
+        Color c1 = TargetHudRenderer.topLeft;
+        Color c3 = TargetHudRenderer.bottomRight;
+        Color c4 = TargetHudRenderer.bottomLeft;
 
         // Градиентный фон с вращением цветов
-        int w = 55;
-        int h = 5;
+        int w = 90;
+        int h = 29;
         int r = 3;
-        int xOffset = 24;
-        int yOffset = 3;
-//        Render2D.renderRoundedGradientRect(context.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x + xOffset, y + yOffset, w + 5, h + 5, r);
-        Render2D.drawRound(context.getMatrices(), x + 0.5f + xOffset, y + 0.5f + yOffset, w + 4, h + 5, r, Render2D.injectAlpha(new Color(0x181a29), 180));
+        int xOffset = -4;
+        int yOffset = 0;
+        Render2D.drawRound(context.getMatrices(), x + xOffset, y + 0.5f + yOffset, w, h, r, Render2D.injectAlpha(new Color(0x181a29), 220));
 
         // Голова игрока
         Identifier texture = mc.player.getSkinTextures().texture();
@@ -101,7 +101,6 @@ public class TargetHudRenderer extends ConfigurableModule {
                 final Particle2D p = new Particle2D();
                 final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
                 p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);
-                ;
                 particles.add(p);
             }
             sentParticles = true;
@@ -109,23 +108,10 @@ public class TargetHudRenderer extends ConfigurableModule {
 
         if (target.hurtTime == 8) sentParticles = false;
 
-        // Полоска HP с анимацией переключения цветов
-        float hpProgress = hpColorAnimationProgress % 1.0f;
-        Color hpLeft, hpRight;
-
-        if (hpProgress < 0.5f) {
-            float phaseProgress = hpProgress / 0.5f;
-            hpLeft = interpolateColor(c1, c3, phaseProgress);
-            hpRight = interpolateColor(c3, c1, phaseProgress);
-        } else {
-            float phaseProgress = (hpProgress - 0.5f) / 0.5f;
-            hpLeft = interpolateColor(c3, c1, phaseProgress);
-            hpRight = interpolateColor(c1, c3, phaseProgress);
-        }
-
         // Отрисовка полоски HP
-        Render2D.drawGradientRound(context.getMatrices(), x + 25, y + 14f, 59, 2, 1, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
-        Render2D.renderRoundedGradientRect(context.getMatrices(), hpLeft, hpRight, hpRight, hpLeft, x + 25, y + 14f, (int) MathUtility.clamp((60 * (health / target.getMaxHealth())), 2, 59), 2, 1);
+        Render2D.drawGradientRound(context.getMatrices(), x + 25, y + 15f, 59, 2, 1, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
+        Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 25, y + 15f, 59, 2, 2, c4, c3, c3, c4);
+        Render2D.renderRoundedGradientRect(context.getMatrices(), c4, c3, c3, c4, x + 25, y + 15f, (int) MathUtility.clamp((60 * (health / target.getMaxHealth())), 2, 59), 2, 1);
 
         RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
         java.util.List<ItemStack> armor = target.getInventory().armor;
