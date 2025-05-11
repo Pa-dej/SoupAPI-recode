@@ -38,7 +38,7 @@ public class Render3D extends ConfigurableModule {
         float height = CONFIG.chinaHatTipHeight / 100f;
         float yOffset = -CONFIG.chinaHatYOffset / 100f;
         int segments = 60;
-        float time = MinecraftClient.getInstance().world.getTime() % 360;
+        float time = mc.world.getTime() % 360;
         int alpha = (int) (1 - (CONFIG.chinaHatAlpha * 255 / 100f));
         boolean isHalf = CONFIG.chinaHatRenderHalf;
 

@@ -36,6 +36,7 @@
     "modifyReturnValue.DimensionEffectMixin",
     "modifyReturnValue.EquipmentRendererMixin",
     "redirect.FireOverlayMixin",
+    "redirect.MixinCapeFeatureRenderer",
     "redirect.ScoreboardStyleMixin",
     "wrapOperation.EntityRenderDispatcherMixin"
   ],
