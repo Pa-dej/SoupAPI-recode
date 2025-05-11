@@ -12,7 +12,8 @@ public interface OverlayReloadListener {
     }
 
     static void callEvent() {
-        for (OverlayReloadListener listener : listeners) {
+        List<OverlayReloadListener> copy = new ArrayList<>(listeners);
+        for (OverlayReloadListener listener : copy) {
             listener.soupAPI$onOverlayReload();
         }
     }

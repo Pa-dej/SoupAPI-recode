@@ -304,5 +304,7 @@
   "text.autoconfig.soupapi.option.hitColorColor": "Color",
   "text.autoconfig.soupapi.option.hitColorAlpha": "Alpha",
 
-  "": ""
+  "cool_dudes.thx_for_help_and_sources": [
+    "ly0z", "Pan4ur", "LopyMine", "harimasa "
+  ]
 }
