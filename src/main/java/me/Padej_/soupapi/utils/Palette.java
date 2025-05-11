@@ -71,6 +71,11 @@ public class Palette {
         }
     }
 
+    public static Color getBackColor() {
+        int alpha = (int) (255 * (CONFIG.backAlpha / 100f));
+        return Render2D.injectAlpha(new Color(CONFIG.backColor), alpha);
+    }
+
     public static ColorsStyle getStyle() {
         return SoupAPI_Main.configHolder.get().paletteStyle;
     }

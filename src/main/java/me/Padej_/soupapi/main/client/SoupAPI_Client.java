@@ -1,6 +1,5 @@
 package me.Padej_.soupapi.main.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.SoupAPI_Config;
 import me.Padej_.soupapi.interfaces.OverlayReloadListener;
 import me.Padej_.soupapi.main.SoupAPI_Main;
@@ -19,9 +18,11 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
@@ -32,7 +33,7 @@ public class SoupAPI_Client implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(this::doEndClientTick);
         WorldRenderEvents.AFTER_ENTITIES.register(this::doRenderAfterEntities);
         WorldRenderEvents.LAST.register(this::doRenderLast);
-        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.HOTBAR_AND_BARS, Identifier.of("soupapi", "hud"), this::renderHud));
+        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.STATUS_EFFECTS, Identifier.of("soupapi", "hud"), this::renderHud));
 
         registerClientSideParticles();
 
@@ -65,9 +66,11 @@ public class SoupAPI_Client implements ClientModInitializer {
 
         long handle = client.getWindow().getHandle();
         Screen parent = null;
+        Screen currentScreen = client.currentScreen;
+        if (currentScreen instanceof ChatScreen) return;
         if (InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_LEFT_ALT) && InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_BACKSPACE)) {
-            if (client.currentScreen != null) {
-                parent = client.currentScreen;
+            if (currentScreen != null && !currentScreen.getTitle().equals(Text.translatable("text.autoconfig.soupapi.title"))) {
+                parent = currentScreen;
             }
             client.setScreen(AutoConfig.getConfigScreen(SoupAPI_Config.class, parent).get());
         }

@@ -72,6 +72,12 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("main")
     @ConfigEntry.ColorPicker
     public int textColor = 0xffffff;
+    @ConfigEntry.Category("main")
+    @ConfigEntry.ColorPicker
+    public int backColor = 0x181a29;
+    @ConfigEntry.Category("main")
+    @ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+    public int backAlpha = 80;
 
     /**
      * TRAILS

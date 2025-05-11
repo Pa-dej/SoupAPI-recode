@@ -6,7 +6,6 @@ import me.Padej_.soupapi.modules.BetterHudStyles;
 import me.Padej_.soupapi.modules.PotionsHud;
 import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.utils.MathUtility;
-import me.Padej_.soupapi.utils.MouseUtils;
 import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
 import net.minecraft.client.MinecraftClient;
@@ -26,9 +25,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.awt.*;
 
@@ -163,7 +160,9 @@ public abstract class InGameHudMixin {
     @Shadow
     protected abstract boolean shouldRenderExperience();
 
-    @Shadow @Final private static Identifier CROSSHAIR_TEXTURE;
+    @Shadow
+    @Final
+    private static Identifier CROSSHAIR_TEXTURE;
 
     @Inject(method = "render", at = @At("TAIL"))
     private void doFrame(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
@@ -355,7 +354,7 @@ public abstract class InGameHudMixin {
             float barX = x + 1;
             float barY = context.getScaledWindowHeight() - 31; // чуть выше/ниже при необходимости
             float barWidth = 182f;
-            float barHeight = 2.5f;
+            float barHeight = 3f;
 
             // Цвета
             Color color = new Color(0xFF7efc20);
@@ -363,10 +362,10 @@ public abstract class InGameHudMixin {
 
             // Слои отрисовки
 
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), barX, barY, barWidth * progress, barHeight, 4, color, color, color, color);
-            Render2D.drawRound(context.getMatrices(), barX, barY, barWidth, barHeight, 1.5f, background);
+            Render2D.drawGradientBlurredShadow1(context.getMatrices(), barX, barY, barWidth * progress, barHeight, 3, color, color, color, color);
+            Render2D.drawRound(context.getMatrices(), barX, barY, barWidth, barHeight, 1, background);
             if (progress > 0)
-                Render2D.renderRoundedGradientRect(context.getMatrices(), color, color, color, color, barX, barY, barWidth * progress, barHeight, 1.5f);
+                Render2D.renderRoundedGradientRect(context.getMatrices(), color, color, color, color, barX, barY, barWidth * progress, barHeight, 1);
         }
 
         Profilers.get().pop();
@@ -422,10 +421,10 @@ public abstract class InGameHudMixin {
 
         Render2D.drawGradientBlurredShadow1(context.getMatrices(), hotbarX - 0.5f, hotbarY + 1, hotbarWidth + 1, 19, glowStrength, hotbarBottomLeft, hotbarBottomRight, hotbarTopRight, hotbarTopLeft);
         if (isLBStyle) {
-            Render2D.drawRound(context.getMatrices(), hotbarX - 0.5f, hotbarY + 1, hotbarWidth + 1, 19, cornerRadius, Render2D.injectAlpha(Color.BLACK, 180));
+            Render2D.drawRound(context.getMatrices(), hotbarX - 0.5f, hotbarY + 1, hotbarWidth + 1, 19, cornerRadius, Palette.getBackColor());
         } else {
             Render2D.renderRoundedGradientRect(context.getMatrices(), hotbarTopLeft, hotbarTopRight, hotbarBottomRight, hotbarBottomLeft, hotbarX - 0.5f, hotbarY + 1, hotbarWidth + 1, 19, cornerRadius);
-            Render2D.drawRound(context.getMatrices(), hotbarX - 0.5f, hotbarY + 1, hotbarWidth + 1, 19, cornerRadius, Render2D.injectAlpha(Color.BLACK, 120));
+            Render2D.drawRound(context.getMatrices(), hotbarX - 0.5f, hotbarY + 1, hotbarWidth + 1, 19, cornerRadius, Palette.getBackColor());
         }
 
         float animatedX;
@@ -440,9 +439,9 @@ public abstract class InGameHudMixin {
         int selectedSlotY = context.getScaledWindowHeight() - 22 - yOffset;
         if (isLBStyle) {
             Render2D.renderRoundedGradientRect(context.getMatrices(), hotbarTopLeft, hotbarTopRight, hotbarBottomRight, hotbarBottomLeft, animatedX, selectedSlotY + 0.5f, 20, 20, cornerRadius);
-            Render2D.drawRound(context.getMatrices(), animatedX + 1f, selectedSlotY + 1.5f, 18, 18, cornerRadius, Render2D.injectAlpha(Color.BLACK, 180));
+            Render2D.drawRound(context.getMatrices(), animatedX + 1f, selectedSlotY + 1.5f, 18, 18, cornerRadius, Palette.getBackColor());
         } else {
-            Render2D.drawRound(context.getMatrices(), animatedX + 1f, selectedSlotY + 1.5f, 18, 18, cornerRadius, Render2D.injectAlpha(Color.BLACK, 180));
+            Render2D.drawRound(context.getMatrices(), animatedX + 1f, selectedSlotY + 1.5f, 18, 18, cornerRadius, Palette.getBackColor());
         }
 
         // Слот для левой руки
@@ -451,7 +450,7 @@ public abstract class InGameHudMixin {
             int offhandY = context.getScaledWindowHeight() - 25;
             Render2D.drawGradientBlurredShadow1(context.getMatrices(), offhandX, offhandY, 19, 19, glowStrength, hotbarBottomLeft, hotbarBottomRight, hotbarTopRight, hotbarTopLeft);
             Render2D.renderRoundedGradientRect(context.getMatrices(), hotbarTopLeft, hotbarTopRight, hotbarBottomRight, hotbarBottomLeft, offhandX, offhandY, 19, 19, cornerRadius);
-            Render2D.drawRound(context.getMatrices(), offhandX + 0.5f, offhandY + 0.5f, 18, 18, cornerRadius, Render2D.injectAlpha(Color.BLACK, 180));
+            Render2D.drawRound(context.getMatrices(), offhandX + 0.5f, offhandY + 0.5f, 18, 18, cornerRadius, Palette.getBackColor());
         }
 
         int dummy = 1;
@@ -476,10 +475,10 @@ public abstract class InGameHudMixin {
 
                 Render2D.drawGradientBlurredShadow1(context.getMatrices(), armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, glowStrength, hotbarBottomLeft, hotbarBottomRight, hotbarTopRight, hotbarTopLeft);
                 if (isLBStyle) {
-                    Render2D.drawRound(context.getMatrices(), armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, cornerRadius, Render2D.injectAlpha(Color.BLACK, 180));
+                    Render2D.drawRound(context.getMatrices(), armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, cornerRadius, Palette.getBackColor());
                 } else {
                     Render2D.renderRoundedGradientRect(context.getMatrices(), hotbarTopLeft, hotbarTopRight, hotbarBottomRight, hotbarBottomLeft, armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, cornerRadius);
-                    Render2D.drawRound(context.getMatrices(), armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, cornerRadius, Render2D.injectAlpha(Color.BLACK, 120));
+                    Render2D.drawRound(context.getMatrices(), armorXOffset - 0.5f, armorY + 1, armorWidth + 1, 19, cornerRadius, Palette.getBackColor());
                 }
             }
 

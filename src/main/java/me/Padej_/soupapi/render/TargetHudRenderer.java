@@ -58,7 +58,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         int r = 3;
         int xOffset = -4;
         int yOffset = 0;
-        Render2D.drawRound(context.getMatrices(), x + xOffset, y + 0.5f + yOffset, w, h, r, Render2D.injectAlpha(new Color(0x181a29), 220));
+        Render2D.drawRound(context.getMatrices(), x + xOffset, y + 0.5f + yOffset, w, h, r, Palette.getBackColor());
 
         // Голова игрока
         Identifier texture = mc.player.getSkinTextures().texture();
@@ -77,7 +77,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 0.0F);
         RenderSystem.clear(GL40C.GL_COLOR_BUFFER_BIT);
         RenderSystem.colorMask(true, true, true, true);
-        Render2D.drawRound(context.getMatrices(), x - 2, y + 2.5f, headScale, headScale, r, Render2D.injectAlpha(Color.BLACK, 20));
+        Render2D.drawRound(context.getMatrices(), x - 2, y + 2.5f, headScale, headScale, r, Palette.getBackColor());
         Render2D.setupRender();
         Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x - 2, y + 2.5, x - 2 + headScale, y + 2.5 + headScale, r, 3);
         RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);
@@ -108,10 +108,16 @@ public class TargetHudRenderer extends ConfigurableModule {
 
         if (target.hurtTime == 8) sentParticles = false;
 
-        // Отрисовка полоски HP
-        Render2D.drawGradientRound(context.getMatrices(), x + 25, y + 15f, 59, 2, 1, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
-        Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 25, y + 15f, 59, 2, 2, c4, c3, c3, c4);
-        Render2D.renderRoundedGradientRect(context.getMatrices(), c4, c3, c3, c4, x + 25, y + 15f, (int) MathUtility.clamp((60 * (health / target.getMaxHealth())), 2, 59), 2, 1);
+        int barX = x + 25;
+        int barY = y + 15;
+        int barHeight = 2;
+        float healthBarWidth = 59;
+        int innerBarWidth = (int) MathUtility.clamp((healthBarWidth * (health / target.getMaxHealth())), 8, healthBarWidth);
+        Color background = new Color(0x424242);
+
+        Render2D.drawGradientBlurredShadow1(context.getMatrices(), barX, barY, innerBarWidth, barHeight, 4, bottomLeft, bottomRight, topRight, topLeft);
+        Render2D.drawGradientRound(context.getMatrices(), barX, barY, healthBarWidth - 1, barHeight, 2, background, background, background, background);
+        Render2D.renderRoundedGradientRect(context.getMatrices(), c4, c3, c3, c4, barX, barY, innerBarWidth, barHeight, 2);
 
         RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
         java.util.List<ItemStack> armor = target.getInventory().armor;
@@ -157,7 +163,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         // Градиентный фон
         Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 91, 31, 20, bottomLeft, bottomRight, topRight, topLeft);
         Render2D.renderRoundedGradientRect(context.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x, y, 95, 35, 7);
-        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, 94, 34, 7, Render2D.injectAlpha(new Color(0x181a29), 180));
+        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, 94, 34, 7, Palette.getBackColor());
 
         // Голова игрока
         Identifier texture = mc.player.getSkinTextures().texture();
@@ -177,7 +183,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 0.0F);
         RenderSystem.clear(GL40C.GL_COLOR_BUFFER_BIT);
         RenderSystem.colorMask(true, true, true, true);
-        Render2D.drawRound(context.getMatrices(), x + 2.5f, y + 2.5f, 30, 30, 5, Render2D.injectAlpha(Color.BLACK, 20));
+        Render2D.drawRound(context.getMatrices(), x + 2.5f, y + 2.5f, 30, 30, 5, Palette.getBackColor());
         Render2D.setupRender();
         Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x + 2.5, y + 2.5, x + 2.5 + 30, y + 2.5 + 30, 5, 3);
         RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);
@@ -256,7 +262,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         // Градиентный фон
         Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 133, 43, 20, bottomLeft, bottomRight, topRight, topLeft);
         Render2D.renderRoundedGradientRect(context.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x, y, 137, 47.5f, 9);
-        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, 136, 46, 9, Render2D.injectAlpha(new Color(0x181a29), 220));
+        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, 136, 46, 9, Palette.getBackColor());
 
         // Голова игрока
         Identifier texture = mc.player.getSkinTextures().texture();
@@ -276,7 +282,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 0.0F);
         RenderSystem.clear(GL40C.GL_COLOR_BUFFER_BIT);
         RenderSystem.colorMask(true, true, true, true);
-        Render2D.drawRound(context.getMatrices(), x + 3.5f, y + 3.5f, 40, 40, 7, Render2D.injectAlpha(Color.BLACK, 20));
+        Render2D.drawRound(context.getMatrices(), x + 3.5f, y + 3.5f, 40, 40, 7, Palette.getBackColor());
         Render2D.setupRender();
         Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x + 3.5f, y + 3.5f, x + 3.5f + 40, y + 3.5f + 40, 7, 3);
         RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);
@@ -369,7 +375,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         int healthBarWidth = totalWidthBackground - 52;
 
         // Градиентный фон
-        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, totalWidthBackground, 46, 7, Render2D.injectAlpha(new Color(0x181a29), 220));
+        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, totalWidthBackground, 46, 7, Palette.getBackColor());
 
         float headScale = 20;
         context.getMatrices().push();
@@ -381,7 +387,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 0.0F);
         RenderSystem.clear(GL40C.GL_COLOR_BUFFER_BIT);
         RenderSystem.colorMask(true, true, true, true);
-        Render2D.drawRound(context.getMatrices(), x + 3.5f, y + 3.5f, 40, 40, 5, Render2D.injectAlpha(new Color(0x181a29), 20));
+        Render2D.drawRound(context.getMatrices(), x + 3.5f, y + 3.5f, 40, 40, 5, Palette.getBackColor());
         Render2D.setupRender();
         Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x + 3.5f, y + 3.5f, x + 3.5f + headScale * 2, y + 3.5f + headScale * 2, 5, 3);
         RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);
@@ -430,9 +436,10 @@ public class TargetHudRenderer extends ConfigurableModule {
         int barY = y + 32;
         int barHeight = 9;
         int innerBarWidth = (int) MathUtility.clamp((healthBarWidth * (health / target.getMaxHealth())), 8, healthBarWidth);
+        Color background = Palette.getBackColor().darker().darker().darker();
 
-        Render2D.drawGradientBlurredShadow1(context.getMatrices(), barX, barY, healthBarWidth, barHeight, 4, bottomLeft, bottomRight, topRight, topLeft);
-        Render2D.drawGradientRound(context.getMatrices(), barX, barY, healthBarWidth - 1, barHeight, 2, c3.darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker(), c3.darker().darker().darker().darker());
+        Render2D.drawGradientRound(context.getMatrices(), barX, barY, healthBarWidth - 1, barHeight, 2, background, background, background, background);
+        Render2D.drawGradientBlurredShadow1(context.getMatrices(), barX, barY, innerBarWidth, barHeight, 4, bottomLeft, bottomRight, topRight, topLeft);
         Render2D.renderRoundedGradientRect(context.getMatrices(), hpLeft, hpRight, hpRight, hpLeft, barX, barY, innerBarWidth, barHeight, 2);
 
         FontRenderers.sf_bold_17.drawString(context.getMatrices(), displayName, x + 48, y + 7, Render2D.applyOpacity(Palette.getTextColor(), animationFactor));
@@ -443,6 +450,107 @@ public class TargetHudRenderer extends ConfigurableModule {
     }
 
 
+
+    public static void renderAlt_1_HUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y, Vec3d screenPos) {
+        float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
+
+        Color c1 = TargetHudRenderer.topLeft;
+        Color c3 = TargetHudRenderer.bottomRight;
+        Color c4 = TargetHudRenderer.bottomLeft;
+
+        // Градиентный фон
+        int w = 90;
+        int h = 33;
+        int r = 3;
+        int xOffset = -5;
+        int yOffset = 0;
+        Render2D.drawRound(context.getMatrices(), x + xOffset, y + 0.5f + yOffset, w, h, r, Palette.getBackColor());
+
+        // Голова игрока
+        Identifier texture = mc.player.getSkinTextures().texture();
+        String displayName = "Invisible";
+        int headScale = 20;
+        if (target.isInvisible()) {
+            texture = TexturesManager.ANON_SKIN;
+        } else if (target instanceof PlayerEntity) {
+            texture = ((AbstractClientPlayerEntity) target).getSkinTextures().texture();
+            displayName = target.getName().getString();
+        }
+        context.getMatrices().push();
+        context.getMatrices().translate(x + 2.5 + 15, y + 2.5 + 15, 0);
+        context.getMatrices().scale(1 - hurtPercent / 20f, 1 - hurtPercent / 20f, 1f);
+        context.getMatrices().translate(-(x + 2.5 + 15), -(y + 2.5 + 15), 0);
+        RenderSystem.enableBlend();
+        RenderSystem.colorMask(false, false, false, true);
+        RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 0.0F);
+        RenderSystem.clear(GL40C.GL_COLOR_BUFFER_BIT);
+        RenderSystem.colorMask(true, true, true, true);
+        Render2D.drawRound(context.getMatrices(), x - 2, y + 2.5f, headScale, headScale, r, Palette.getBackColor());
+        Render2D.setupRender();
+        Render2D.renderRoundedQuadInternal(context.getMatrices().peek().getPositionMatrix(), animationFactor, animationFactor, animationFactor, animationFactor, x - 2, y + 2.5, x - 2 + headScale, y + 2.5 + headScale, r, 3);
+        RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);
+        RenderSystem.setShaderColor(1f, 1f - hurtPercent / 2, 1f - hurtPercent / 2, 1f);
+        Render2D.renderTexture(context.getMatrices(), texture, x - 2, y + 2.5, headScale, headScale, 8, 8, 8, 8, 64, 64);
+        Render2D.renderTexture(context.getMatrices(), texture, x - 2, y + 2.5, headScale, headScale, 40, 8, 8, 8, 64, 64);
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableBlend();
+        context.getMatrices().pop();
+
+        // Партиклы
+        for (final Particle2D p : particles) {
+            if (p.opacity > 4) {
+                float depthFactor = CONFIG.targetHudFollow ? (float) screenPos.z : 1.0f;
+                p.render2D(context.getMatrices(), smoothedScreenX, smoothedScreenY, depthFactor);
+            }
+        }
+
+        if (target.hurtTime == 9 && !sentParticles) {
+            for (int i = 0; i <= 6; i++) {
+                final Particle2D p = new Particle2D();
+                final Color c = Particle2D.mixColors(c1, c3, (Math.sin(ticks + x * 0.4f + i) + 1) * 0.5f);
+                p.init(x - smoothedScreenX, y - smoothedScreenY, MathUtility.random(-3f, 3f), MathUtility.random(-3f, 3f), 20, c, CONFIG.targetHudFollow);
+                particles.add(p);
+            }
+            sentParticles = true;
+        }
+
+        if (target.hurtTime == 8) sentParticles = false;
+
+        int barX = x - 2;
+        int barY = y + 27;
+        int barHeight = 2;
+        float healthBarWidth = 86;
+        int innerBarWidth = (int) MathUtility.clamp((healthBarWidth * (health / target.getMaxHealth())), 8, healthBarWidth);
+        Color background = new Color(0x424242);
+
+        FontRenderers.sf_bold_12.drawString(context.getMatrices(), displayName, x + 20, y + 6, Render2D.applyOpacity(Palette.getTextColor(), animationFactor));
+
+        Render2D.drawGradientBlurredShadow1(context.getMatrices(), barX, barY, innerBarWidth, barHeight, 4, bottomLeft, bottomRight, topRight, topLeft);
+        Render2D.drawGradientRound(context.getMatrices(), barX, barY, healthBarWidth - 1, barHeight, 1, background, background, background, background);
+        Render2D.renderRoundedGradientRect(context.getMatrices(), c4, c3, c3, c4, barX, barY, innerBarWidth, barHeight, 1);
+
+        RenderSystem.setShaderColor(1f, 1f, 1f, animationFactor);
+        java.util.List<ItemStack> armor = target.getInventory().armor;
+        ItemStack[] items = new ItemStack[]{target.getMainHandStack(), armor.get(3), armor.get(2), armor.get(1), armor.get(0), target.getOffHandStack()};
+
+        float xItemOffset = x + 20;
+        float yItemOffset = y + 12;
+        float itemGap = 10;
+        float itemScale = 0.5f;
+        for (ItemStack itemStack : items) {
+            context.getMatrices().push();
+            context.getMatrices().translate(xItemOffset, yItemOffset, 0);
+            context.getMatrices().scale(itemScale, itemScale, itemScale);
+            context.drawItem(itemStack, 0, 0);
+            if (!ModuleSupressor.disableItemOverlay()) {
+                context.drawStackOverlay(mc.textRenderer, itemStack, 0, 0);
+            }
+            context.getMatrices().pop();
+            xItemOffset += itemGap;
+        }
+
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+    }
 
     private static Color interpolateColor(Color start, Color end, float progress) {
         int r = MathHelper.lerp(progress, start.getRed(), end.getRed());

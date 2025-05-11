@@ -4,6 +4,7 @@ import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.render.TargetHudRenderer;
 import me.Padej_.soupapi.utils.MouseUtils;
+import me.Padej_.soupapi.utils.Palette;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -25,7 +26,7 @@ public class MouseMove extends ConfigurableModule {
         if (CONFIG.mouseMoveBlur) {
             Render2D.drawGradientBlurredShadow1(context.getMatrices(), centerX - 20, centerY - 20, 40, 40, 7, color1, color2, color3, color4);
         }
-        Render2D.drawRound(context.getMatrices(), centerX - 20, centerY - 20, 40, 40, 4, Render2D.injectAlpha(new Color(0x181a29), 220));
+        Render2D.drawRound(context.getMatrices(), centerX - 20, centerY - 20, 40, 40, 4, Palette.getBackColor());
 
         MatrixStack matrices = context.getMatrices();
         matrices.push();

@@ -36,8 +36,7 @@ public abstract class MixinOverlayTexture implements OverlayReloadListener {
 
     @Unique
     private static int getColorInt(int red, int green, int blue, int alpha) {
-        alpha = 255 - alpha;
-        return (alpha << 24) + (blue << 16) + (green << 8) + red;
+        return (alpha << 24) | (red << 16) | (green << 8) | blue;
     }
 
     @Unique
@@ -46,7 +45,7 @@ public abstract class MixinOverlayTexture implements OverlayReloadListener {
         if (nativeImage == null) return;
 
         Color color = !CONFIG.hitColorCustomColor ? TargetHudRenderer.bottomLeft : new Color(CONFIG.hitColorColor);
-        int alpha = (int) (255 * (CONFIG.hitColorAlpha / 100f));
+        int alpha = (int) (255 - (255 * (CONFIG.hitColorAlpha / 100f)));
 
         for (int y = 0; y < 16; ++y) {
             for (int x = 0; x < 16; ++x) {

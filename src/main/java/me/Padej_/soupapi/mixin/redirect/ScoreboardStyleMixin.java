@@ -79,7 +79,7 @@ public class ScoreboardStyleMixin {
             if (CONFIG.hudBetterScoreboardColor)
                 Render2D.renderRoundedGradientRect(drawContext.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x, y, width, height, cornerRadius);
             if (CONFIG.hudBetterScoreboardDarker)
-                Render2D.drawRound(drawContext.getMatrices(), x, y, width, height, cornerRadius, Render2D.injectAlpha(Color.BLACK, 120));
+                Render2D.drawRound(drawContext.getMatrices(), x, y, width, height, cornerRadius, Palette.getBackColor());
         } else {
             drawContext.fill(x1, y1, x2, y2, color);
         }

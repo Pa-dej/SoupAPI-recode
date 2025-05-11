@@ -44,7 +44,7 @@ public class WatermarkRenderer {
 
 //        Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 1, y + 1, width, height, 5, TargetHudRenderer.bottomLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.topRight, TargetHudRenderer.topLeft);
 //        Render2D.renderRoundedGradientRect(context.getMatrices(), TargetHudRenderer.topLeft, TargetHudRenderer.topLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.bottomLeft, x + 0.5f, y + 0.5f, width, height, 4);
-        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, width, height, 2, Render2D.injectAlpha(new Color(0x181a29), 220));
+        Render2D.drawRound(context.getMatrices(), x + 0.5f, y + 0.5f, width, height, 2, Palette.getBackColor());
     }
 
     private static void renderName(DrawContext context, float x, float y) {
@@ -80,7 +80,7 @@ public class WatermarkRenderer {
         RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 0.0F);
         RenderSystem.clear(GL40C.GL_COLOR_BUFFER_BIT);
         RenderSystem.colorMask(true, true, true, true);
-        Render2D.drawRound(stack, x + 3.5f, y + 3.5f, 40, 40, r, Render2D.injectAlpha(Color.BLACK, 20));
+        Render2D.drawRound(stack, x + 3.5f, y + 3.5f, 40, 40, r, Palette.getBackColor());
         Render2D.setupRender();
         Render2D.renderRoundedQuadInternal(stack.peek().getPositionMatrix(), 1, 1, 1, 1, x + 3.5f, y + 3.5f, x + 3.5f + 40, y + 3.5f + 40, r, 3);
         RenderSystem.blendFunc(GL40C.GL_DST_ALPHA, GL40C.GL_ONE_MINUS_DST_ALPHA);

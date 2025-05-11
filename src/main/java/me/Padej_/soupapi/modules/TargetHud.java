@@ -178,6 +178,8 @@ public class TargetHud extends ConfigurableModule {
                         TargetHudRenderer.renderTinyHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY, screenPos);
                 case ARES ->
                         TargetHudRenderer.renderAresHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY, screenPos);
+                case ALT_1 ->
+                        TargetHudRenderer.renderAlt_1_HUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY, screenPos);
                 default ->
                         TargetHudRenderer.renderNormalHUD(context, normalizedDelta, displayedHealth, animationFactor, (PlayerEntity) lastTarget, (int) smoothedScreenX, (int) smoothedScreenY, screenPos);
             }
@@ -275,7 +277,7 @@ public class TargetHud extends ConfigurableModule {
     }
 
     public enum Style {
-        MINI, TINY, NORMAL, ARES
+        MINI, TINY, NORMAL, ARES, ALT_1
     }
 
     public enum Config {

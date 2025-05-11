@@ -113,7 +113,7 @@ public class PotionsHud extends ConfigurableModule {
             // Заголовок
             MatrixStack matrices = context.getMatrices();
             Render2D.drawGradientBlurredShadow1(matrices, x - 2.5f, headerY, currentWidth, headerHeight, 5, TargetHudRenderer.bottomLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.topRight, TargetHudRenderer.topLeft);
-            Render2D.drawRound(matrices, x - 3f, headerY, currentWidth, headerHeight, radius, Render2D.injectAlpha(new Color(0x181a29), 220));
+            Render2D.drawRound(matrices, x - 3f, headerY, currentWidth, headerHeight, radius, Palette.getBackColor());
 
             String title = "Potions";
             float textWidth = FontRenderers.sf_bold.getStringWidth(title);
@@ -124,7 +124,7 @@ public class PotionsHud extends ConfigurableModule {
 
             // Фон под эффекты
             Render2D.drawGradientBlurredShadow1(matrices, x - 2.5f, y + 1, currentWidth, currentHeight, 5, TargetHudRenderer.bottomLeft, TargetHudRenderer.bottomRight, TargetHudRenderer.topRight, TargetHudRenderer.topLeft);
-            Render2D.drawRound(matrices, x - 3f, y + 0.5f, currentWidth, currentHeight, radius, Render2D.injectAlpha(new Color(0x181a29), 220));
+            Render2D.drawRound(matrices, x - 3f, y + 0.5f, currentWidth, currentHeight, radius, Palette.getBackColor());
 
             matrices.push();
             matrices.translate(x, headerY + 1.5f, 0);
@@ -210,7 +210,7 @@ public class PotionsHud extends ConfigurableModule {
                 float barX = x + 20;
                 float barY = y + 15;
                 float barWidth = textWidth;
-                float barHeight = 1.5f;
+                float barHeight = 2;
 
                 Color fillStart = Palette.getColor(0f).darker();
                 Color fillEnd = Palette.getColor(0.33f).darker();
