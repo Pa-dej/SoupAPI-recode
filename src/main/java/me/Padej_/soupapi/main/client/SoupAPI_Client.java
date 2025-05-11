@@ -2,6 +2,7 @@ package me.Padej_.soupapi.main.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.SoupAPI_Config;
+import me.Padej_.soupapi.interfaces.OverlayReloadListener;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.*;
 import me.Padej_.soupapi.particle.CustomPhysicParticleFactory;
@@ -47,6 +48,7 @@ public class SoupAPI_Client implements ClientModInitializer {
 
     private void doEndClientTick(MinecraftClient client) {
         EntityUtils.updateEntities(client);
+        OverlayReloadListener.callEvent();
 
         Trails.onTick();
         JumpCircles.onTick();

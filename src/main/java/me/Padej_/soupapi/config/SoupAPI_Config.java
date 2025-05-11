@@ -49,26 +49,26 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("main")
     public boolean waterMarkEnabled = true;
     @ConfigEntry.Category("main")
-    public int waterMarkX = 2;
+    public int waterMarkX = 10;
     @ConfigEntry.Category("main")
-    public int waterMarkY = 2;
+    public int waterMarkY = 20;
 
     @ConfigEntry.Gui.PrefixText // Theme
     @ConfigEntry.Category("main")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public Palette.ColorsStyle paletteStyle = Palette.ColorsStyle.DUO;
+    public Palette.ColorsStyle paletteStyle = Palette.ColorsStyle.QUARTET;
     @ConfigEntry.Category("main")
     @ConfigEntry.ColorPicker
-    public int c1 = 0xf72585;
+    public int c1 = 0x66a0ff;
     @ConfigEntry.Category("main")
     @ConfigEntry.ColorPicker
-    public int c2 = 0x7209b7;
+    public int c2 = 0x5cf0ff;
     @ConfigEntry.Category("main")
     @ConfigEntry.ColorPicker
-    public int c3 = 0x3a0ca3;
+    public int c3 = 0xffb256;
     @ConfigEntry.Category("main")
     @ConfigEntry.ColorPicker
-    public int c4 = 0x4361ee;
+    public int c4 = 0xff4a4a;
     @ConfigEntry.Category("main")
     @ConfigEntry.ColorPicker
     public int textColor = 0xffffff;
@@ -92,7 +92,7 @@ public class SoupAPI_Config implements ConfigData {
     public Trails.Style trailsStyle = Trails.Style.FADED;
     @ConfigEntry.Category("trails")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 30)
-    public int trailsLenght = 5;
+    public int trailsLenght = 20;
     @ConfigEntry.Category("trails")
     @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
     public int trailsHeight = 100;
@@ -176,10 +176,10 @@ public class SoupAPI_Config implements ConfigData {
     public int jumpCirclesScale = 100;
     @ConfigEntry.Category("jump_circles")
     @ConfigEntry.BoundedDiscrete(min = 2, max = 10)
-    public int jumpCirclesLiveTime = 5;
+    public int jumpCirclesLiveTime = 3;
     @ConfigEntry.Category("jump_circles")
     @ConfigEntry.BoundedDiscrete(min = -3, max = 3)
-    public int jumpCirclesSpinSpeed = 1;
+    public int jumpCirclesSpinSpeed = 3;
 
     /**
      * JUMP PARTICLES
@@ -206,13 +206,13 @@ public class SoupAPI_Config implements ConfigData {
     public JumpParticles.Disappear jumpParticlesDisappear = JumpParticles.Disappear.ALPHA;
     @ConfigEntry.Category("jump_particles")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
-    public int jumpParticlesCount = 1;
+    public int jumpParticlesCount = 5;
     @ConfigEntry.Category("jump_particles")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 20)
-    public int jumpParticlesSpeed = 10;
+    public int jumpParticlesSpeed = 5;
     @ConfigEntry.Category("jump_particles")
     @ConfigEntry.BoundedDiscrete(min = 2, max = 10)
-    public int jumpParticlesLiveTime = 5;
+    public int jumpParticlesLiveTime = 2;
     @ConfigEntry.Category("jump_particles")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
     public int jumpParticlesScale = 3;
@@ -245,7 +245,7 @@ public class SoupAPI_Config implements ConfigData {
     public AmbientParticle.Physics ambientParticlesPhysic = AmbientParticle.Physics.FALL;
     @ConfigEntry.Category("world")
     @ConfigEntry.BoundedDiscrete(min = 5, max = 30)
-    public int ambientParticlesParticleWithTrailLenght = 15;
+    public int ambientParticlesParticleWithTrailLenght = 10;
     @ConfigEntry.Category("world")
     @ConfigEntry.BoundedDiscrete(min = 10, max = 200)
     public int ambientParticlesDefaultParticleScale = 100;
@@ -291,7 +291,7 @@ public class SoupAPI_Config implements ConfigData {
     public int customFogEnd = 20;
     @ConfigEntry.Category("world")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 100)
-    public int customFogDensity = 50;
+    public int customFogDensity = 80;
 
     /**
      * TARGET RENDER
@@ -375,7 +375,7 @@ public class SoupAPI_Config implements ConfigData {
     public boolean targetHudFollow = false;
     @ConfigEntry.Category("target_hud")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public TargetHud.Style targetHudStyle = TargetHud.Style.MINI;
+    public TargetHud.Style targetHudStyle = TargetHud.Style.ARES;
     @ConfigEntry.Category("target_hud")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 30)
     public int targetHudRenderTime = 5;
@@ -401,9 +401,9 @@ public class SoupAPI_Config implements ConfigData {
 
     @ConfigEntry.Gui.PrefixText // Position
     @ConfigEntry.Category("target_hud")
-    public int targetHudOffsetX = 0;
+    public int targetHudOffsetX = -25;
     @ConfigEntry.Category("target_hud")
-    public int targetHudOffsetY = 0;
+    public int targetHudOffsetY = -80;
     @ConfigEntry.Category("target_hud")
     @ConfigEntry.BoundedDiscrete(min = -50, max = 50)
     public int targetHudEntityOffsetX = 20;
@@ -439,11 +439,11 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hud")
     public boolean hudBetterPotionsHudEnabled = false;
     @ConfigEntry.Category("hud")
-    public boolean hudBetterPotionsHudToRoman = false;
+    public boolean hudBetterPotionsHudToRoman = true;
     @ConfigEntry.Category("hud")
-    public int hudBetterPotionsHudX = 8;
+    public int hudBetterPotionsHudX = 10;
     @ConfigEntry.Category("hud")
-    public int hudBetterPotionsHudY = 80;
+    public int hudBetterPotionsHudY = 115;
 
     /**
      * HIT BUBBLES
@@ -637,7 +637,7 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hit_particles")
     public boolean hitParticlesLikeCrit = false;
     @ConfigEntry.Category("hit_particles")
-    public boolean hitParticlesSplashSpawn = false;
+    public boolean hitParticlesSplashSpawn = true;
     @ConfigEntry.Category("hit_particles")
     public boolean hitParticlesTextShowHeal = false;
     @ConfigEntry.Category("hit_particles")
@@ -655,7 +655,7 @@ public class SoupAPI_Config implements ConfigData {
 
     @ConfigEntry.Category("hit_particles")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
-    public HitParticle.HitTextMode hitParticlesTextMode = HitParticle.HitTextMode.ALL_ENTITIES;
+    public HitParticle.HitTextMode hitParticlesTextMode = HitParticle.HitTextMode.DISABLED;
     @ConfigEntry.Category("hit_particles")
     @ConfigEntry.Gui.EnumHandler(option = ConfigEntry.Gui.EnumHandler.EnumDisplayOption.BUTTON)
     public HitParticle.Disappear hitParticlesDisappear = HitParticle.Disappear.ALPHA;
@@ -673,8 +673,8 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
     public int hitParticlesRenderTime = 2;
     @ConfigEntry.Category("hit_particles")
-    @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
-    public int hitParticlesTextScale = 3;
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 5)
+    public int hitParticlesTextScale = 1;
     @ConfigEntry.Category("hit_particles")
     @ConfigEntry.BoundedDiscrete(min = 1, max = 10)
     public int hitParticlesScale = 3;
@@ -712,4 +712,18 @@ public class SoupAPI_Config implements ConfigData {
     public int mouseMoveX = 900;
     @ConfigEntry.Category("mouse_move")
     public int mouseMoveY = 450;
+
+    /**
+     * HIT COLOR
+     **/
+    @ConfigEntry.Category("hit_color")
+    public boolean hitColorEnabled = false;
+    @ConfigEntry.Category("hit_color")
+    public boolean hitColorCustomColor = true;
+    @ConfigEntry.Category("hit_color")
+    @ConfigEntry.ColorPicker
+    public int hitColorColor = 0xFF0000;
+    @ConfigEntry.Category("hit_color")
+    @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
+    public int hitColorAlpha = 90;
 }

@@ -231,7 +231,7 @@
   "text.autoconfig.soupapi.category.no_render": "No Render",
   "text.autoconfig.soupapi.option.noFireOverlayEnabled.@PrefixText": "Fire Overlay",
   "text.autoconfig.soupapi.option.noFireOverlayEnabled": "Enabled",
-  "text.autoconfig.soupapi.option.noFireOverlayCustomColorEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.noFireOverlayCustomColorEnabled": "Custom Color",
   "text.autoconfig.soupapi.option.noFireOverlayY": "Offset Y",
   "text.autoconfig.soupapi.option.noFireOverlayAlpha": "Alpha",
   "text.autoconfig.soupapi.option.noFireOverlayCustomColor": "Color",
@@ -296,6 +296,12 @@
   "text.autoconfig.soupapi.option.mouseMoveX.@PrefixText": "Position",
   "text.autoconfig.soupapi.option.mouseMoveX": "Offset X",
   "text.autoconfig.soupapi.option.mouseMoveY": "Offset Y",
+
+  "text.autoconfig.soupapi.category.hit_color": "Hit Color",
+  "text.autoconfig.soupapi.option.hitColorEnabled": "Enabled",
+  "text.autoconfig.soupapi.option.hitColorCustomColor": "Custom Color",
+  "text.autoconfig.soupapi.option.hitColorColor": "Color",
+  "text.autoconfig.soupapi.option.hitColorAlpha": "Alpha",
 
   "": ""
 }

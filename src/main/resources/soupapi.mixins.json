@@ -27,6 +27,7 @@
     "inject.MixinBackgroundRenderer",
     "inject.MixinClientPlayNetworkHandler",
     "inject.MixinHeldItemRenderer",
+    "inject.MixinOverlayTexture",
     "inject.PlayerEntityRendererMixin",
     "inject.Registrier",
     "inject.ScreenMixin",
