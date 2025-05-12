@@ -1,6 +1,8 @@
 package me.Padej_.soupapi.main.client;
 
+import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.config.SoupAPI_Config;
+import me.Padej_.soupapi.gui.SoupSettingsScreen;
 import me.Padej_.soupapi.interfaces.OverlayReloadListener;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.*;
@@ -75,9 +77,10 @@ public class SoupAPI_Client implements ClientModInitializer {
             }
             client.setScreen(AutoConfig.getConfigScreen(SoupAPI_Config.class, parent).get());
         }
-//        if (client.options.sprintKey.isPressed()){
+        if (client.options.sprintKey.isPressed()){
 //            client.setScreen(new TestRenderer());
-//        }
+            client.setScreen(new SoupSettingsScreen());
+        }
     }
 
     private void doRenderAfterEntities(WorldRenderContext context) {
