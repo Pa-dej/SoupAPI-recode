@@ -79,7 +79,7 @@ public class SoupAPI_Client implements ClientModInitializer {
         }
         if (client.options.sprintKey.isPressed()){
 //            client.setScreen(new TestRenderer());
-            client.setScreen(new SoupSettingsScreen());
+//            client.setScreen(new SoupSettingsScreen());
         }
     }
 
