@@ -1,6 +1,5 @@
 package me.Padej_.soupapi.modules;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.utils.EntityUtils;
@@ -10,8 +9,6 @@ import me.Padej_.soupapi.utils.TexturesManager;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.block.AirBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.LightmapTextureManager;

@@ -1,6 +1,5 @@
 package me.Padej_.soupapi.modules;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.utils.MathUtility;
@@ -8,8 +7,6 @@ import me.Padej_.soupapi.utils.Palette;
 import me.Padej_.soupapi.utils.TexturesManager;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.block.AirBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -45,17 +42,9 @@ public class TotemPopParticles extends ConfigurableModule {
         Color c;
         if (CONFIG.totemPopDefaultColors) {
             if (RANDOM.nextInt(4) == 0) {
-                c = new Color(
-                        0.6F + RANDOM.nextFloat() * 0.2F,
-                        0.6F + RANDOM.nextFloat() * 0.3F,
-                        RANDOM.nextFloat() * 0.2F
-                );
+                c = new Color(0.6F + RANDOM.nextFloat() * 0.2F, 0.6F + RANDOM.nextFloat() * 0.3F, RANDOM.nextFloat() * 0.2F);
             } else {
-                c = new Color(
-                        0.1F + RANDOM.nextFloat() * 0.2F,
-                        0.4F + RANDOM.nextFloat() * 0.3F,
-                        RANDOM.nextFloat() * 0.2F
-                );
+                c = new Color(0.1F + RANDOM.nextFloat() * 0.2F, 0.4F + RANDOM.nextFloat() * 0.3F, RANDOM.nextFloat() * 0.2F);
             }
         } else {
             c = Palette.getRandomColor();
@@ -63,12 +52,7 @@ public class TotemPopParticles extends ConfigurableModule {
         emitters.add(new Emitter(entity, c));
 
         for (int i = 0; i < CONFIG.totemPopParticlesCount; i++) {
-            particles.add(new Particle((float) entity.getX(),
-                    (float) (entity.getY() + entity.getHeight() / 2),
-                    (float) entity.getZ(),
-                    MathUtility.random(0, 180),
-                    MathUtility.random(10f, 60f)
-            ));
+            particles.add(new Particle((float) entity.getX(), (float) (entity.getY() + entity.getHeight() / 2), (float) entity.getZ(), MathUtility.random(0, 180), MathUtility.random(10f, 60f)));
         }
     }
 
@@ -123,17 +107,9 @@ public class TotemPopParticles extends ConfigurableModule {
 
             if (CONFIG.totemPopDefaultColors) {
                 if (RANDOM.nextInt(4) == 0) {
-                    this.color = new Color(
-                            0.6F + RANDOM.nextFloat() * 0.2F,
-                            0.6F + RANDOM.nextFloat() * 0.3F,
-                            RANDOM.nextFloat() * 0.2F
-                    );
+                    this.color = new Color(0.6F + RANDOM.nextFloat() * 0.2F, 0.6F + RANDOM.nextFloat() * 0.3F, RANDOM.nextFloat() * 0.2F);
                 } else {
-                    this.color = new Color(
-                            0.1F + RANDOM.nextFloat() * 0.2F,
-                            0.4F + RANDOM.nextFloat() * 0.3F,
-                            RANDOM.nextFloat() * 0.2F
-                    );
+                    this.color = new Color(0.1F + RANDOM.nextFloat() * 0.2F, 0.4F + RANDOM.nextFloat() * 0.3F, RANDOM.nextFloat() * 0.2F);
                 }
             } else {
                 this.color = Palette.getRandomColor();
@@ -154,10 +130,7 @@ public class TotemPopParticles extends ConfigurableModule {
                 motionY = -motionY / 1.1f;
                 motionX /= 1.1f;
                 motionZ /= 1.1f;
-            } else if (posBlock(x - sp, y, z - sp) || posBlock(x + sp, y, z + sp) ||
-                    posBlock(x + sp, y, z - sp) || posBlock(x - sp, y, z + sp) ||
-                    posBlock(x + sp, y, z) || posBlock(x - sp, y, z) ||
-                    posBlock(x, y, z + sp) || posBlock(x, y, z - sp)) {
+            } else if (posBlock(x - sp, y, z - sp) || posBlock(x + sp, y, z + sp) || posBlock(x + sp, y, z - sp) || posBlock(x - sp, y, z + sp) || posBlock(x + sp, y, z) || posBlock(x - sp, y, z) || posBlock(x, y, z + sp) || posBlock(x, y, z - sp)) {
                 motionX = -motionX;
                 motionZ = -motionZ;
             }
@@ -234,13 +207,7 @@ public class TotemPopParticles extends ConfigurableModule {
 
             int perTick = Math.max(1, CONFIG.totemPopParticlesCount / 30);
             for (int i = 0; i < perTick; i++) {
-                particles.add(new Particle(
-                        (float) entity.getX(),
-                        (float) (entity.getY() + entity.getHeight() / 2f),
-                        (float) entity.getZ(),
-                        MathUtility.random(0, 180),
-                        MathUtility.random(10f, 60f)
-                ));
+                particles.add(new Particle((float) entity.getX(), (float) (entity.getY() + entity.getHeight() / 2f), (float) entity.getZ(), MathUtility.random(0, 180), MathUtility.random(10f, 60f)));
             }
             return false;
         }

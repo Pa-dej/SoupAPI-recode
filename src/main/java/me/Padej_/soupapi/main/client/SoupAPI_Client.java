@@ -5,6 +5,7 @@ import me.Padej_.soupapi.interfaces.OverlayReloadListener;
 import me.Padej_.soupapi.main.SoupAPI_Main;
 import me.Padej_.soupapi.modules.*;
 import me.Padej_.soupapi.particle.CustomPhysicParticleFactory;
+import me.Padej_.soupapi.render.Render3D_Shapes;
 import me.Padej_.soupapi.render.WatermarkRenderer;
 import me.Padej_.soupapi.utils.EntityUtils;
 import me.Padej_.soupapi.utils.HitSound;
@@ -89,8 +90,10 @@ public class SoupAPI_Client implements ClientModInitializer {
         Halo.render(context);
         Trails.renderTrail(context);
         JumpCircles.renderCircles(context);
+        Trajectories.render(context);
 
         renderParticles(context);
+        Render3D_Shapes.render(context);
     }
 
     private void registerOnHit() {

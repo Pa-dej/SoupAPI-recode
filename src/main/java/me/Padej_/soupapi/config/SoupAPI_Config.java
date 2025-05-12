@@ -734,4 +734,14 @@ public class SoupAPI_Config implements ConfigData {
     @ConfigEntry.Category("hit_color")
     @ConfigEntry.BoundedDiscrete(min = 10, max = 100)
     public int hitColorAlpha = 90;
+
+    /**
+     * TRAJECTORIES
+     **/
+    @ConfigEntry.Category("trajectories")
+    public boolean trajectoriesPreviewEnabled = false;
+    @ConfigEntry.Category("trajectories")
+    public boolean trajectoriesPreviewLandSideOutline = false;
+    @ConfigEntry.Category("trajectories")
+    public boolean trajectoriesPreviewLandSideFill = false;
 }
