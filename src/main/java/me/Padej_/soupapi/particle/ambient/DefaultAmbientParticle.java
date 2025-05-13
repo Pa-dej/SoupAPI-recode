@@ -79,6 +79,7 @@ public class DefaultAmbientParticle {
         matrices.translate(pos.x, pos.y, pos.z);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-camera.getYaw()));
         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(camera.getPitch()));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(180));
 
         int alpha = (int) (255 * ((float) age / (float) maxAge));
         Color withAlpha = Render2D.injectAlpha(color, alpha);

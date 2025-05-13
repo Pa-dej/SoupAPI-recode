@@ -466,7 +466,7 @@ public class SoupAPI_Config implements ConfigData {
     public int hitBubblesRenderTime = 30;
     @ConfigEntry.Category("hit_bubbles")
     @ConfigEntry.BoundedDiscrete(min = 10, max = 150)
-    public int hitBubblesScale = 30;
+    public int hitBubblesScale = 100;
 
     /**
      * HIT SOUND

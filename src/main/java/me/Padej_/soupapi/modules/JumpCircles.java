@@ -61,7 +61,7 @@ public class JumpCircles extends ConfigurableModule {
         private final double offsetY;
         private final long startTime; // Время создания круга
         private float rotationAngle;
-        private float angularVelocity;
+        private final float angularVelocity;
         private long lastUpdateTime; // Время последнего обновления
         private final boolean isFadeOut; // Флаг для эффекта затухания
 
@@ -91,37 +91,26 @@ public class JumpCircles extends ConfigurableModule {
         }
 
         private void updateRotation() {
-            // Вычисляем разницу во времени
             long currentTime = System.currentTimeMillis();
-            float deltaTime = (currentTime - lastUpdateTime) / 1000f; // Время в секундах
+            float deltaTime = (currentTime - lastUpdateTime) / 1000f;
             lastUpdateTime = currentTime;
 
-            // Ограничиваем deltaTime, чтобы избежать скачков при фризах
             deltaTime = Math.min(deltaTime, 0.1f);
 
-            // Нормализация времени для 60 FPS
-            float frameTime = 1.0f / 60.0f; // Время одного кадра при 60 FPS (~0.01667 сек)
-            float normalizedDelta = deltaTime / frameTime; // Нормализация времени
-
-            // Вычисляем долю оставшегося времени жизни на основе реального времени
-            float totalLifetime = CONFIG.jumpCirclesLiveTime; // Время жизни в секундах
-            float elapsedTime = (currentTime - startTime) / 1000f; // Прошедшее время в секундах
+            float totalLifetime = CONFIG.jumpCirclesLiveTime;
+            float elapsedTime = (currentTime - startTime) / 1000f;
             float remainingFraction = MathHelper.clamp((totalLifetime - elapsedTime) / totalLifetime, 0, 1);
 
-            float damping = 0.98f;
-
-            if (remainingFraction > 0.5f) {
-                angularVelocity *= damping;
+            // Вращение до начала исчезания
+            if (remainingFraction > 0.3f) {
+                float frameTime = 1.0f / 60.0f;
+                float normalizedDelta = deltaTime / frameTime;
+                rotationAngle -= angularVelocity * normalizedDelta;
             } else {
-                float reverseFactor = (0.5f - remainingFraction) * 2f;
-                angularVelocity = -((float) Math.toRadians(CONFIG.jumpCirclesColorSpinSpeed) * reverseFactor * damping);
-            }
-
-            // Обновляем угол вращения с учетом нормализованного времени
-            rotationAngle += angularVelocity * normalizedDelta;
-
-            if (Math.abs(angularVelocity) < 0.001f && remainingFraction > 0.5f) {
-                angularVelocity = 0f;
+                float fadeFactor = remainingFraction / 0.3f; // от 1 до 0
+                float frameTime = 1.0f / 60.0f;
+                float normalizedDelta = deltaTime / frameTime;
+                rotationAngle += angularVelocity * normalizedDelta * fadeFactor;
             }
         }
 
