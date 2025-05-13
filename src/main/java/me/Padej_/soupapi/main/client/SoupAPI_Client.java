@@ -15,10 +15,7 @@ import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -36,7 +33,8 @@ public class SoupAPI_Client implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(this::doEndClientTick);
         WorldRenderEvents.AFTER_ENTITIES.register(this::doRenderAfterEntities);
         WorldRenderEvents.LAST.register(this::doRenderLast);
-        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.STATUS_EFFECTS, Identifier.of("soupapi", "hud"), this::renderHud));
+//        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> layeredDrawer.attachLayerBefore(IdentifiedLayer.STATUS_EFFECTS, Identifier.of("soupapi", "hud"), this::renderHud));
+        HudRenderCallback.EVENT.register(this::renderHud);
 
         registerClientSideParticles();
 
@@ -71,7 +69,8 @@ public class SoupAPI_Client implements ClientModInitializer {
         Screen parent = null;
         Screen currentScreen = client.currentScreen;
         if (currentScreen instanceof ChatScreen) return;
-        if (InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_LEFT_ALT) && InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_BACKSPACE)) {
+//        if (InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_LEFT_ALT) && InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_BACKSPACE)) {
+        if (InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_RIGHT_CONTROL) && InputUtil.isKeyPressed(handle, GLFW.GLFW_KEY_RIGHT_ALT)) {
             if (currentScreen != null && !currentScreen.getTitle().equals(Text.translatable("text.autoconfig.soupapi.title"))) {
                 parent = currentScreen;
             }
@@ -84,7 +83,6 @@ public class SoupAPI_Client implements ClientModInitializer {
     }
 
     private void doRenderAfterEntities(WorldRenderContext context) {
-
     }
 
     private void doRenderLast(WorldRenderContext context) {

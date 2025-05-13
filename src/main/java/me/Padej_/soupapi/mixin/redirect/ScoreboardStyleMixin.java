@@ -77,7 +77,7 @@ public class ScoreboardStyleMixin {
             if (CONFIG.hudBetterScoreboardGlow)
                 Render2D.drawGradientBlurredShadow1(drawContext.getMatrices(), x, y, width, height, (int) glowStrength, bottomLeft, bottomRight, topRight, topLeft);
             if (CONFIG.hudBetterScoreboardColor)
-                Render2D.renderRoundedGradientRect(drawContext.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x, y, width, height, cornerRadius);
+                Render2D.renderRoundedGradientRect(drawContext.getMatrices(), topLeft, topRight, bottomRight, bottomLeft, x, y, width, height, cornerRadius + 1);
             if (CONFIG.hudBetterScoreboardDarker)
                 Render2D.drawRound(drawContext.getMatrices(), x, y, width, height, cornerRadius, Palette.getBackColor());
         } else {

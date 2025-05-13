@@ -165,7 +165,7 @@ public class Trajectories extends ConfigurableModule {
             Vec3d pos = new Vec3d(x, y, z);
 
             BlockHitResult bhr = mc.world.raycast(new RaycastContext(lastPos, pos, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, player));
-            Color color = Render2D.injectAlpha(Palette.getColor(0), 120);
+            Color color = Render2D.injectAlpha(Palette.getColor(0.33f), 220).brighter();
             if (bhr != null && bhr.getType() == HitResult.Type.BLOCK) {
                 if (CONFIG.trajectoriesPreviewLandSideOutline) {
                     Render3D_Shapes.OUTLINE_SIDE_QUEUE.add(new Render3D_Shapes.OutlineSideAction(new Box(bhr.getBlockPos()), color, 2f, bhr.getSide())); // Land Side Outline

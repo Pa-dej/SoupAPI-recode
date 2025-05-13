@@ -1,25 +1,18 @@
 package me.Padej_.soupapi.mixin.inject;
 
-import me.Padej_.soupapi.modules.HitParticle;
 import me.Padej_.soupapi.modules.TotemPopParticles;
-import me.Padej_.soupapi.utils.EntityUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityDamageS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,7 +21,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
-import static me.Padej_.soupapi.config.ConfigurableModule.mc;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class MixinClientPlayNetworkHandler {
@@ -43,6 +35,7 @@ public abstract class MixinClientPlayNetworkHandler {
 
     @Inject(method = "getServerInfo", at = @At("HEAD"), cancellable = true)
     private void injectFakeServerInfo(CallbackInfoReturnable<ServerInfo> cir) {
+        if (!MinecraftClient.getInstance().isInSingleplayer()) return;
         ServerInfo fakeInfo = new ServerInfo("Singleplayer", "localhost", ServerInfo.ServerType.LAN);
         cir.setReturnValue(fakeInfo);
     }

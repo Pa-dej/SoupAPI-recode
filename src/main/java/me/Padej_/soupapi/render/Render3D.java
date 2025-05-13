@@ -264,8 +264,6 @@ public class Render3D extends ConfigurableModule {
 
                     Matrix4f matrix = particleMatrix.peek().getPositionMatrix();
 
-                    int argb = 0xFF_FFFFFF;
-
                     float scale = Math.max((endSize + offset * (startSize - endSize)) * scaleModifier, 0.15f * scaleModifier);
 
                     buffer.vertex(matrix, -scale, scale, 0).texture(0f, 1f);
@@ -318,7 +316,7 @@ public class Render3D extends ConfigurableModule {
         RenderSystem.enableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_COLOR);
-        RenderSystem.setShaderTexture(0, TexturesManager.FIREFLY);
+        RenderSystem.setShaderTexture(0, TexturesManager.getSoulTexture());
         RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX);
         TargetRender.TargetRenderSoulStyle.setupBlendFunc();
         BufferBuilder buffer = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
@@ -390,7 +388,7 @@ public class Render3D extends ConfigurableModule {
         generateSpiralVectors(spirals, radius, height, heightStep);
 
         stack.push();
-        stack.translate(x, y - height / 2, z);
+        stack.translate(x, y - heightOffset, z);
         setupRender();
         RenderSystem.disableCull();
         RenderSystem.enableDepthTest();

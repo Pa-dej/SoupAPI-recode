@@ -82,13 +82,6 @@ public abstract class InGameHudMixin {
         if (armor == 0) return;
         if (displayedArmor == 0f) displayedArmor = armor;
         displayedArmor = MathHelper.lerp(0.2f, displayedArmor, armor);
-
-        // Слой 1: Затемнённый фон
-        if (!isLBStyle) {
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, barWidth - 1, barHeight - 4, 10, c1Hp, c2Hp, c2Hp, c1Hp);
-        } else {
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 0, 0, 1, c1Hp, c2Hp, c2Hp, c1Hp);
-        }
         Render2D.drawGradientRound(context.getMatrices(), x, y, barWidth - 1, barHeight, cornerRadius + 1,
                 isLBStyle ? new Color(0xaabebebe).darker().darker() : c2Hp.darker().darker(),
                 isLBStyle ? new Color(0xaabebebe).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
@@ -97,6 +90,9 @@ public abstract class InGameHudMixin {
 
         int filledWidth = (int) MathUtility.clamp((barWidth * (displayedArmor / maxArmor)), 0, barWidth);
         if (filledWidth != 0) {
+            if (!isLBStyle) {
+                Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, filledWidth, barHeight - 4, 4, c1Hp, c2Hp, c2Hp, c1Hp);
+            }
             Render2D.renderRoundedGradientRect(context.getMatrices(), c1Hp, c2Hp, c2Hp, c1Hp, x, y, filledWidth, barHeight, cornerRadius);
         }
 
@@ -227,19 +223,14 @@ public abstract class InGameHudMixin {
         top -= 5;
 
         int filledWidth = (int) MathUtility.clamp((barWidth * (displayedHunger / maxHunger)), 0, barWidth);
-        if (!isLBStyle) {
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, top + 2, barWidth - 1, barHeight - 4, 10, c1Hp, c2Hp, c2Hp, c1Hp);
-        } else {
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, top + 2, 0, 0, 1, c1Hp, c2Hp, c2Hp, c1Hp);
-        }
         Render2D.drawGradientRound(context.getMatrices(), x + 1, top, barWidth - 1, barHeight, cornerRadius + 1,
                 isLBStyle ? new Color(0xaa816046).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
                 isLBStyle ? new Color(0xaa816046).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
                 isLBStyle ? new Color(0xaa856346).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
                 isLBStyle ? new Color(0xaa856346).darker().darker() : c2Hp.darker().darker());
-        if (filledWidth != 0)
+        if (filledWidth != 0) {
             Render2D.renderRoundedGradientRect(context.getMatrices(), c1Hp, c2Hp, c2Hp, c1Hp, x + barWidth - filledWidth, top, filledWidth, barHeight, cornerRadius);
-
+        }
         String hungerText = String.valueOf(Math.round(10.0 * displayedHunger) / 10.0);
         float textX = x + barWidth / 2f;
         float textY = top + 2.5f;
@@ -273,20 +264,15 @@ public abstract class InGameHudMixin {
         y -= 5;
 
         int filledWidth = (int) MathUtility.clamp((barWidth * (currentAir / maxAir)), 0, barWidth);
-        if (!isLBStyle) {
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, barWidth - 1, barHeight - 4, 10, c1Air, c2Air, c2Air, c1Air);
-        } else {
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 0, 0, 1, c1Air, c2Air, c2Air, c1Air);
-        }
         Render2D.drawGradientRound(context.getMatrices(), x + 1, y, barWidth - 1, barHeight, cornerRadius + 1,
                 isLBStyle ? new Color(0xaa004488).darker().darker().darker() : c2Air.darker().darker().darker().darker(),
                 isLBStyle ? new Color(0xaa004488).darker().darker().darker() : c2Air.darker().darker().darker().darker(),
                 isLBStyle ? new Color(0xaa0088CC).darker().darker().darker() : c2Air.darker().darker().darker().darker(),
                 isLBStyle ? new Color(0xaa0088CC).darker().darker() : c2Air.darker().darker());
 
-        if (filledWidth != 0)
+        if (filledWidth != 0) {
             Render2D.renderRoundedGradientRect(context.getMatrices(), c1Air, c2Air, c2Air, c1Air, x + barWidth - filledWidth, y, filledWidth, barHeight, cornerRadius);
-
+        }
         String airText = String.valueOf(Math.round(10.0 * currentAir / 20.0) / 10.0);
         float textX = x + barWidth / 2f;
         float textY = y + 2.5f;
@@ -315,20 +301,15 @@ public abstract class InGameHudMixin {
 
 
         int filledWidth = (int) MathUtility.clamp((barWidth * (displayedHealth / (maxHealth + absorption))), 8, barWidth);
-        if (!isLBStyle) {
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, barWidth - 1, barHeight - 4, 10, c1Hp, c2Hp, c2Hp, c1Hp);
-        } else {
-            Render2D.drawGradientBlurredShadow1(context.getMatrices(), x + 2, y + 2, 0, 0, 1, c1Hp, c2Hp, c2Hp, c1Hp);
-        }
         Render2D.drawGradientRound(context.getMatrices(), x, y, barWidth - 1, barHeight, cornerRadius + 1,
                 isLBStyle ? new Color(0xaab23229).darker().darker() : c2Hp.darker().darker(),
                 isLBStyle ? new Color(0xaab23229).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
                 isLBStyle ? new Color(0xaabc302c).darker().darker().darker() : c2Hp.darker().darker().darker().darker(),
                 isLBStyle ? new Color(0xaabc302c).darker().darker().darker() : c2Hp.darker().darker().darker().darker());
 
-        if (filledWidth != 0)
+        if (filledWidth != 0) {
             Render2D.renderRoundedGradientRect(context.getMatrices(), c1Hp, c2Hp, c2Hp, c1Hp, x, y, filledWidth, barHeight, cornerRadius);
-
+        }
         String healthText = String.valueOf(Math.round(10.0 * displayedHealth) / 10.0);
         float textX = x + barWidth / 2f;
         float textY = y + 2.5f;
