@@ -1,12 +1,17 @@
 {
   "schemaVersion": 1,
   "id": "soupapi",
-  "version": "1.3.7",
+  "version": "1.3.7-a",
   "name": "SoupAPI",
-  "description": "The base library",
+  "description": "Recode. Early alpha test.",
   "authors": ["Padej_"],
-  "contact": {},
-  "license": "MIT",
+  "contributors": [
+    "donmor3000", "LopyMine", "THDevelopment"
+  ],
+  "contact": {
+    "issues": "https://discord.gg/gT35BwzMET"
+  },
+  "license": "GPL-3.0",
   "icon": "assets/soupapi/icon.png",
   "environment": "client",
   "entrypoints": {
@@ -30,5 +35,12 @@
 
     "modmenu": ">=13.0.3",
     "cloth-config": ">=17.0.144"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.discord": "https://discord.gg/gT35BwzMET"
+      }
+    }
   }
 }

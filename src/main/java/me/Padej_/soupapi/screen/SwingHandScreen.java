@@ -81,6 +81,11 @@ public class SwingHandScreen extends Screen {
         ConfigurableModule.saveConfig();
     }
 
+    @Override
+    public boolean shouldPause() {
+        return false;
+    }
+
     private void addSlider(int x, int y, String label, float min, float max, FloatSupplier getter, FloatConsumer setter) {
         this.addDrawableChild(new SliderWidget(x, y, 100, 20, Text.of(label), (getter.get() - min) / (max - min)) {
             @Override

@@ -8,6 +8,8 @@ import me.Padej_.soupapi.utils.EntityUtils;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 
 public class TargetRender extends ConfigurableModule {
@@ -27,7 +29,14 @@ public class TargetRender extends ConfigurableModule {
             currentTarget = null;
         }
 
-        boolean visibleNow = currentTarget != null && client.player.canSee(currentTarget);
+        boolean visibleNow = false;
+        if (currentTarget != null && client.player.canSee(currentTarget)) {
+            if (!currentTarget.isInvisible()) {
+                visibleNow = true;
+            } else if (currentTarget.isGlowing() || (currentTarget instanceof LivingEntity living && hasAnyArmor(living))) {
+                visibleNow = true;
+            }
+        }
 
         if (visibleNow) {
             if (currentTarget != lastTargetEntity) {
@@ -37,7 +46,7 @@ public class TargetRender extends ConfigurableModule {
         }
 
         if (lastTargetEntity != null) {
-            if (currentTime - lastTargetUpdateTime > (lastTargetEntity.isInvisible() ? 0 : CONFIG.targetRenderLiveTime * 1000L)
+            if (currentTime - lastTargetUpdateTime > CONFIG.targetRenderLiveTime * 1000L
                     || lastTargetEntity.isRemoved()) {
                 lastTargetEntity = null;
                 return false;
@@ -47,7 +56,6 @@ public class TargetRender extends ConfigurableModule {
                 return false;
             }
 
-            // Повторная проверка: если цель сохранилась, но она не игрок — удалить
             if (CONFIG.targetRenderOnlyPlayers && !(lastTargetEntity instanceof PlayerEntity)) {
                 lastTargetEntity = null;
                 return false;
@@ -55,6 +63,13 @@ public class TargetRender extends ConfigurableModule {
         }
 
         return lastTargetEntity != null;
+    }
+
+    private static boolean hasAnyArmor(LivingEntity entity) {
+        return !entity.getEquippedStack(EquipmentSlot.HEAD).isEmpty()
+                || !entity.getEquippedStack(EquipmentSlot.CHEST).isEmpty()
+                || !entity.getEquippedStack(EquipmentSlot.LEGS).isEmpty()
+                || !entity.getEquippedStack(EquipmentSlot.FEET).isEmpty();
     }
 
     public static void renderTarget(WorldRenderContext context) {

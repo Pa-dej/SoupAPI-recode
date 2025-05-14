@@ -2,7 +2,6 @@ package me.Padej_.soupapi.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.Padej_.soupapi.config.ConfigurableModule;
-import me.Padej_.soupapi.font.FontRenderer;
 import me.Padej_.soupapi.font.FontRenderers;
 import me.Padej_.soupapi.particle.Particle2D;
 import me.Padej_.soupapi.reduce.ModuleSupressor;
@@ -450,7 +449,6 @@ public class TargetHudRenderer extends ConfigurableModule {
     }
 
 
-
     public static void renderAlt_1_HUD(DrawContext context, float normalizedDelta, float health, float animationFactor, PlayerEntity target, int x, int y, Vec3d screenPos) {
         float hurtPercent = (Render2D.interpolateFloat(MathUtility.clamp(target.hurtTime == 0 ? 0 : target.hurtTime + 1, 0, 10), target.hurtTime, normalizedDelta)) / 8f;
 
@@ -519,7 +517,7 @@ public class TargetHudRenderer extends ConfigurableModule {
         int barX = x - 2;
         int barY = y + 27;
         int barHeight = 2;
-        float healthBarWidth = 86;
+        float healthBarWidth = 84;
         int innerBarWidth = (int) MathUtility.clamp((healthBarWidth * (health / target.getMaxHealth())), 8, healthBarWidth);
         Color background = new Color(0x424242);
 
