@@ -2,6 +2,7 @@ package me.Padej_.soupapi.mixin.modifyReturnValue;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.authlib.GameProfile;
+import me.Padej_.soupapi.modules.Capes;
 import me.Padej_.soupapi.utils.EntityUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -26,8 +27,6 @@ import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static me.Padej_.soupapi.config.ConfigurableModule.CONFIG;
 
 @Mixin(value = AbstractClientPlayerEntity.class, priority = 20000)
 public abstract class CapeTextureChanger extends PlayerEntity {
@@ -79,22 +78,22 @@ public abstract class CapeTextureChanger extends PlayerEntity {
     private static Identifier getDirCape() {
         MinecraftClient client = MinecraftClient.getInstance();
 
-        if (CONFIG.customCapesEnabled && CONFIG.customCapesLink != null && !CONFIG.customCapesLink.isEmpty()) {
-            String url = CONFIG.customCapesLink;
-            String idString = "custom_cape_" + url.hashCode();
+        String linkValue = Capes.link.getValue();
+        if (Capes.useCustom.getValue() && linkValue != null && !linkValue.isEmpty()) {
+            String idString = "custom_cape_" + linkValue.hashCode();
             Identifier textureId = Identifier.of("soupapi", idString);
 
             // Не возвращаем, если кап не загружен
-            if (!Boolean.TRUE.equals(loadedCapes.get(url))) {
-                if (!loadedCapes.containsKey(url)) {
+            if (!Boolean.TRUE.equals(loadedCapes.get(linkValue))) {
+                if (!loadedCapes.containsKey(linkValue)) {
                     // Асинхронная загрузка, только один раз
-                    loadedCapes.put(url, false); // ставим флаг, что начали загрузку
+                    loadedCapes.put(linkValue, false); // ставим флаг, что начали загрузку
 
                     new Thread(() -> {
                         try {
-                            BufferedImage image = ImageIO.read(new URL(url));
+                            BufferedImage image = ImageIO.read(new URL(linkValue));
                             if (image == null) {
-                                System.err.println("ImageIO.read вернул null для URL: " + url);
+                                System.err.println("ImageIO.read вернул null для URL: " + linkValue);
                                 return;
                             }
 
@@ -103,16 +102,12 @@ public abstract class CapeTextureChanger extends PlayerEntity {
                             byte[] data = baos.toByteArray();
 
                             NativeImage nativeImage = NativeImage.read(new ByteArrayInputStream(data));
-                            if (nativeImage == null) {
-                                System.err.println("NativeImage оказался null при чтении из байтов");
-                                return;
-                            }
 
                             NativeImageBackedTexture texture = new NativeImageBackedTexture(nativeImage);
 
                             client.execute(() -> {
                                 client.getTextureManager().registerTexture(textureId, texture);
-                                loadedCapes.put(url, true); // загружено
+                                loadedCapes.put(linkValue, true); // загружено
                                 System.out.println("Плащ загружен: " + textureId);
                             });
 
@@ -129,9 +124,8 @@ public abstract class CapeTextureChanger extends PlayerEntity {
             return textureId; // всё загружено
         }
 
-        // Фоллбэк: обычный плащ
-        Identifier cape = CONFIG.capesTexture.getTexturePath();
-        if (CONFIG.capesEnabled && client.getResourceManager().getResource(cape).isPresent()) {
+        Identifier cape = Capes.cape.getValue().getTexturePath();
+        if (Capes.enabled.getValue() && client.getResourceManager().getResource(cape).isPresent()) {
             return cape;
         }
 

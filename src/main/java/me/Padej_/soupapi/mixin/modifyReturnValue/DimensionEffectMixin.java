@@ -1,6 +1,7 @@
 package me.Padej_.soupapi.mixin.modifyReturnValue;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import me.Padej_.soupapi.modules.CustomFog;
 import me.Padej_.soupapi.utils.Palette;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.DimensionEffects;
@@ -17,19 +18,19 @@ public class DimensionEffectMixin {
 
     @ModifyReturnValue(method = "isSunRisingOrSetting", at = @At("RETURN"))
     private boolean isSunRisingOrSetting(boolean original) {
-        return !CONFIG.customFogEnabled && original;
+        return !CustomFog.enabled.getValue() && original;
     }
 
     @ModifyReturnValue(method = "adjustFogColor", at = @At("RETURN"))
     private Vec3d adjustFogColor(Vec3d original) {
         Color color = Palette.getColor(0);
         Vec3d newColor = new Vec3d(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f);
-        return CONFIG.customFogEnabled ? newColor : original;
+        return CustomFog.enabled.getValue() ? newColor : original;
     }
 
     @ModifyReturnValue(method = "useThickFog", at = @At("RETURN"))
     private boolean adjustFogColor(boolean original) {
-        if (CONFIG.customFogThick && CONFIG.customFogEnabled) {
+        if (CustomFog.thick.getValue() && CustomFog.enabled.getValue()) {
             return true;
         } else {
             return original;
@@ -51,6 +52,6 @@ public class DimensionEffectMixin {
 
 //    @ModifyReturnValue(method = "getSkyType", at = @At("RETURN"))
 //    private DimensionEffects.SkyType getSkyType(DimensionEffects.SkyType original) {
-//        return CONFIG.customFogEnabled ? DimensionEffects.SkyType.END : original;
+//        return CustomFog.enabled.getValue() ? DimensionEffects.SkyType.END : original;
 //    }
 }

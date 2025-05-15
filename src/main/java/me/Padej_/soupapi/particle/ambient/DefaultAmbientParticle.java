@@ -30,7 +30,7 @@ public class DefaultAmbientParticle {
 
     public DefaultAmbientParticle(float posX, float posY, float posZ, float motionX, float motionY, float motionZ) {
         this.texture = AVAILABLE_TEXTURES.get(new Random().nextInt(AVAILABLE_TEXTURES.size()));
-        this.color = CONFIG.ambientParticlesRandomColor ? Palette.getRandomColor() : TargetHudRenderer.topLeft;
+        this.color = AmbientParticle.useRandomColor.getValue() ? Palette.getRandomColor() : TargetHudRenderer.topLeft;
         this.posX = posX;
         this.posY = posY;
         this.posZ = posZ;
@@ -60,7 +60,7 @@ public class DefaultAmbientParticle {
         posZ += motionZ;
 
         motionX *= 0.9f;
-        if (CONFIG.ambientParticlesPhysic.equals(AmbientParticle.Physics.FALL)) {
+        if (AmbientParticle.physic.getValue().equals(AmbientParticle.Physics.FALL)) {
             motionY *= 0.9f;
         }
         motionZ *= 0.9f;
@@ -84,7 +84,7 @@ public class DefaultAmbientParticle {
         int alpha = (int) (255 * ((float) age / (float) maxAge));
         Color withAlpha = Render2D.injectAlpha(color, alpha);
 
-        Render2D.drawGlyphs(matrices, texture, withAlpha, CONFIG.ambientParticlesDefaultParticleScale / 100f);
+        Render2D.drawGlyphs(matrices, texture, withAlpha, AmbientParticle.particleScale.getValue() / 100f);
     }
 
     private static Vec3d interpolatePos(WorldRenderContext context, float prevPosX, float prevPosY, float prevPosZ, float posX, float posY, float posZ) {

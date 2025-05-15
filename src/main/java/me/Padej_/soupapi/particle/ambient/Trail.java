@@ -1,5 +1,6 @@
 package me.Padej_.soupapi.particle.ambient;
 
+import me.Padej_.soupapi.modules.AmbientParticle;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.Vec3d;
 
@@ -17,7 +18,7 @@ public class Trail {
     public Trail(Vec3d from, Vec3d to, Color color) {
         this.from = from;
         this.to = to;
-        this.ticks = CONFIG.ambientParticlesParticleWithTrailLenght;
+        this.ticks = AmbientParticle.trailLenght.getValue().intValue();
         this.color = color;
     }
 

@@ -1,9 +1,25 @@
 package me.Padej_.soupapi.modules;
 
-import me.Padej_.soupapi.config.ConfigurableModule;
+import me.Padej_.soupapi.SoupModule;
+import me.Padej_.soupapi.screen.CapeSelectScreen;
+import me.Padej_.soupapi.settings.impl.BooleanSetting;
+import me.Padej_.soupapi.settings.impl.ButtonSetting;
+import me.Padej_.soupapi.settings.impl.EnumSetting;
+import me.Padej_.soupapi.settings.impl.StringSetting;
 import net.minecraft.util.Identifier;
 
-public class Capes extends ConfigurableModule {
+public class Capes extends SoupModule {
+    public static BooleanSetting enabled = new BooleanSetting("Enabled", "desc", false);
+    @SuppressWarnings("unused")
+    public static ButtonSetting capeSelectButton = new ButtonSetting("Select Cape", "desc", () -> mc.setScreen(new CapeSelectScreen()));
+    public static final EnumSetting<CapeTextures> cape = new EnumSetting<>("Cape", "description", CapeTextures.CUSTOM_JAVA, CapeTextures.class);
+
+    public static BooleanSetting useCustom = new BooleanSetting("Custom", "desc", false);
+    public static StringSetting link = new StringSetting("Link", "dessdas", "https://static.wikia.nocookie.net/minecraft_gamepedia/images/8/86/MINECON_2019_Cape_%28texture%29.png/revision/latest?cb=20220316113812");
+
+    public Capes() {
+        super("Capes", Category.OTHER);
+    }
 
     public enum Config {
         SELECT_CAPE, UPDATE_CAPE

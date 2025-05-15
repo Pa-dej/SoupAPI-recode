@@ -1,5 +1,6 @@
 package me.Padej_.soupapi.particle.ambient;
 
+import me.Padej_.soupapi.modules.AmbientParticle;
 import me.Padej_.soupapi.render.Render2D;
 import me.Padej_.soupapi.render.TargetHudRenderer;
 import me.Padej_.soupapi.utils.Palette;
@@ -71,7 +72,7 @@ public class FireFly extends DefaultAmbientParticle {
                 int alpha = (int) (255 * ((float) age / (float) maxAge) * alphaFactor);
                 Color withAlpha = Render2D.injectAlpha(ctx.color(), alpha);
 
-                Render2D.drawGlyphs(matrices, TexturesManager.FIREFLY, withAlpha, CONFIG.ambientParticlesParticleWithTrailScale / 100f);
+                Render2D.drawGlyphs(matrices, TexturesManager.FIREFLY, withAlpha, AmbientParticle.particlesWithTrailScale.getValue() / 100f);
             }
         }
     }

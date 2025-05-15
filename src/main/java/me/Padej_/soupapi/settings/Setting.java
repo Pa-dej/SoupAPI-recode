@@ -1,7 +1,9 @@
 package me.Padej_.soupapi.settings;
 
+import java.util.Locale;
+
 public class Setting<T> {
-    private final String name;
+    protected String name;
     private final String description;
     private final T defaultValue;
     private T value;
@@ -35,6 +37,14 @@ public class Setting<T> {
 
     public void reset() {
         this.value = defaultValue;
+    }
+
+    public String getTranslationKey() {
+        return "soupapi.setting." + name.toLowerCase(Locale.ROOT).replace(" ", "_");
+    }
+
+    public String getDescriptionKey() {
+        return getTranslationKey() + ".description";
     }
 }
 

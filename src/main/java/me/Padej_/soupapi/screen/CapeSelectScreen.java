@@ -1,5 +1,6 @@
 package me.Padej_.soupapi.screen;
 
+import me.Padej_.soupapi.config.ConfigManager;
 import me.Padej_.soupapi.modules.Capes;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -49,7 +50,7 @@ public class CapeSelectScreen extends Screen {
 
                     drawTexture(context, texture, textureX, textureY);
 
-                    if (cape == CONFIG.capesTexture) {
+                    if (cape == Capes.cape.getValue()) {
                         context.drawBorder(textureX - BORDER_SIZE, textureY - BORDER_SIZE, TEXTURE_RENDER_WIDTH + BORDER_SIZE * 2, TEXTURE_RENDER_HEIGHT + BORDER_SIZE * 2, 0xFF00FFFF);
                         context.drawBorder(textureX - BORDER_SIZE - 1, textureY - BORDER_SIZE - 1, 2 + TEXTURE_RENDER_WIDTH + BORDER_SIZE * 2, 2 + TEXTURE_RENDER_HEIGHT + BORDER_SIZE * 2, 0xFF00FFFF);
                     }
@@ -88,8 +89,8 @@ public class CapeSelectScreen extends Screen {
             for (Capes.CapeTextures cape : Capes.CapeTextures.values()) {
                 if (cape.name().startsWith(category)) {
                     if (isMouseOverTexture((int) mouseX, (int) mouseY, textureX, textureY)) {
-                        CONFIG.capesTexture = cape;
-                        saveConfig();
+                        Capes.cape.setValue(cape);
+                        ConfigManager.saveConfig();
                         return true;
                     }
 

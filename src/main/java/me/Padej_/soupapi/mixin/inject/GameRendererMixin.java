@@ -60,10 +60,10 @@ public abstract class GameRendererMixin {
 
     @Inject(method = "getBasicProjectionMatrix", at = @At("TAIL"), cancellable = true)
     public void getBasicProjectionMatrixHook(float fovDegrees, CallbackInfoReturnable<Matrix4f> cir) {
-        if (!CONFIG.aspectRatioEnabled) return;
+        if (!AspectRatio.enabled.getValue()) return;
         MatrixStack matrixStack = new MatrixStack();
         matrixStack.peek().getPositionMatrix().identity();
-        float factor = CONFIG.aspectRatioUsePreset ? AspectRatio.getRatioByPreset() : CONFIG.aspectRatioFactor / 100f;
+        float factor = AspectRatio.getRatioByPreset();
         if (zoom != 1.0f) {
             matrixStack.translate(zoomX, -zoomY, 0.0f);
             matrixStack.scale(zoom, zoom, 1.0f);

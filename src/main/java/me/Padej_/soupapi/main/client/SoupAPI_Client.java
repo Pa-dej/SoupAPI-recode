@@ -1,5 +1,7 @@
 package me.Padej_.soupapi.main.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import me.Padej_.soupapi.config.ConfigManager;
 import me.Padej_.soupapi.config.ConfigurableModule;
 import me.Padej_.soupapi.config.SoupAPI_Config;
 import me.Padej_.soupapi.gui.SoupSettingsScreen;
@@ -17,13 +19,14 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 public class SoupAPI_Client implements ClientModInitializer {
@@ -40,6 +43,7 @@ public class SoupAPI_Client implements ClientModInitializer {
 
         registerOnHit();
         Translator.loadCache();
+        ConfigManager.loadConfig();
     }
 
     private void renderHud(DrawContext context, RenderTickCounter tickCounter) {
@@ -48,8 +52,7 @@ public class SoupAPI_Client implements ClientModInitializer {
         MouseMove.render(context);
     }
 
-    private void doEndClientTick(MinecraftClient client) {
-        EntityUtils.updateEntities(client);
+    private void doEndClientTick(MinecraftClient client) {EntityUtils.updateEntities(client);
         OverlayReloadListener.callEvent();
 
         Trails.onTick();
@@ -75,6 +78,7 @@ public class SoupAPI_Client implements ClientModInitializer {
                 parent = currentScreen;
             }
             client.setScreen(AutoConfig.getConfigScreen(SoupAPI_Config.class, parent).get());
+            client.setScreen(new SoupSettingsScreen());
         }
         if (client.options.sprintKey.isPressed()){
 //            client.setScreen(new TestRenderer());

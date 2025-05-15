@@ -59,9 +59,9 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "renderArmor", at = @At("HEAD"), cancellable = true)
     private static void renderArmor(DrawContext context, PlayerEntity player, int i, int j, int k, int x, CallbackInfo ci) {
-        boolean isLBStyle = CONFIG.hudBetterHotbarStyle.equals(BetterHudStyles.HotbarStyle.SIMPLE);
+        boolean isLBStyle = BetterHudStyles.betterHotbarStyle.getValue().equals(BetterHudStyles.HotbarStyle.SIMPLE);
 
-        if (!CONFIG.hudBetterHotbarEnabled) return;
+        if (!BetterHudStyles.betterHotbar.getValue()) return;
         ci.cancel();
 
         Color c1Base = Palette.getColor(0f);
@@ -163,7 +163,7 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "render", at = @At("TAIL"))
     private void doFrame(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        if (!CONFIG.hudBetterHotbarEnabled) return;
+        if (!BetterHudStyles.betterHotbar.getValue()) return;
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
 
@@ -204,9 +204,9 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "renderFood", at = @At("HEAD"), cancellable = true)
     private void renderCustomFoodBar(DrawContext context, PlayerEntity player, int top, int right, CallbackInfo ci) {
-        boolean isLBStyle = CONFIG.hudBetterHotbarStyle.equals(BetterHudStyles.HotbarStyle.SIMPLE);
+        boolean isLBStyle = BetterHudStyles.betterHotbarStyle.getValue().equals(BetterHudStyles.HotbarStyle.SIMPLE);
 
-        if (!CONFIG.hudBetterHotbarEnabled) return;
+        if (!BetterHudStyles.betterHotbar.getValue()) return;
         ci.cancel();
 
         float maxHunger = 40.0f;
@@ -242,9 +242,9 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "renderAirBubbles", at = @At("HEAD"), cancellable = true)
     private void renderAirBubbles(DrawContext context, PlayerEntity player, int heartCount, int top, int left, CallbackInfo ci) {
-        boolean isLBStyle = CONFIG.hudBetterHotbarStyle.equals(BetterHudStyles.HotbarStyle.SIMPLE);
+        boolean isLBStyle = BetterHudStyles.betterHotbarStyle.getValue().equals(BetterHudStyles.HotbarStyle.SIMPLE);
 
-        if (!CONFIG.hudBetterHotbarEnabled) return;
+        if (!BetterHudStyles.betterHotbar.getValue()) return;
         ci.cancel();
 
         float maxAir = player.getMaxAir();
@@ -284,9 +284,9 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "renderHealthBar", at = @At("HEAD"), cancellable = true)
     private void renderCustomHPBar(DrawContext context, PlayerEntity player, int x, int y, int lines, int regeneratingHeartIndex, float maxHealth, int lastHealth, int health, int absorption, boolean blinking, CallbackInfo ci) {
-        boolean isLBStyle = CONFIG.hudBetterHotbarStyle.equals(BetterHudStyles.HotbarStyle.SIMPLE);
+        boolean isLBStyle = BetterHudStyles.betterHotbarStyle.getValue().equals(BetterHudStyles.HotbarStyle.SIMPLE);
 
-        if (!CONFIG.hudBetterHotbarEnabled) return;
+        if (!BetterHudStyles.betterHotbar.getValue()) return;
         ci.cancel();
 
         Color c1Base = Palette.getColor(0f);
@@ -321,7 +321,7 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "renderExperienceBar", at = @At("HEAD"), cancellable = true)
     private void cancelRenderExperienceBar(DrawContext context, int x, CallbackInfo ci) {
-        if (!CONFIG.hudBetterHotbarEnabled) return;
+        if (!BetterHudStyles.betterHotbar.getValue()) return;
         Profilers.get().push("expBar");
 
         PlayerEntity player = this.client.player;
@@ -356,7 +356,7 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "renderExperienceLevel", at = @At("HEAD"), cancellable = true)
     private void cancelRenderExperienceNumber(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        if (!CONFIG.hudBetterHotbarEnabled) return;
+        if (!BetterHudStyles.betterHotbar.getValue()) return;
         int i = client.player.experienceLevel;
         if (this.shouldRenderExperience() && i > 0) {
             Profilers.get().push("expLevel");
@@ -371,8 +371,8 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "renderHotbar", at = @At("HEAD"), cancellable = true)
     private void renderHotbar(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        if (!CONFIG.hudBetterHotbarEnabled) return;
-        boolean isLBStyle = CONFIG.hudBetterHotbarStyle.equals(BetterHudStyles.HotbarStyle.SIMPLE);
+        if (!BetterHudStyles.betterHotbar.getValue()) return;
+        boolean isLBStyle = BetterHudStyles.betterHotbarStyle.getValue().equals(BetterHudStyles.HotbarStyle.SIMPLE);
         ci.cancel();
         int yOffset = 4;
         PlayerEntity player = getCameraPlayer();
@@ -411,7 +411,7 @@ public abstract class InGameHudMixin {
         }
 
         float animatedX;
-        if (CONFIG.hudBetterHotbarSmooth) {
+        if (BetterHudStyles.betterHotbarSmoothScroll.getValue()) {
             float startX = halfWidth - 90 + (lastSelectedSlot * 20);
             float targetX = halfWidth - 90 + (targetSlot * 20);
             animatedX = MathHelper.lerp(selectedSlotProgress, startX, targetX);
@@ -437,7 +437,7 @@ public abstract class InGameHudMixin {
         }
 
         int dummy = 1;
-        if (CONFIG.hudBetterHotbarShowArmor) {
+        if (BetterHudStyles.betterHotbarArmor.getValue()) {
             Iterable<ItemStack> armorItems = player.getArmorItems();
             ItemStack[] armorArray = new ItemStack[4];
             int armorIndex = 0;
@@ -497,7 +497,7 @@ public abstract class InGameHudMixin {
 
     @Inject(method = "renderHotbarItem", at = @At("HEAD"), cancellable = true)
     private void renderHotbarItem(DrawContext context, int x, int y, RenderTickCounter tickCounter, PlayerEntity player, ItemStack stack, int seed, CallbackInfo ci) {
-        if (!CONFIG.hudBetterHotbarEnabled) return;
+        if (!BetterHudStyles.betterHotbar.getValue()) return;
         ci.cancel();
 
         int yOffset = 1;
